@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1519751994 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTC.cpp
+1519754787 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTC.cpp
 	"BTC.h"
 	"math.h"
 	"string.h"
@@ -23,7 +23,7 @@
 	"Matrix.h"
 	"NormalDist.h"
 
-1514491155 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Vector.h
+1519755674 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Vector.h
 	<iostream>
 	<vector>
 	"QuickSort.h"
@@ -52,7 +52,7 @@
 	<vector>
 	<string>
 
-1519411716 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTCSet.cpp
+1519755230 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTCSet.cpp
 	"BTCSet.h"
 	"string.h"
 	<fstream>
@@ -90,7 +90,7 @@
 	"StringOP.h"
 	"gsl/gsl_cdf.h"
 
-1519749801 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.cpp
+1519769079 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.cpp
 	"Grid.h"
 	"StringOP.h"
 	"NormalDist.h"
@@ -100,7 +100,7 @@
 	<QCursor>
 	<sys/resource.h>
 
-1519679422 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.h
+1519769069 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.h
 	<vector>
 	"Matrix.h"
 	"Vector.h"
@@ -112,6 +112,7 @@
 	"vtk.h"
 	"PathwaySet.h"
 	"_command.h"
+	"StringOP.h"
 	"qtextbrowser.h"
 
 1514491155 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Matrix_arma_sp.h
@@ -1071,7 +1072,7 @@
 	<string>
 	<BTCSet.h>
 
-1519415888 /home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Position.h
+1519755696 /home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Position.h
 	"Vector.h"
 
 1514491155 /home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/_command.h
@@ -1143,12 +1144,13 @@
 	<locale>
 	<sstream>
 
-1514491155 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Vector.cpp
+1519757783 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Vector.cpp
 	"Vector.h"
 	"math.h"
 	"Matrix.h"
 	<cfloat>
 	"Vector_arma.h"
+	"StringOP.h"
 
 1514491155 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Vector_arma.cpp
 	"Vector_arma.h"
@@ -1162,7 +1164,7 @@
 	"_command.h"
 	"StringOP.h"
 
-1519683874 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/main.cpp
+1519755753 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/main.cpp
 	"heteval.h"
 	<QtWidgets/QApplication>
 	<sys/resource.h>
@@ -1175,13 +1177,14 @@
 	<fstream>
 	"gsl/gsl_cdf.h"
 
-1519749780 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/PathwaySet.cpp
+1519755731 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/PathwaySet.cpp
 	"PathwaySet.h"
 	"StringOP.h"
 	"Grid.h"
 
-1518642883 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Position.cpp
+1519755963 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Position.cpp
 	"Position.h"
+	"StringOP.h"
 
 1513960405 /usr/local/include/vtk-8.1/vtkPolyDataAlgorithm.h
 	"vtkCommonExecutionModelModule.h"
@@ -1661,7 +1664,7 @@
 	"vtkFiltersCoreModule.h"
 	"vtkPolyDataAlgorithm.h"
 
-1519749331 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Plots.cpp
+1519769448 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Plots.cpp
 	"Grid.h"
 	<qapplication.h>
 	<qmainwindow.h>
