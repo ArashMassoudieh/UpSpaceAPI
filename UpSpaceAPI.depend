@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1519411669 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTC.cpp
+1519751994 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTC.cpp
 	"BTC.h"
 	"math.h"
 	"string.h"
@@ -9,7 +9,7 @@
 	"NormalDist.h"
 	<qdebug.h>
 
-1519416611 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTC.h
+1519677454 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/BTC.h
 	<string>
 	<vector>
 	"QuickSort.h"
@@ -90,7 +90,7 @@
 	"StringOP.h"
 	"gsl/gsl_cdf.h"
 
-1519416316 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.cpp
+1519749801 source:/home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.cpp
 	"Grid.h"
 	"StringOP.h"
 	"NormalDist.h"
@@ -100,7 +100,7 @@
 	<QCursor>
 	<sys/resource.h>
 
-1519416233 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.h
+1519679422 /home/arash/Projects/SpaMarkovMod/2D_Laplace/2D_Laplace/Grid.h
 	<vector>
 	"Matrix.h"
 	"Vector.h"
@@ -1058,7 +1058,7 @@
 	"vtkCommonDataModelModule.h"
 	"vtkCell.h"
 
-1518642671 /home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/PathwaySet.h
+1519752273 /home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/PathwaySet.h
 	"Pathway.h"
 	<vector>
 	<string>
@@ -1162,22 +1162,521 @@
 	"_command.h"
 	"StringOP.h"
 
-1519415428 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/main.cpp
+1519683874 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/main.cpp
 	"heteval.h"
 	<QtWidgets/QApplication>
 	<sys/resource.h>
+	<iostream>
+	"Grid.h"
 
-1514491155 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Pathway.cpp
+1519686253 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Pathway.cpp
 	"Pathway.h"
 	<iostream>
 	<fstream>
 	"gsl/gsl_cdf.h"
 
-1519249817 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/PathwaySet.cpp
+1519749780 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/PathwaySet.cpp
 	"PathwaySet.h"
 	"StringOP.h"
 	"Grid.h"
 
 1518642883 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Position.cpp
 	"Position.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkPolyDataAlgorithm.h
+	"vtkCommonExecutionModelModule.h"
+	"vtkAlgorithm.h"
+	"vtkPolyData.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkCommonExecutionModelModule.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkAlgorithm.h
+	"vtkCommonExecutionModelModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkObject.h
+	"vtkCommonCoreModule.h"
+	"vtkObjectBase.h"
+	"vtkSetGet.h"
+	"vtkTimeStamp.h"
+	"vtkWeakPointerBase.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkCommonCoreModule.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkObjectBase.h
+	"vtkCommonCoreModule.h"
+	"vtkIndent.h"
+	"vtkSystemIncludes.h"
+	"vtkAtomicTypes.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkIndent.h
+	"vtkCommonCoreModule.h"
+	"vtkSystemIncludes.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkSystemIncludes.h
+	"vtkWin32Header.h"
+	"vtkIOStreamFwd.h"
+	"vtkIOStream.h"
+	"vtkType.h"
+	"vtkWrappingHints.h"
+	"vtkOStreamWrapper.h"
+	"vtkOStrStreamWrapper.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<mem.h>
+	<search.h>
+
+1513960405 /usr/local/include/vtk-8.1/vtkWin32Header.h
+	"vtkConfigure.h"
+	"vtkABI.h"
+	<windows.h>
+
+1518626484 /usr/local/include/vtk-8.1/vtkConfigure.h
+	"vtkVersionMacros.h"
+
+1518626484 /usr/local/include/vtk-8.1/vtkVersionMacros.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkABI.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkIOStreamFwd.h
+	"vtkConfigure.h"
+	<iosfwd>
+
+1513960405 /usr/local/include/vtk-8.1/vtkIOStream.h
+	"vtkConfigure.h"
+	<iostream>
+	<fstream>
+	<iomanip>
+
+1513960405 /usr/local/include/vtk-8.1/vtkType.h
+	"vtkConfigure.h"
+	"vtk_kwiml.h"
+	"stdbool.h"
+
+1518626481 /usr/local/include/vtk-8.1/vtk_kwiml.h
+	"vtkkwiml/abi.h"
+	"vtkkwiml/int.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkkwiml/abi.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkkwiml/int.h
+	"abi.h"
+	<stdint.h>
+	<inttypes.h>
+
+1513960405 /usr/local/include/vtk-8.1/vtkWrappingHints.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkOStreamWrapper.h
+	"vtkCommonCoreModule.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkOStrStreamWrapper.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkAtomicTypes.h
+	"vtkAtomic.h"
+	"vtkType.h"
+
+1518626484 /usr/local/include/vtk-8.1/vtkAtomic.h
+	"vtkCommonCoreModule.h"
+	"vtkAtomicTypeConcepts.h"
+	"vtkConfigure.h"
+	"vtkSystemIncludes.h"
+	"vtkType.h"
+	<cstddef>
+	<libkern/OSAtomic.h>
+
+1513960405 /usr/local/include/vtk-8.1/vtkAtomicTypeConcepts.h
+	<limits>
+
+1513960405 /usr/local/include/vtk-8.1/vtkSetGet.h
+	"vtkCommonCoreModule.h"
+	"vtkSystemIncludes.h"
+	<math.h>
+	<typeinfo>
+
+1513960405 /usr/local/include/vtk-8.1/vtkTimeStamp.h
+	"vtkCommonCoreModule.h"
+	"vtkSystemIncludes.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkWeakPointerBase.h
+	"vtkCommonCoreModule.h"
+	"vtkObjectBase.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkPolyData.h
+	"vtkCommonDataModelModule.h"
+	"vtkPointSet.h"
+	"vtkCellTypes.h"
+	"vtkCellLinks.h"
+	"vtkCellArray.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkCommonDataModelModule.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkPointSet.h
+	"vtkCommonDataModelModule.h"
+	"vtkDataSet.h"
+	"vtkPoints.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkDataSet.h
+	"vtkCommonDataModelModule.h"
+	"vtkDataObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkDataObject.h
+	"vtkCommonDataModelModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkPoints.h
+	"vtkCommonCoreModule.h"
+	"vtkObject.h"
+	"vtkDataArray.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkDataArray.h
+	"vtkCommonCoreModule.h"
+	"vtkAbstractArray.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkAbstractArray.h
+	"vtkCommonCoreModule.h"
+	"vtkObject.h"
+	"vtkVariant.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkVariant.h
+	"vtkCommonCoreModule.h"
+	"vtkType.h"
+	"vtkSystemIncludes.h"
+	"vtkSetGet.h"
+	"vtkStdString.h"
+	"vtkUnicodeString.h"
+	"vtkVariantInlineOperators.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkStdString.h
+	"vtkCommonCoreModule.h"
+	"vtkSystemIncludes.h"
+	<string>
+
+1513960405 /usr/local/include/vtk-8.1/vtkUnicodeString.h
+	"vtkCommonCoreModule.h"
+	"vtkSystemIncludes.h"
+	<string>
+	<vector>
+
+1513960405 /usr/local/include/vtk-8.1/vtkVariantInlineOperators.h
+	<climits>
+
+1513960405 /usr/local/include/vtk-8.1/vtkCellTypes.h
+	"vtkCommonDataModelModule.h"
+	"vtkObject.h"
+	"vtkIntArray.h"
+	"vtkIdTypeArray.h"
+	"vtkUnsignedCharArray.h"
+	"vtkCellType.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkIntArray.h
+	"vtkCommonCoreModule.h"
+	"vtkDataArray.h"
+	"vtkAOSDataArrayTemplate.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkAOSDataArrayTemplate.h
+	"vtkCommonCoreModule.h"
+	"vtkGenericDataArray.h"
+	"vtkBuffer.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkGenericDataArray.h
+	"vtkDataArray.h"
+	"vtkSmartPointer.h"
+	"vtkTypeTraits.h"
+	"vtkGenericDataArrayLookupHelper.h"
+	<cassert>
+	"vtkGenericDataArray.txx"
+
+1513960405 /usr/local/include/vtk-8.1/vtkSmartPointer.h
+	"vtkSmartPointerBase.h"
+	"vtkNew.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkSmartPointerBase.h
+	"vtkCommonCoreModule.h"
+	"vtkObjectBase.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkNew.h
+	"vtkIOStream.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkTypeTraits.h
+	"vtkSystemIncludes.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkGenericDataArrayLookupHelper.h
+	<algorithm>
+	<cmath>
+	"vtkIdList.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkIdList.h
+	"vtkCommonCoreModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkGenericDataArray.txx
+	"vtkGenericDataArray.h"
+	"vtkIdList.h"
+	"vtkMath.h"
+	"vtkVariantCast.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkMath.h
+	"vtkCommonCoreModule.h"
+	"vtkObject.h"
+	"vtkTypeTraits.h"
+	"vtkSmartPointer.h"
+	"vtkMathConfigure.h"
+	<cassert>
+
+1518626485 /usr/local/include/vtk-8.1/vtkMathConfigure.h
+	<cmath>
+	<float.h>
+
+1513960405 /usr/local/include/vtk-8.1/vtkVariantCast.h
+	"vtkUnicodeString.h"
+	<typeinfo>
+
+1513960405 /usr/local/include/vtk-8.1/vtkBuffer.h
+	"vtkObject.h"
+	"vtkObjectFactory.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkObjectFactory.h
+	"vtkDebugLeaksManager.h"
+	"vtkCommonCoreModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkDebugLeaksManager.h
+	"vtkCommonCoreModule.h"
+	"vtkSystemIncludes.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkIdTypeArray.h
+	"vtkCommonCoreModule.h"
+	"vtkDataArray.h"
+	"vtkAOSDataArrayTemplate.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkUnsignedCharArray.h
+	"vtkCommonCoreModule.h"
+	"vtkDataArray.h"
+	"vtkAOSDataArrayTemplate.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkCellType.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkCellLinks.h
+	"vtkCommonDataModelModule.h"
+	"vtkAbstractCellLinks.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkAbstractCellLinks.h
+	"vtkCommonDataModelModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkCellArray.h
+	"vtkCommonDataModelModule.h"
+	"vtkObject.h"
+	"vtkIdTypeArray.h"
+	"vtkCell.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkCell.h
+	"vtkCommonDataModelModule.h"
+	"vtkObject.h"
+	"vtkIdList.h"
+	"vtkCellType.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkSliderWidget.h
+	"vtkInteractionWidgetsModule.h"
+	"vtkAbstractWidget.h"
+
+1518626496 /usr/local/include/vtk-8.1/vtkInteractionWidgetsModule.h
+	"vtkFiltersGeneralModule.h"
+	"vtkRenderingCoreModule.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkFiltersGeneralModule.h
+	"vtkFiltersCoreModule.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkFiltersCoreModule.h
+	"vtkAutoInit.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkAutoInit.h
+	"vtkDebugLeaksManager.h"
+	"vtkTimeStamp.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkRenderingCoreModule.h
+	"vtkFiltersCoreModule.h"
+	"vtkAutoInit.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkAbstractWidget.h
+	"vtkInteractionWidgetsModule.h"
+	"vtkInteractorObserver.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkInteractorObserver.h
+	"vtkRenderingCoreModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkSliderRepresentation.h
+	"vtkInteractionWidgetsModule.h"
+	"vtkWidgetRepresentation.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkWidgetRepresentation.h
+	"vtkInteractionWidgetsModule.h"
+	"vtkProp.h"
+	"vtkWeakPointer.h"
+	"vtkNew.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkProp.h
+	"vtkRenderingCoreModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkWeakPointer.h
+	"vtkWeakPointerBase.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkSliderRepresentation3D.h
+	"vtkInteractionWidgetsModule.h"
+	"vtkSliderRepresentation.h"
+	"vtkCoordinate.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkCoordinate.h
+	"vtkRenderingCoreModule.h"
+	"vtkObject.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkImageAlgorithm.h
+	"vtkCommonExecutionModelModule.h"
+	"vtkAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkContourFilter.h
+	"vtkFiltersCoreModule.h"
+	"vtkPolyDataAlgorithm.h"
+	"vtkContourValues.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkContourValues.h
+	"vtkCommonMiscModule.h"
+	"vtkObject.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkCommonMiscModule.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLImageDataWriter.h
+	"vtkIOXMLModule.h"
+	"vtkXMLStructuredDataWriter.h"
+
+1518626490 /usr/local/include/vtk-8.1/vtkIOXMLModule.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLStructuredDataWriter.h
+	"vtkIOXMLModule.h"
+	"vtkXMLWriter.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLWriter.h
+	"vtkIOXMLModule.h"
+	"vtkAlgorithm.h"
+	<sstream>
+
+1513960405 /usr/local/include/vtk-8.1/vtkCylinderSource.h
+	"vtkFiltersSourcesModule.h"
+	"vtkPolyDataAlgorithm.h"
+	"vtkCell.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkFiltersSourcesModule.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLPolyDataReader.h
+	"vtkIOXMLModule.h"
+	"vtkXMLUnstructuredDataReader.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLUnstructuredDataReader.h
+	"vtkIOXMLModule.h"
+	"vtkXMLDataReader.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLDataReader.h
+	"vtkIOXMLModule.h"
+	"vtkXMLReader.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLReader.h
+	"vtkIOXMLModule.h"
+	"vtkAlgorithm.h"
+	<string>
+
+1513960405 /usr/local/include/vtk-8.1/vtkAppendPolyData.h
+	"vtkFiltersCoreModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkClipPolyData.h
+	"vtkFiltersCoreModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkCleanPolyData.h
+	"vtkFiltersCoreModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkSphereSource.h
+	"vtkFiltersSourcesModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkCutter.h
+	"vtkFiltersCoreModule.h"
+	"vtkPolyDataAlgorithm.h"
+	"vtkContourValues.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkDelaunay2D.h
+	"vtkFiltersCoreModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkVertexGlyphFilter.h
+	"vtkFiltersGeneralModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLPolyDataWriter.h
+	"vtkIOXMLModule.h"
+	"vtkXMLUnstructuredDataWriter.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkXMLUnstructuredDataWriter.h
+	"vtkIOXMLModule.h"
+	"vtkXMLWriter.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkLineSource.h
+	"vtkFiltersSourcesModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkPNGWriter.h
+	"vtkIOImageModule.h"
+	"vtkImageWriter.h"
+
+1518626496 /usr/local/include/vtk-8.1/vtkIOImageModule.h
+	"vtkAutoInit.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkImageWriter.h
+	"vtkIOImageModule.h"
+	"vtkImageAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkImageCast.h
+	"vtkImagingCoreModule.h"
+	"vtkThreadedImageAlgorithm.h"
+
+1518626486 /usr/local/include/vtk-8.1/vtkImagingCoreModule.h
+
+1513960405 /usr/local/include/vtk-8.1/vtkThreadedImageAlgorithm.h
+	"vtkCommonExecutionModelModule.h"
+	"vtkImageAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkArrowSource.h
+	"vtkFiltersSourcesModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkGlyph2D.h
+	"vtkFiltersCoreModule.h"
+	"vtkGlyph3D.h"
+
+1513960405 /usr/local/include/vtk-8.1/vtkGlyph3D.h
+	"vtkFiltersCoreModule.h"
+	"vtkPolyDataAlgorithm.h"
+
+1519749331 source:/home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Plots.cpp
+	"Grid.h"
+	<qapplication.h>
+	<qmainwindow.h>
+	<qtoolbar.h>
+	<qtoolbutton.h>
+	<qwt_plot.h>
+	<qdebug.h>
+	"heteval.h"
+	"Spectogram.h"
+	"vtk.h"
+	"Pathway.h"
+	"StringOP.h"
+
+1519679240 /home/arash/Projects/SpaMarkovMod/Qt_version/HETEVAL/HETEVAL/Spectogram.h
+	<qwt_plot.h>
+	<qwt_plot_spectrogram.h>
+	"Grid.h"
 
