@@ -1,0 +1,9 @@
+﻿#include "qspectogram.hpp"
+
+QSpectogram::QSpectogram(QObject * parent) : QObject(parent) {
+	
+}
+
+QSpectogram::~QSpectogram() {
+	
+}
