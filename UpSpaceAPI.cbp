@@ -493,10 +493,9 @@
 		<Unit filename="mainsrc/Plots.cpp" />
 		<Unit filename="mainsrc/Position.cpp" />
 		<Unit filename="mainsrc/Position.h" />
-		<Unit filename="mainsrc/Spectogram.cpp" />
-		<Unit filename="mainsrc/Spectogram.h" />
 		<Unit filename="mainsrc/_command.cpp" />
 		<Unit filename="mainsrc/_command.h" />
+		<Unit filename="mainsrc/main.cpp" />
 		<Unit filename="mainsrc/vtk.h" />
 		<Unit filename="utilities/2DMap.cpp" />
 		<Unit filename="utilities/2DMap.h" />
