@@ -3542,7 +3542,7 @@
 	<vector>
 	<string>
 
-1551105720 source:/home/arash/Projects/UpSpaceAPI/mainsrc/Pathway.cpp
+1563647475 source:/home/arash/Projects/UpSpaceAPI/mainsrc/Pathway.cpp
 	"Pathway.h"
 	<iostream>
 	<fstream>
@@ -3766,7 +3766,7 @@
 	<vector>
 	<string>
 
-1551105720 /home/arash/Projects/UpSpaceAPI/utilities/Grid.h
+1563673005 /home/arash/Projects/UpSpaceAPI/utilities/Grid.h
 	<vector>
 	"Matrix.h"
 	"Vector.h"
@@ -3811,7 +3811,7 @@
 	<qwt_plot_spectrogram.h>
 	"Grid.h"
 
-1551105720 source:/home/arash/Projects/UpSpaceAPI/mainsrc/Position.cpp
+1563651731 source:/home/arash/Projects/UpSpaceAPI/mainsrc/Position.cpp
 	"Position.h"
 
 1551105720 source:/home/arash/Projects/UpSpaceAPI/utilities/2DMap.cpp
@@ -3830,7 +3830,7 @@
 	"NormalDist.h"
 	<qdebug.h>
 
-1551105720 source:/home/arash/Projects/UpSpaceAPI/utilities/BTCSet.cpp
+1563678257 source:/home/arash/Projects/UpSpaceAPI/utilities/BTCSet.cpp
 	"BTCSet.h"
 	"string.h"
 	<fstream>
@@ -3857,7 +3857,7 @@
 	"StringOP.h"
 	"gsl/gsl_cdf.h"
 
-1551105720 source:/home/arash/Projects/UpSpaceAPI/utilities/Grid.cpp
+1563673407 source:/home/arash/Projects/UpSpaceAPI/utilities/Grid.cpp
 	"Grid.h"
 	"StringOP.h"
 	"NormalDist.h"
@@ -3940,7 +3940,7 @@
 	<cfloat>
 	"Vector.h"
 
-1551105720 source:/home/arash/Projects/UpSpaceAPI/mainsrc/main.cpp
+1563670554 source:/home/arash/Projects/UpSpaceAPI/mainsrc/main.cpp
 	"heteval.h"
 	<QtWidgets/QApplication>
 	<sys/resource.h>
@@ -3948,269 +3948,4 @@
 	"Grid.h"
 	"2DMap.h"
 	"NormalDist.h"
-
-1510175043 /home/arash/VTK/Common/ExecutionModel/vtkPolyDataAlgorithm.h
-	"vtkCommonExecutionModelModule.h"
-	"vtkAlgorithm.h"
-	"vtkPolyData.h"
-
-1510177013 /home/arash/VTK-build/Common/ExecutionModel/vtkCommonExecutionModelModule.h
-
-1510175043 /home/arash/VTK/Common/ExecutionModel/vtkAlgorithm.h
-	"vtkCommonExecutionModelModule.h"
-	"vtkObject.h"
-
-1510175043 /home/arash/VTK/Interaction/Widgets//vtkSliderWidget.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkAbstractWidget.h"
-
-1510175043 /home/arash/VTK/Interaction/Widgets//vtkAbstractWidget.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkInteractorObserver.h"
-
-1510175043 /home/arash/VTK/Interaction/Widgets//vtkSliderRepresentation.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkWidgetRepresentation.h"
-
-1510175043 /home/arash/VTK/Interaction/Widgets//vtkWidgetRepresentation.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkProp.h"
-	"vtkWeakPointer.h"
-	"vtkNew.h"
-
-1510175043 /home/arash/VTK/Interaction/Widgets//vtkSliderRepresentation3D.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkSliderRepresentation.h"
-	"vtkCoordinate.h"
-
-1510175043 /home/arash/VTK/Rendering/Core/vtkCoordinate.h
-	"vtkRenderingCoreModule.h"
-	"vtkObject.h"
-
-1510175043 /home/arash/VTK/Common/ExecutionModel/vtkImageAlgorithm.h
-	"vtkCommonExecutionModelModule.h"
-	"vtkAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/Core//vtkContourFilter.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-	"vtkContourValues.h"
-
-1510175043 /home/arash/VTK/Common/Misc//vtkContourValues.h
-	"vtkCommonMiscModule.h"
-	"vtkObject.h"
-
-1510177013 /home/arash/VTK-build/Common/Misc/vtkCommonMiscModule.h
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLImageDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLStructuredDataWriter.h"
-
-1510177016 /home/arash/VTK-build/IO/XML/vtkIOXMLModule.h
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLStructuredDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLWriter.h"
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLWriter.h
-	"vtkIOXMLModule.h"
-	"vtkAlgorithm.h"
-	<sstream>
-
-1510175043 /home/arash/VTK/Filters/Sources/vtkCylinderSource.h
-	"vtkFiltersSourcesModule.h"
-	"vtkPolyDataAlgorithm.h"
-	"vtkCell.h"
-
-1510177013 /home/arash/VTK-build/Filters/Sources/vtkFiltersSourcesModule.h
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLPolyDataReader.h
-	"vtkIOXMLModule.h"
-	"vtkXMLUnstructuredDataReader.h"
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLUnstructuredDataReader.h
-	"vtkIOXMLModule.h"
-	"vtkXMLDataReader.h"
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLDataReader.h
-	"vtkIOXMLModule.h"
-	"vtkXMLReader.h"
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLReader.h
-	"vtkIOXMLModule.h"
-	"vtkAlgorithm.h"
-	<string>
-
-1510175043 /home/arash/VTK/Filters/Core//vtkAppendPolyData.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/Core//vtkClipPolyData.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/Core//vtkCleanPolyData.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/Sources/vtkSphereSource.h
-	"vtkFiltersSourcesModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/Core//vtkCutter.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-	"vtkContourValues.h"
-
-1510175043 /home/arash/VTK/Filters/Core//vtkDelaunay2D.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/General/vtkVertexGlyphFilter.h
-	"vtkFiltersGeneralModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLPolyDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLUnstructuredDataWriter.h"
-
-1510175043 /home/arash/VTK/IO/XML//vtkXMLUnstructuredDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLWriter.h"
-
-1510175043 /home/arash/VTK/Filters/Sources/vtkLineSource.h
-	"vtkFiltersSourcesModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/IO/Image/vtkPNGWriter.h
-	"vtkIOImageModule.h"
-	"vtkImageWriter.h"
-
-1510177238 /home/arash/VTK-build/IO/Image/vtkIOImageModule.h
-	"vtkAutoInit.h"
-
-1510175043 /home/arash/VTK/IO/Image/vtkImageWriter.h
-	"vtkIOImageModule.h"
-	"vtkImageAlgorithm.h"
-
-1510175043 /home/arash/VTK/Imaging/Core/vtkImageCast.h
-	"vtkImagingCoreModule.h"
-	"vtkThreadedImageAlgorithm.h"
-
-1510177013 /home/arash/VTK-build/Imaging/Core/vtkImagingCoreModule.h
-
-1510175043 /home/arash/VTK/Common/ExecutionModel/vtkThreadedImageAlgorithm.h
-	"vtkCommonExecutionModelModule.h"
-	"vtkImageAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/Sources/vtkArrowSource.h
-	"vtkFiltersSourcesModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1510175043 /home/arash/VTK/Filters/Core//vtkGlyph2D.h
-	"vtkFiltersCoreModule.h"
-	"vtkGlyph3D.h"
-
-1510175043 /home/arash/VTK/Filters/Core//vtkGlyph3D.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1513960405 /home/arash/VTK-8.1.0/Interaction/Widgets//vtkSliderWidget.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkAbstractWidget.h"
-
-1513960405 /home/arash/VTK-8.1.0/Interaction/Widgets//vtkAbstractWidget.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkInteractorObserver.h"
-
-1513960405 /home/arash/VTK-8.1.0/Interaction/Widgets//vtkSliderRepresentation.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkWidgetRepresentation.h"
-
-1513960405 /home/arash/VTK-8.1.0/Interaction/Widgets//vtkWidgetRepresentation.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkProp.h"
-	"vtkWeakPointer.h"
-	"vtkNew.h"
-
-1513960405 /home/arash/VTK-8.1.0/Interaction/Widgets//vtkSliderRepresentation3D.h
-	"vtkInteractionWidgetsModule.h"
-	"vtkSliderRepresentation.h"
-	"vtkCoordinate.h"
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkContourFilter.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-	"vtkContourValues.h"
-
-1513960405 /home/arash/VTK-8.1.0/Common/Misc//vtkContourValues.h
-	"vtkCommonMiscModule.h"
-	"vtkObject.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLImageDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLStructuredDataWriter.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLStructuredDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLWriter.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLWriter.h
-	"vtkIOXMLModule.h"
-	"vtkAlgorithm.h"
-	<sstream>
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLPolyDataReader.h
-	"vtkIOXMLModule.h"
-	"vtkXMLUnstructuredDataReader.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLUnstructuredDataReader.h
-	"vtkIOXMLModule.h"
-	"vtkXMLDataReader.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLDataReader.h
-	"vtkIOXMLModule.h"
-	"vtkXMLReader.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLReader.h
-	"vtkIOXMLModule.h"
-	"vtkAlgorithm.h"
-	<string>
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkAppendPolyData.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkClipPolyData.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkCleanPolyData.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkCutter.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-	"vtkContourValues.h"
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkDelaunay2D.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLPolyDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLUnstructuredDataWriter.h"
-
-1513960405 /home/arash/VTK-8.1.0/IO/XML//vtkXMLUnstructuredDataWriter.h
-	"vtkIOXMLModule.h"
-	"vtkXMLWriter.h"
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkGlyph2D.h
-	"vtkFiltersCoreModule.h"
-	"vtkGlyph3D.h"
-
-1513960405 /home/arash/VTK-8.1.0/Filters/Core//vtkGlyph3D.h
-	"vtkFiltersCoreModule.h"
-	"vtkPolyDataAlgorithm.h"
 

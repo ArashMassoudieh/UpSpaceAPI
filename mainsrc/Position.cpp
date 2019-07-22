@@ -32,7 +32,7 @@ CPosition::CPosition(const CPosition & P)
 	u = P.u;
 	z = P.z;
 	v = P.v;
-        weight = P.weight;
+    weight = P.weight;
 }
 
 
@@ -44,7 +44,7 @@ CPosition& CPosition::operator=(const CPosition & P)
 	u = P.u;
 	z = P.z;
 	v = P.v;
-        weight = P.weight;
+    weight = P.weight;
 	return *this;
 }
 

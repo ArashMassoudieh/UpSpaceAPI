@@ -22,13 +22,14 @@ class HETEVAL;
 
 using namespace std;
 
-struct point
+#define point CPosition
+/*struct point
 {
 	double x;
 	double y;
 	CVector v;
 	double t;
-};
+};*/
 
 struct prop
 {
@@ -142,14 +143,18 @@ public:
 	CGrid(string filename_V, string filename_K, int _nx, int _ny);
 	void writeasmatrix(string filename, int);
 	void writeasmatrixK(string filename, int component);
-	CVector getvelocity(point pp);
-	CPathway gettrajectory(point pp, double dt, double t_end);
-	CPathway gettrajectory_fix_dx(point pp, double dt, double t_end);
+	CVector getvelocity(CPosition pp);
+	CPathway gettrajectory(CPosition pp, double dt, double t_end);
+	CPathway gettrajectory_fix_dx(CPosition pp, double dt, double t_end);
+	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double weight = 0.5);
+	CVector v_correlation_single_point(const CPosition &pp, double dx0, double x_inc);
+	CBTCSet get_correlation_based_on_random_samples(int nsamples, double dx0, double x_inc);
+    CPosition getrandompoint();
 	CPathwaySet gettrajectories(double dt, double t_end);
 	CPathwaySet gettrajectories_fixed_dx(double dt, double x_end);
-	vector<point> pts;
+	vector<CPosition> pts;
         bool weighted;
-	CBTC initialize(int numpoints, double x_0, double smoothing_factor=0, bool weighted=false);
+	CBTC initialize(int numpoints, double x_0, double smoothing_factor=0, string boundary_v_dist_filename = "", bool weighted=false);
 	CMatrix_arma_sp create_stiffness_matrix_arma();
 	CVector_arma create_RHS_arma();
 	CVector create_RHS();
