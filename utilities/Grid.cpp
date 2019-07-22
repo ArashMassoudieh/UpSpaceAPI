@@ -541,9 +541,9 @@ CPathway CGrid::gettrajectory(point pp, double dt, double t_end)
 	return Trajectory;
 }
 
-CPathway CGrid::gettrajectory_fix_dx(point pp, double dx, double x_end)
+CPathway CGrid::gettrajectory_fix_dx(CPosition pp, double dx, double x_end)
 {
-    point pt = pp;
+    CPosition pt = pp;
     CPathway Trajectory;
     if (weighted)
         Trajectory.weight = getvelocity(pt)[0];
@@ -577,6 +577,171 @@ CPathway CGrid::gettrajectory_fix_dx(point pp, double dx, double x_end)
 }
 
 
+CBTCSet CGrid::get_correlation_based_on_random_samples(int nsamples, double dx0, double x_inc)
+{
+    CBTCSet output(2);
+    for (int i=0; i<nsamples; i++)
+    {
+        CPosition pt = getrandompoint();
+        CVector V = v_correlation_single_point(pt,dx0,x_inc);
+        if (V.num==2)
+        {
+            output.BTC[0].append(i,V[0]);
+            output.BTC[1].append(i,V[1]);
+        }
+    }
+    return output;
+}
+
+CPosition CGrid::getrandompoint()
+{
+    CPosition out;
+    out.x = unitrandom()*GP.dx*GP.nx;
+    out.y = unitrandom()*GP.dy*GP.ny;
+    return out;
+}
+
+CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, double x_inc)
+{
+    CPosition pt = pp;
+    CPosition p_new;
+    CVector Vout;
+    double x_end = pt.x + dx0;
+    bool ex = false;
+    while (pt.x < x_end && ex==false)
+    {
+        CVector V = getvelocity(pt);
+        if (V.getsize() == 0)
+            {
+                return Vout;
+            }
+        double dx = min(x_inc/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0],x_end-pt.x);
+
+        bool changed_sign = true;
+        while (changed_sign)
+        {   if (V.num == 2)
+            {
+                if (V[0]==0)
+                {
+                    cout<<"Vx = 0!"<<endl;
+                }
+                double dt = dx/V[0];
+                p_new.x = pt.x + dt*V[0];
+                p_new.y = pt.y + dt*V[1];
+                CVector V_new = getvelocity(p_new);
+                if (V_new.getsize() == 0)
+                {
+                    return Vout;
+                }
+                if (V_new[0]*V[0]<0)
+                {
+                    cout<<"V changed sign!"<<endl;
+                    dx/=2;
+                }
+                else
+                {   changed_sign = false;
+                    if (V[0]==V_new[0])
+                        dt = dx/V[0];
+                    else
+                        dt = dx*(log(V_new[0])-log(V[0]))/(V_new[0]-V[0]);
+                    if (dt<0)
+                    {
+                        cout<<"Negative dt!"<<endl;
+                    }
+                    p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt;
+                    p_new.x = pt.x + dx;
+                    V_new = getvelocity(p_new);
+                    if (V_new.num!=2)
+                        return CVector();
+                    p_new.v = V_new;
+                    p_new.t += dt;
+                    pt = p_new;
+
+                }
+            }
+            else
+            {
+                return Vout;
+            }
+        }
+    }
+    Vout = CVector(2);
+    Vout[0] = getvelocity(pp)[0];
+    Vout[1] = getvelocity(p_new)[0];
+    return Vout;
+
+}
+
+CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double x_end, double weight)
+{
+    CPosition pt = pp;
+    CPathway Trajectory;
+    if (weighted)
+        Trajectory.weight = getvelocity(pt)[0];
+    else
+        Trajectory.weight = 1;
+    double t = 0;
+
+    bool ex = false;
+    while (pt.x < x_end && ex==false)
+    {
+        CVector V = getvelocity(pt);
+        if (V.getsize() == 0)
+            {
+                return Trajectory;
+            }
+        double dx = dx0/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0];
+
+        bool changed_sign = true;
+        while (changed_sign)
+        {   if (V.num == 2)
+            {
+                if (V[0]==0)
+                {
+                    cout<<"Vx = 0!"<<endl;
+                }
+                double dt = dx/V[0];
+                CPosition p_new;
+                p_new.x = pt.x + dt*V[0];
+                p_new.y = pt.y + dt*V[1];
+                CVector V_new = getvelocity(p_new);
+                if (V_new.getsize() == 0)
+                {
+                    return Trajectory;
+                }
+                if (V_new[0]*V[0]<0)
+                {
+                    cout<<"V changed sign!"<<endl;
+                    dx/=2;
+                }
+                else
+                {   changed_sign = false;
+                    if (V[0]==V_new[0])
+                        dt = dx/V[0];
+                    else
+                        dt = dx*(log(V_new[0])-log(V[0]))/(V_new[0]-V[0]);
+                    if (dt<0)
+                    {
+                        cout<<"Negative dt!"<<endl;
+                    }
+                    p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt;
+                    p_new.x = pt.x + dx;
+                    p_new.v = V_new;
+                    p_new.t = t+dt;
+                    Trajectory.append(p_new);
+                    pt = p_new;
+                    t += dt;
+                }
+            }
+            else ex = true;
+        }
+    }
+
+    return Trajectory;
+}
+
+
+
 CPathwaySet CGrid::gettrajectories(double dt, double t_end)
 {
     CPathwaySet X;
@@ -607,7 +772,7 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end)
     {
 //	qDebug() << i << endl;
 
-        CPathway X1 = gettrajectory_fix_dx(pts[i], dx, x_end);
+        CPathway X1 = gettrajectory_fix_dx_2nd_order(pts[i], dx, x_end);
         //cout << "\r" << "Trajectory #"<<  i << " Weight: " << X1.weight<< std::flush;
         if (weighted)
             {   X.weighted = true;
@@ -624,7 +789,7 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end)
 }
 
 
-CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, bool _weighted)
+CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, string boundary_dist_filename, bool _weighted)
 {
     weighted = _weighted;
     cout << "weighted = " << weighted<<endl;
@@ -633,7 +798,12 @@ CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, bool 
     {
         cout << "weighted = " << weighted<<endl;
         int burnout = 0;
-        double v_max = get_v_btc(x_0,0).maxC();
+        CBTC boundary_v_dist = get_v_btc(x_0,0);
+        double v_max = boundary_v_dist.maxC();
+        if (boundary_dist_filename != "")
+        {
+            boundary_v_dist.distribution(40).writefile(boundary_dist_filename);
+        }
         double y_0 = unitrandom()*GP.dy*(GP.ny-1);
         point pt_0; pt_0.x = x_0; pt_0.y = y_0;
         double v_x = getvelocity(pt_0)[0];
@@ -1265,7 +1435,11 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("Initializing trajectories ...");
                 cout << "Initializing trajectories ..." << endl;
-                CBTC ini_vel=initialize(atoi(commands[i].parameters["n"].c_str()), atof(commands[i].parameters["x_0"].c_str()),atoi(commands[i].parameters["weighted"].c_str()));
+                CBTC ini_vel;
+                if (commands[i].parameters["boundary_v_dist_filename"]!="")
+                    ini_vel=initialize(atoi(commands[i].parameters["n"].c_str()), atof(commands[i].parameters["x_0"].c_str()), 0, pathout+commands[i].parameters["boundary_v_dist_filename"], atoi(commands[i].parameters["weighted"].c_str()));
+                else
+                    ini_vel=initialize(atoi(commands[i].parameters["n"].c_str()), atof(commands[i].parameters["x_0"].c_str()), 0, "", atoi(commands[i].parameters["weighted"].c_str()));
                 weighted = atoi(commands[i].parameters["weighted"].c_str());
                 cout << "weighted = " << weighted;
                 if (commands[i].parameters.count("filename"))
@@ -1660,17 +1834,37 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("Extracting pairs ... ");
                 CBTCSet pairs;
+                bool random_sampling = false;
+
+
+                if (commands[i].parameters.count("random_sampling")==1)
+                    if (atoi(commands[i].parameters["random_sampling"].c_str())==1)
+                        random_sampling = true;
+
                 if (!commands[i].parameters.count("nsequence"))
-                    commands[i].parameters["nsequence"] = "2";
-                if (Traj.paths.size())
-                    pairs = Traj.get_pair_v(atoi(commands[i].parameters["increment"].c_str()), atoi(commands[i].parameters["n"].c_str()),atoi(commands[i].parameters["nsequence"].c_str()));
-                else if (pset.paths.size())
-                    pairs = pset.get_pair_v(atoi(commands[i].parameters["increment"].c_str()), atoi(commands[i].parameters["n"].c_str()),atoi(commands[i].parameters["nsequence"].c_str()));
-                else
-                {
-                    show_in_window("No trajectories has been initialized!");
-                    return;
-                }
+                            commands[i].parameters["nsequence"] = "2";
+
+                if (random_sampling)
+                    {
+                        double dx;
+                        dx = atof(commands[i].parameters["delta_x"].c_str());
+                        pairs = get_correlation_based_on_random_samples(atoi(commands[i].parameters["n"].c_str()),dx,atof(commands[i].parameters["increment"].c_str()));
+                    }
+                    else
+                    {
+
+                        if (Traj.paths.size())
+                            pairs = Traj.get_pair_v(atoi(commands[i].parameters["increment"].c_str()), atoi(commands[i].parameters["n"].c_str()),atoi(commands[i].parameters["nsequence"].c_str()));
+                        else if (pset.paths.size())
+                            pairs = pset.get_pair_v(atoi(commands[i].parameters["increment"].c_str()), atoi(commands[i].parameters["n"].c_str()),atoi(commands[i].parameters["nsequence"].c_str()));
+                        else
+                        {
+                            show_in_window("No trajectories has been initialized!");
+                            return;
+                        }
+                    }
+
+
 
                 pairs.writetofile(pathout+commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("dist_filename") > 0)
@@ -1722,9 +1916,10 @@ void CGrid::runcommands_qt()
                         show_in_window("Calculating OU params");
 
                         CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_x"].c_str()));
-                        extracted_OU_parameters.append("p1_"+commands[i].parameters["increment"], atoi(commands[i].parameters["increment"].c_str()), X[0]);
-                        extracted_OU_parameters.append("p2_"+commands[i].parameters["increment"], atoi(commands[i].parameters["increment"].c_str()), X[1]);
-                        extracted_OU_parameters.append("p3_"+commands[i].parameters["increment"], atoi(commands[i].parameters["increment"].c_str()), X[2]);
+                        extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_x"].c_str()), X[0]);
+                        extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_x"].c_str()), X[1]);
+                        if (atoi(commands[i].parameters["nsequence"].c_str())>2)
+                            extracted_OU_parameters.append("p3", atoi(commands[i].parameters["increment"].c_str()), X[2]);
                         show_in_window("Writing OU params");
                         X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
                     }

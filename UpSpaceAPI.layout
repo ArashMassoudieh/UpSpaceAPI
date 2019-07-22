@@ -2,39 +2,19 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug_VTK9" />
-	<File name="../Qt_version/HETEVAL/HETEVAL/Spectogram.h" open="0" top="0" tabpos="31" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="592" topLine="12" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/BTC.h" open="0" top="0" tabpos="32" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5294" topLine="130" />
-		</Cursor>
-	</File>
-	<File name="../Qt_version/HETEVAL/HETEVAL/main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="576" topLine="1" />
-		</Cursor>
-	</File>
 	<File name="../2D_Laplace/2D_Laplace/Matrix_arma_sp.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="0" topLine="57" />
 		</Cursor>
 	</File>
-	<File name="../Qt_version/HETEVAL/HETEVAL/_command.cpp" open="0" top="0" tabpos="30" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="mainsrc/main.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="0" />
+			<Cursor1 position="0" topLine="43" />
 		</Cursor>
 	</File>
-	<File name="../Qt_version/HETEVAL/HETEVAL/Pathway.cpp" open="0" top="0" tabpos="33" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../2D_Laplace/2D_Laplace/Grid.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="232" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/Matrix.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="12882" topLine="677" />
+			<Cursor1 position="335" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="../2D_Laplace/2D_Laplace/Matrix_arma.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -42,64 +22,14 @@
 			<Cursor1 position="0" topLine="18" />
 		</Cursor>
 	</File>
-	<File name="../2D_Laplace/2D_Laplace/Distribution.cpp" open="0" top="0" tabpos="37" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../2D_Laplace/2D_Laplace/BTC.h" open="0" top="0" tabpos="32" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="63" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/Grid.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="63397" topLine="1770" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/Matrix_arma.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8843" topLine="443" />
+			<Cursor1 position="5294" topLine="130" />
 		</Cursor>
 	</File>
 	<File name="../2D_Laplace/2D_Laplace/BTCSet.h" open="0" top="0" tabpos="36" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="0" topLine="58" />
-		</Cursor>
-	</File>
-	<File name="../Qt_version/HETEVAL/HETEVAL/Plots.cpp" open="1" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2286" topLine="80" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/Grid.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="335" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../Qt_version/HETEVAL/HETEVAL/_command.h" open="0" top="0" tabpos="29" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/BTCSet.cpp" open="1" top="1" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="27281" topLine="1120" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/Vector.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6347" topLine="417" />
-		</Cursor>
-	</File>
-	<File name="../Qt_version/HETEVAL/HETEVAL/Position.h" open="0" top="0" tabpos="25" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="88" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../2D_Laplace/2D_Laplace/BTC.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="32296" topLine="1509" />
-		</Cursor>
-	</File>
-	<File name="../Qt_version/HETEVAL/HETEVAL/PathwaySet.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3831" topLine="139" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

@@ -1084,9 +1084,10 @@ CVector CTimeSeriesSet::get_kappa_gamma(double delta_x)
         }
     }
     X[1] = err /(2.0*delta_x)/sum_weight;
-    cout<<"     Calculating Error Correlation..."<<endl;
+
     if (nvars>2)
     {
+        cout<<"     Calculating Error Correlation..."<<endl;
         CBTCSet residuals(nvars-1);
         for (int i = 0; i<BTC[0].n; i++)
         {
