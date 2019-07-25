@@ -227,7 +227,8 @@ public:
 	vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor;
     void show_K_field();
 	void show_K_field_vtk(double z_factor = 0.5);
-
+    CTimeSeries GetConcentrationBTCAtX(double x);
+    double GetConcentrationAtX(double x, int i);
 	void screen_shot(string filename = "screen_shot.png");
 	void screenshot_test();
 #ifdef Qt_version
