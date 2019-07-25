@@ -2534,3 +2534,24 @@ void CGrid::clear_contents()
 		}
 	}
 }
+
+CTimeSeries CGrid::GetConcentrationBTCAtX(double x)
+{
+    CTimeSeries output;
+    for (int tt=0; tt<p[0][0].C.size(); tt++)
+    {
+        output.append(tt,GetConcentrationAtX(x,tt));
+    }
+    return output;
+}
+
+double CGrid::GetConcentrationAtX(double x, int timestep)
+{
+    int i=x/GP.dx;
+    double output = 0;
+    for (int j=0; j<GP.ny; j++)
+        output += p[i][j].C[timestep]/GP.ny;
+
+    return output;
+}
+
