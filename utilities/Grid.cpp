@@ -1388,6 +1388,12 @@ void CGrid::runcommands_qt()
                     solve_transport(atof(commands[i].parameters["t_end"].c_str()));
             }
 
+            if (commands[i].command == "write_btc_from_concentration")
+            {
+                show_in_window("Writing Breakthrough curve at x = " + commands[i].parameters["x"] + "...");
+                GetConcentrationBTCAtX(atof(commands[i].parameters["x"].c_str()),commands[i].parameters["filename"]);
+            }
+
             if (commands[i].command == "solve_transport_ou")
             {
                 show_in_window("Solving transport (Ornstein-Uhlenbeck)...");
@@ -2535,13 +2541,14 @@ void CGrid::clear_contents()
 	}
 }
 
-CTimeSeries CGrid::GetConcentrationBTCAtX(double x)
+CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename)
 {
     CTimeSeries output;
     for (int tt=0; tt<p[0][0].C.size(); tt++)
     {
         output.append(tt,GetConcentrationAtX(x,tt));
     }
+    output.writefile(pathout + filename);
     return output;
 }
 
