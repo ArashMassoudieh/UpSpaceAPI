@@ -410,8 +410,8 @@
 				</Linker>
 			</Target>
 			<Environment>
-				<Variable name="VTK" value="/home/arash/Projects/VTK" />
-				<Variable name="VTK_build" value="/home/arash/Projects/VTK-build" />
+				<Variable name="VTK" value="/home/arash/VTK-8.1.0" />
+				<Variable name="VTK_build" value="/home/arash/VTK-8.1-build/lib" />
 				<Variable name="VTK_v" value="9.0" />
 			</Environment>
 		</Build>
