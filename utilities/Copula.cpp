@@ -2,52 +2,31 @@
 #include "NormalDist.h"
 
 
-Copula::Copula()
+CCopula::CCopula()
 {
 }
 
 
-Copula::~Copula()
+CCopula::~CCopula()
 {
 }
 
-double Copula::c(vector <double> u, double k, CMatrix &distanceMatrix)
+double CCopula::evaluate11(double u1, double u2)
 {
-	double c;
-	//if (copulaType == gaussian)
-	//{
-		CMatrix R(u.size());
-		for (int i = 0; i < u.size(); i++)
-			for (int j = 0; j < u.size(); j++)
-				R[i][j] = exp(-k*distanceMatrix[i][j]);
-		CVector uu = CVector(u);
-                CMatrix mm = inv(R) - Identity(u.size());
-                c = 1 / sqrt(abs(R.det())) * exp(-0.5*dotproduct(uu, mm*uu));
-	//}
-	return c;
+	double a1;
+	if (copula == "gaussian")
+	{
+		double x = exp(-parameters[0]);
+		CMatrix M_inv(2);
+		M_inv[0][0] = x*x / (1 - x*x);
+		M_inv[1][1] = x*x / (1 - x*x);
+		M_inv[0][1] = -x / (1 - x*x);
+		M_inv[1][0] = -x / (1 - x*x);
+		CVector Y0(2);
+		Y0[0] = stdnormal_inv(u1);
+		Y0[1] = stdnormal_inv(u2);
+		a1 = 1/sqrt(1 - pow(x,2))*exp(-0.5*dotproduct((M_inv*Y0), Y0));
+	}
+	return a1;
+
 }
-double Copula::logc(vector <double> u, double k, CMatrix &distanceMatrix)
-{
-	double c;
-	//if (copulaType == gaussian)
-	//{
-		CMatrix R(int(u.size()));
-		for (int i = 0; i < int(u.size()); i++)
-			for (int j = 0; j < int(u.size()); j++)
-				R[i][j] = exp(-k*(distanceMatrix[i][j]));
-		double a = det(R);
-		CMatrix b = inv(R);
-		if (!b.getnumrows())
-			return -30000;
-
-		CMatrix mm = b - Identity(u.size());
-                CVector uu = CVector(u);
-                CVector e = mm*uu;
-		double d = dotproduct(CVector(u), e);
-		c = -0.5 * log(a) - 0.5 * d;
-	//	c = - 0.5 * log(abs(R.det())) -0.5*dotproduct(CVector(u), ((inv(R) - Identity(u.size()))*CVector(u)));
-	//}
-	return c;
-}
-
-

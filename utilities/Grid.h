@@ -10,6 +10,7 @@
 #include "vtk.h"
 #include "PathwaySet.h"
 #include "_command.h"
+#include "Copula.h"
 #ifdef Qt_version
 #include "qtextbrowser.h"
 #endif // Qt_version
@@ -112,6 +113,14 @@ struct _OU_params
 	CBTCSet BTC_normal_fw;
 };
 
+struct _Copula_Params
+{
+    double epsilon;
+    CMatrix K;
+    CMatrix_arma Inv_M;
+    double diffusion;
+};
+
 
 
 
@@ -177,7 +186,7 @@ public:
 	void runcommands();
 	CBTC vx_dist;
 	CBTC vy_dist;
-        CBTC v_dist;
+    CBTC v_dist;
 	CBTCSet sect_dist;
 	vector<double> marginal_K_dist_params;
 	void set_inv_K_dist(int ninc);
@@ -205,8 +214,11 @@ public:
 	void solve_transport_laplace(double s);
 	void set_K_transport_laplace(double D, double s);
 	void create_f_inv_u();
+	void create_k_mat_copula();
+	void create_inv_K_Copula();
 	CVector_arma create_RHS_OU(double dt);
 	void solve_transport_OU(double t_end);
+	void solve_transport_Copula(double t_end);
 	double time_weight;
 	double min_v_x = 0;
 	double max_v_x=0;
@@ -231,6 +243,8 @@ public:
     double GetConcentrationAtX(double x, int i);
 	void screen_shot(string filename = "screen_shot.png");
 	void screenshot_test();
+	_Copula_Params copula_params;
+    CCopula Copula;
 #ifdef Qt_version
 
 

@@ -2363,6 +2363,57 @@ void CGrid::create_inverse_K_OU(double dt)
 
 }
 
+void CGrid::create_inv_K_Copula()
+{
+    CMatrix_arma M(GP.ny*GP.nx, GP.ny*GP.nx);
+
+    for (int i = 1; i < GP.nx; i++)
+    {
+        for (int j = 0; j < GP.ny; j++)
+        {
+            M(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt;
+            M(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
+            M(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
+            if (copula_params.diffusion>0)
+            {
+                if (i < GP.nx - 1)
+                {
+                    M(j + GP.ny*i,j + GP.ny*i) = 2 * copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
+                    M(j + GP.ny*i,j + GP.ny*(i-1)) = -copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
+                    M(j + GP.ny*i,j + GP.ny*(i+1)) = -copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
+                }
+            }
+            for (int k = 0; k < GP.ny; k++)
+                M(j + GP.ny*i,k + GP.ny*i) += -time_weight*copula_params.K[j][k] / copula_params.epsilon*GP.dy;
+
+        }
+    }
+    int i = 0;
+    for (int j = 0; j < GP.ny; j++)
+    {
+        M(j + GP.ny*i,j + GP.ny*i) = 1;
+
+    }
+
+    copula_params.Inv_M = inv(M);
+    CMatrix INV_MM(copula_params.Inv_M);
+
+}
+
+void CGrid::create_k_mat_copula()
+{
+    copula_params.K = CMatrix(GP.ny);
+
+    for (int i = 0; i < GP.ny; i++)
+        for (int j = 0; j < GP.ny; j++)
+            if (i != j)
+            {
+                double u1 = double(i)*GP.dy + GP.dy / 2;
+                double u2 = double(j)*GP.dy + GP.dy / 2;
+                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*mean(inv_dist(u1), inv_dist(u2));
+                copula_params.K[i][i] -= copula_params.K[i][j];
+            }
+}
 
 void CGrid::create_f_inv_u()
 {
@@ -2443,6 +2494,56 @@ CVector_arma CGrid::create_RHS_OU(double dt)
 }
 
 void CGrid::solve_transport_OU(double t_end)
+{
+	create_f_inv_u();
+	create_inverse_K_OU(dt);
+	C = CMatrix(GP.nx+2, GP.ny);
+	OU.BTCs = CBTCSet(GP.nx+2);
+	OU.BTC_normal = CBTCSet(GP.nx + 2);
+	OU.BTCs_fw = CBTCSet(GP.nx + 2);
+	OU.BTC_normal_fw = CBTCSet(GP.nx + 2);
+	for (int i = 0; i < GP.nx+2; i++) OU.BTCs.names[i] = ("x=" + numbertostring((i - 0.5)*GP.dx));
+	for (int i = 0; i < GP.nx + 2; i++) OU.BTC_normal.names[i] = ("x=" + numbertostring((i - 0.5)*GP.dx));
+	for (int i = 0; i < GP.nx + 2; i++) OU.BTCs_fw.names[i] = ("x=" + numbertostring((i - 0.5)*GP.dx));
+	for (int i = 0; i < GP.nx + 2; i++) OU.BTC_normal_fw.names[i] = ("x=" + numbertostring((i - 0.5)*GP.dx));
+	//K.writetofile(pathout + "transport_matrix.txt");
+	for (int i = 0; i < GP.nx + 2; i++) OU.BTCs.BTC[i].append(0, 0);
+	for (int i = 0; i < GP.nx + 2; i++) OU.BTC_normal.BTC[i].append(0, 0);
+	set_progress_value(0);
+    for (double t = 0; t < t_end; t += dt)
+    {
+        CVector_arma RHS = create_RHS_OU(dt);
+        CVector_arma S = OU.Inv_M*RHS;
+
+        for (int i = 0; i < GP.nx+2; i++)
+        {
+            double sum = 0;
+            double sum_fw = 0;
+
+            for (int j = 0; j < GP.ny; j++)
+            {
+                C[i][j] = S[get_cell_no_OU(i, j)];
+                sum += C[i][j] * GP.dy;
+                sum_fw += C[i][j] * OU.FinvU[j]/OU.FinvU.sum();
+            }
+            OU.BTCs.BTC[i].append(t+dt, sum);
+            OU.BTCs_fw.BTC[i].append(t + dt, sum_fw);
+            OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
+            OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
+        }
+
+        #if QT_version
+                set_progress_value(t / t_end);
+        tbrowse->append("t = " + QString::number(t));
+        #else
+        cout<<"t = " <<t <<endl;
+        #endif // QT_version
+
+    }
+
+}
+
+void CGrid::solve_transport_Copula(double t_end)
 {
 	create_f_inv_u();
 	create_inverse_K_OU(dt);
