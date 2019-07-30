@@ -472,6 +472,7 @@
 			<Add option="-larmadillo" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgsl.so" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgslcblas.so" />
+			<Add library="../../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
 		</Linker>
 		<Unit filename="../2D_Laplace/2D_Laplace/BTC.h" />
 		<Unit filename="../2D_Laplace/2D_Laplace/BTCSet.h" />

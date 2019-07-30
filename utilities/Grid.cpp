@@ -1224,6 +1224,18 @@ CBTC CGrid::get_K_CDF(double x0, double x1, double log_inc)
 	return out;
 }
 
+CBTC CGrid::get_V_PDF(double x0, double x1, double log_inc)
+{
+	CBTC out;
+	for (double logx = log(x0); logx <= log(x1); logx += log_inc )
+	{
+		double x = exp(logx);
+		out.append(x, dist.evaluate(x));
+	}
+
+	return out;
+}
+
 CBTC CGrid::get_margina_traj_v_dist(double vmin, double vmax, double nbins, string val)
 {
 	CBTC out(nbins + 1);
@@ -1678,6 +1690,15 @@ void CGrid::runcommands_qt()
                 K.writefile(pathout+commands[i].parameters["filename"]);
             }
 
+            if (commands[i].command == "write_marginal_v_dist")
+            {
+                show_in_window("Write marginal velocity dist ...");
+
+                //cout << "Write marginal hydraulic conductivity ..." << endl;
+                CBTC K = get_V_PDF(atof(commands[i].parameters["x0"].c_str()), atof(commands[i].parameters["x1"].c_str()), atof(commands[i].parameters["log_inc"].c_str()));
+                K.writefile(pathout+commands[i].parameters["filename"]);
+            }
+
             if (commands[i].command == "renormalize_k")
             {
                 show_in_window("Renormalizing hydraulic conductivity ...");
@@ -1768,12 +1789,22 @@ void CGrid::runcommands_qt()
 
             if (commands[i].command == "initialize_marginal_v_dist")
             {
-                show_in_window("initializing " +commands[i].parameters["type"] + " distribution ..." );
-                dist.name = commands[i].parameters["type"];
-                for (int j = 0; j < split(commands[i].parameters["values"],',').size(); j++)
-                        dist.params.push_back(atof(split(commands[i].parameters["values"],',')[j].c_str()));
+                show_in_window("initializing " +commands[i].parameters["dist"] + " distribution ..." );
+                dist.name = commands[i].parameters["dist"];
+                for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
+                        dist.params.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
 
             }
+
+            if (commands[i].command == "set_copula_params")
+            {
+                show_in_window("initializing copula..." );
+                Copula.copula = commands[i].parameters["copula"];
+                for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
+                        Copula.parameters.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
+
+            }
+
 
             if (commands[i].command == "create_correlated_v_pathways")
             {
@@ -2378,11 +2409,11 @@ void CGrid::create_inverse_K_OU(double dt)
 
 }
 
-void CGrid::create_inv_K_Copula()
+void CGrid::create_inv_K_Copula(double dt)
 {
-    CMatrix_arma M(GP.ny*GP.nx, GP.ny*GP.nx);
+    CMatrix_arma M(GP.ny*(GP.nx+2), GP.ny*(GP.nx+2));
 
-    for (int i = 1; i < GP.nx; i++)
+    for (int i = 1; i < GP.nx+1; i++)
     {
         for (int j = 0; j < GP.ny; j++)
         {
@@ -2406,9 +2437,17 @@ void CGrid::create_inv_K_Copula()
     int i = 0;
     for (int j = 0; j < GP.ny; j++)
     {
-        M(j + GP.ny*i,j + GP.ny*i) = 1;
-
+        M(j + GP.ny*i,j + GP.ny*i) = 0.5;
+        M(j + GP.ny*i,j + GP.ny*(i+1)) = 0.5;
     }
+
+    i = GP.nx + 1;
+    for (int j = 0; j < GP.ny; j++)
+    {
+        M(j + GP.ny*i,j + GP.ny*i) = 1;
+        M(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+    }
+
 
     copula_params.Inv_M = inv(M);
     CMatrix INV_MM(copula_params.Inv_M);
@@ -2427,6 +2466,7 @@ void CGrid::create_k_mat_copula()
                 double u2 = double(j)*GP.dy + GP.dy / 2;
                 copula_params.K[i][j] = Copula.evaluate11(u1, u2)*dist.inverseCDF(u1);
                 copula_params.K[i][i] -= copula_params.K[i][j];
+
             }
 }
 
@@ -2439,6 +2479,36 @@ void CGrid::create_f_inv_u()
 		OU.FinvU[j] = dist.inverseCDF(u1);
 	}
 }
+
+
+CVector_arma CGrid::create_RHS_Copula(double dt)
+{
+    CVector_arma RHS(GP.ny*(GP.nx+2));
+
+    for (int i = 1; i < GP.nx+1; i++)
+    {
+        for (int j = 0; j < GP.ny; j++)
+        {
+            RHS[j + GP.ny*i]+= C[i][j] / dt;
+            RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
+            RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+
+            for (int k = 0; k < GP.ny; k++)
+                RHS[j + GP.ny*i] += (1 - time_weight)*copula_params.K[j][k] / copula_params.epsilon*GP.dy*C[i][k];
+
+        }
+    }
+    int i = 0;
+    for (int j = 0; j < GP.ny; j++)
+        RHS[j + GP.ny*i] = 1;
+
+    i = GP.nx + 1;
+    for (int j = 0; j < GP.ny; j++)
+        RHS[j + GP.ny*i] = 0;
+
+    return RHS;
+}
+
 
 CVector_arma CGrid::create_RHS_OU(double dt)
 {
@@ -2561,7 +2631,8 @@ void CGrid::solve_transport_OU(double t_end)
 void CGrid::solve_transport_Copula(double t_end)
 {
 	create_f_inv_u();
-	create_inverse_K_OU(dt);
+	create_k_mat_copula();
+	create_inv_K_Copula(dt);
 	C = CMatrix(GP.nx+2, GP.ny);
 	OU.BTCs = CBTCSet(GP.nx+2);
 	OU.BTC_normal = CBTCSet(GP.nx + 2);
@@ -2577,8 +2648,8 @@ void CGrid::solve_transport_Copula(double t_end)
 	set_progress_value(0);
     for (double t = 0; t < t_end; t += dt)
     {
-        CVector_arma RHS = create_RHS_OU(dt);
-        CVector_arma S = OU.Inv_M*RHS;
+        CVector_arma RHS = create_RHS_Copula(dt);
+        CVector_arma S = copula_params.Inv_M*RHS;
 
         for (int i = 0; i < GP.nx+2; i++)
         {
@@ -2596,6 +2667,10 @@ void CGrid::solve_transport_Copula(double t_end)
             OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
             OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
         }
+
+        for (int i = 0; i < GP.nx; i++)
+            for (int j = 0; j < GP.ny; j++)
+                p[i][j].C.push_back(C[i+1][j]);
 
         #if QT_version
                 set_progress_value(t / t_end);
@@ -2662,7 +2737,7 @@ CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename)
     CTimeSeries output;
     for (int tt=0; tt<p[0][0].C.size(); tt++)
     {
-        output.append(tt,GetConcentrationAtX(x,tt));
+        output.append(tt*dt,GetConcentrationAtX(x,tt));
     }
     output.writefile(pathout + filename);
     return output;

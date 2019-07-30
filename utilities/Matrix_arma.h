@@ -10,7 +10,6 @@
 #define ARMA_DONT_PRINT_ERRORS
 #define ARMA_USE_LAPACK
 #define ARMA_USE_BLAS
-#define ARMA_USE_SUPERLU 1
 #include "armadillo"
 class QVariant;
 //class QString;

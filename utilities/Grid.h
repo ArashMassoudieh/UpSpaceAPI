@@ -197,6 +197,7 @@ public:
 	CBTC inv_K_dist;
 	string marginal_K_dist_type;
 	CBTC get_K_CDF(double x0, double x1, double log_inc);
+	CBTC get_V_PDF(double x0, double x1, double log_inc);
 	CBTC get_margina_traj_v_dist(double vmin, double vmax, double nbins, string val);
 	double interpolate_K(double x, double y);
 	vector<double> interpolate_V(double x, double y);
@@ -215,8 +216,9 @@ public:
 	void set_K_transport_laplace(double D, double s);
 	void create_f_inv_u();
 	void create_k_mat_copula();
-	void create_inv_K_Copula();
+	void create_inv_K_Copula(double dt);
 	CVector_arma create_RHS_OU(double dt);
+	CVector_arma create_RHS_Copula(double dt);
 	void solve_transport_OU(double t_end);
 	void solve_transport_Copula(double t_end);
 	double time_weight;
