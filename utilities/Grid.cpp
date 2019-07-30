@@ -1409,6 +1409,21 @@ void CGrid::runcommands_qt()
                 if (commands[i].parameters.count("filename_fw_nd") > 0) OU.BTC_normal_fw.detivative().writetofile(pathout + commands[i].parameters["filename_fw_nd"]);
             }
 
+            if (commands[i].command == "solve_transport_copula")
+            {
+                show_in_window("Solving transport (Copula)...");
+                time_weight = atof(commands[i].parameters["weight"].c_str());
+                dt = atof(commands[i].parameters["dt"].c_str());
+                copula_params.epsilon = atof(commands[i].parameters["epsilon"].c_str());
+                copula_params.diffusion = atof(commands[i].parameters["diffusion"].c_str());
+                solve_transport_Copula(atof(commands[i].parameters["t_end"].c_str()));
+                if (commands[i].parameters.count("filename") > 0) OU.BTCs.writetofile(pathout + commands[i].parameters["filename"]);
+                if (commands[i].parameters.count("filename_d") > 0) OU.BTCs.detivative().writetofile(pathout + commands[i].parameters["filename_d"]);
+                if (commands[i].parameters.count("filename_n") > 0) OU.BTC_normal.writetofile(pathout + commands[i].parameters["filename_n"]);
+                if (commands[i].parameters.count("filename_nd") > 0) OU.BTC_normal.detivative().writetofile(pathout + commands[i].parameters["filename_nd"]);
+                if (commands[i].parameters.count("filename_fw_nd") > 0) OU.BTC_normal_fw.detivative().writetofile(pathout + commands[i].parameters["filename_fw_nd"]);
+            }
+
 
             if (commands[i].command == "solve_transport_laplace")
             {
@@ -2410,7 +2425,7 @@ void CGrid::create_k_mat_copula()
             {
                 double u1 = double(i)*GP.dy + GP.dy / 2;
                 double u2 = double(j)*GP.dy + GP.dy / 2;
-                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*mean(inv_dist(u1), inv_dist(u2));
+                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*dist.inverseCDF(u1);
                 copula_params.K[i][i] -= copula_params.K[i][j];
             }
 }
