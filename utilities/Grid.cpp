@@ -668,6 +668,7 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
     Vout = CVector(2);
     Vout[0] = getvelocity(pp)[0];
     Vout[1] = getvelocity(p_new)[0];
+
     return Vout;
 
 }
@@ -1428,6 +1429,7 @@ void CGrid::runcommands_qt()
                 dt = atof(commands[i].parameters["dt"].c_str());
                 copula_params.epsilon = atof(commands[i].parameters["epsilon"].c_str());
                 copula_params.diffusion = atof(commands[i].parameters["diffusion"].c_str());
+                copula_params.mean_method = commands[i].parameters["mean_method"];
                 solve_transport_Copula(atof(commands[i].parameters["t_end"].c_str()));
                 if (commands[i].parameters.count("filename") > 0) OU.BTCs.writetofile(pathout + commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("filename_d") > 0) OU.BTCs.detivative().writetofile(pathout + commands[i].parameters["filename_d"]);
@@ -2422,7 +2424,7 @@ void CGrid::create_inv_K_Copula(double dt)
             M(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
             if (copula_params.diffusion>0)
             {
-                if (i < GP.nx - 1)
+                if (i < GP.nx + 1)
                 {
                     M(j + GP.ny*i,j + GP.ny*i) = 2 * copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
                     M(j + GP.ny*i,j + GP.ny*(i-1)) = -copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
@@ -2464,7 +2466,7 @@ void CGrid::create_k_mat_copula()
             {
                 double u1 = double(i)*GP.dy + GP.dy / 2;
                 double u2 = double(j)*GP.dy + GP.dy / 2;
-                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*dist.inverseCDF(u1);
+                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*mean(dist.inverseCDF(u1),dist.inverseCDF(u2));
                 copula_params.K[i][i] -= copula_params.K[i][j];
 
             }
@@ -2492,6 +2494,16 @@ CVector_arma CGrid::create_RHS_Copula(double dt)
             RHS[j + GP.ny*i]+= C[i][j] / dt;
             RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+
+            if (copula_params.diffusion>0)
+            {
+                if (i < GP.nx + 1)
+                {
+                    RHS[j + GP.ny*i] += -2 * copula_params.diffusion*(1-time_weight)*pow(OU.FinvU[j], 2) / pow(GP.dx, 2)*C[i][j];
+                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight)*pow(OU.FinvU[j], 2) / pow(GP.dx, 2)*C[i][j-1];
+                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight)*pow(OU.FinvU[j], 2) / pow(GP.dx, 2)*C[i][j+1];
+                }
+            }
 
             for (int k = 0; k < GP.ny; k++)
                 RHS[j + GP.ny*i] += (1 - time_weight)*copula_params.K[j][k] / copula_params.epsilon*GP.dy*C[i][k];
@@ -2753,3 +2765,18 @@ double CGrid::GetConcentrationAtX(double x, int timestep)
     return output;
 }
 
+double CGrid::mean(double u1, double u2)
+{
+	if (copula_params.mean_method == "harmonic")
+		return 2 * u1*u2 / (u1 + u2);
+	if (copula_params.mean_method == "geometric")
+		return sqrt(u1*u2);
+	if (copula_params.mean_method == "arithmetic")
+		return 0.5*(u1 + u2);
+	if (copula_params.mean_method == "1")
+		return u1;
+	if (copula_params.mean_method == "2")
+		return u2;
+
+
+}

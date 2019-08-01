@@ -474,19 +474,6 @@
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgslcblas.so" />
 			<Add library="../../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
 		</Linker>
-		<Unit filename="../2D_Laplace/2D_Laplace/BTC.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/BTCSet.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Copula.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Distribution.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Grid.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Matrix.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Matrix_arma.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Matrix_arma_sp.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/NormalDist.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/QuickSort.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/StringOP.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Vector.h" />
-		<Unit filename="../2D_Laplace/2D_Laplace/Vector_arma.h" />
 		<Unit filename="mainsrc/Pathway.cpp" />
 		<Unit filename="mainsrc/Pathway.h" />
 		<Unit filename="mainsrc/PathwaySet.cpp" />

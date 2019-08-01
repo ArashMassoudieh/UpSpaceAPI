@@ -119,6 +119,7 @@ struct _Copula_Params
     CMatrix K;
     CMatrix_arma Inv_M;
     double diffusion;
+    string mean_method;
 };
 
 
@@ -247,6 +248,7 @@ public:
 	void screenshot_test();
 	_Copula_Params copula_params;
     CCopula Copula;
+    double mean(double u1, double u2);
 #ifdef Qt_version
 
 
