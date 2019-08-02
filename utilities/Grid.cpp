@@ -1305,7 +1305,7 @@ void CGrid::runcommands_qt()
             QApplication::processEvents();
             qDebug() << QString::fromStdString(commands[i].command) << endl;
             #endif // QT_version
-            cout<< "Running line #" << i << endl;
+            cout<< "******* Running line #" << i << " *************" <<endl;
 
             if (commands[i].command == "get_all_btc_points")
             {

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     //filename = "/home/arash/Projects/Upscaling_outputs/input_test_BTC_log_normal_loop_std1_l_res_corr_s.txt";
     //filename = "/home/arash/Projects/UpscalingInputfiles/input_test_BTC_log_normal_loop_std1_l_res_corr.txt";
 
-    filename = "/home/arash/Projects/UpscalingInputfiles/test_new_pair_transport.txt";
+    filename = "/home/arash/Projects/UpscalingInputfiles/input_copula.txt";
     //filename = "/home/arash/Projects/UpscalingInputfiles/input_copula_balistic.txt";
     CGrid G(filename);
     cout << "running [" << filename << "]..." << endl;
