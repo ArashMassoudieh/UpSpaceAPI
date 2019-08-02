@@ -1305,6 +1305,8 @@ void CGrid::runcommands_qt()
             QApplication::processEvents();
             qDebug() << QString::fromStdString(commands[i].command) << endl;
             #endif // QT_version
+            cout<< "Running line #" << i << endl;
+
             if (commands[i].command == "get_all_btc_points")
             {
                 show_in_window("Getting all btc points");
@@ -1574,6 +1576,12 @@ void CGrid::runcommands_qt()
                 CBTC vy_dist_all = Allpoints_velocities_eulerian.BTC[1].distribution(atoi(commands[i].parameters["nbins"].c_str()), (Allpoints_velocities_eulerian.BTC[1].maxC()-Allpoints_velocities_eulerian.BTC[1].minC())*atof(commands[i].parameters["smoothing_factor"].c_str()));
                 CBTC v_mag_dist_all = Allpoints_velocities_eulerian.BTC[2].distribution(atoi(commands[i].parameters["nbins"].c_str()), (Allpoints_velocities_eulerian.BTC[2].maxC()-Allpoints_velocities_eulerian.BTC[2].minC())*atof(commands[i].parameters["smoothing_factor"].c_str()));
 
+                CVector stats(2);
+                stats[0] = Allpoints_velocities_eulerian.BTC[0].Log(1e-6).mean();
+                stats[1] = Allpoints_velocities_eulerian.BTC[0].Log(1e-6).std();
+                if (commands[i].parameters.count("stat_filename"))
+                    stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
+
                 vx_dist_all.writefile(pathout + commands[i].parameters["filename_x"]);
                 vy_dist_all.writefile(pathout + commands[i].parameters["filename_y"]);
                 v_mag_dist_all.writefile(pathout + commands[i].parameters["filename_mag"]);
@@ -1804,16 +1812,24 @@ void CGrid::runcommands_qt()
                 Copula.copula = commands[i].parameters["copula"];
                 for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
                         Copula.parameters.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
-
+                Copula.SetCorrelation(Copula.parameters[0]);
             }
 
 
-            if (commands[i].command == "create_correlated_v_pathways")
+            if (commands[i].command == "create_correlated_v_pathways_ou")
             {
                 show_in_window("Creating pathways ...");
-                pset.create(atoi(commands[i].parameters["n"].c_str()), &dist, atof(commands[i].parameters["x_min"].c_str()), atof(commands[i].parameters["x_max"].c_str()), atof(commands[i].parameters["kappa"].c_str()), atof(commands[i].parameters["dx"].c_str()));
+                pset.create_ou_paths(atoi(commands[i].parameters["n"].c_str()), &dist, atof(commands[i].parameters["x_min"].c_str()), atof(commands[i].parameters["x_max"].c_str()), atof(commands[i].parameters["kappa"].c_str()), atof(commands[i].parameters["dx"].c_str()));
 
             }
+
+            if (commands[i].command == "create_correlated_v_pathways_copula")
+            {
+                show_in_window("Creating pathways ...");
+                pset.create_copula_paths(atoi(commands[i].parameters["n"].c_str()), &dist, atof(commands[i].parameters["x_min"].c_str()), atof(commands[i].parameters["x_max"].c_str()), atof(commands[i].parameters["epsilon"].c_str()), &Copula, atof(commands[i].parameters["dx"].c_str()));
+
+            }
+
 
             if (commands[i].command == "write_pathways")
             {
@@ -1854,11 +1870,15 @@ void CGrid::runcommands_qt()
                 {
                     CBTC dist_curve = dist_stores.get_distribution(commands[i].parameters["var"], atoi(commands[i].parameters["log"].c_str()), atoi(commands[i].parameters["nbins"].c_str()));
                     dist_curve.writefile(pathout+commands[i].parameters["filename"]);
+                    if (commands[i].parameters.count("filename_cum")>0)
+                        dist_curve.getcummulative().writefile(pathout+commands[i].parameters["filename_cum"]);
                 }
                 else
                 {
                     CBTCSet dist_curve = dist_stores.get_distribution(atoi(commands[i].parameters["log"].c_str()), atoi(commands[i].parameters["nbins"].c_str()));
                     dist_curve.writetofile(pathout+commands[i].parameters["filename"]);
+                    if (commands[i].parameters.count("filename_cum")>0)
+                        dist_curve.getcummulative().writetofile(pathout+commands[i].parameters["filename_cum"]);
                 }
 
 

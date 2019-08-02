@@ -64,16 +64,39 @@ int CPathwaySet::max_num_points()
 	return max_np;
 }
 
-void CPathwaySet::create(int n, CDistribution * dist, double x_min, double x_max, double kappa, double dx, double weight)
+void CPathwaySet::create_ou_paths(int n, CDistribution * dist, double x_min, double x_max, double kappa, double dx, double weight)
 {
 	for (int i = 0; i < n; i++)
 	{
             CPathway P;
-            P.create(dist, x_min, x_max, kappa, dx);
+            P.create_ou(dist, x_min, x_max, kappa, dx);
             P.weight = weight;
             append(P);
 	}
 }
+
+void CPathwaySet::create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, double r, double dx, double weight)
+{
+	for (int i = 0; i < n; i++)
+	{
+            CPathway P;
+            P.create_copula(dist, x_min, x_max, epsilon, r, dx);
+            P.weight = weight;
+            append(P);
+	}
+}
+
+void CPathwaySet::create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, CCopula *copula, double dx, double weight)
+{
+	for (int i = 0; i < n; i++)
+	{
+            CPathway P;
+            P.create_copula(dist, x_min, x_max, epsilon, copula, dx);
+            P.weight = weight;
+            append(P);
+	}
+}
+
 
 void CPathwaySet::write_vtk(vtkSmartPointer<vtkPolyDataMapper> mapper, string filename)
 {

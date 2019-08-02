@@ -5,6 +5,7 @@
 #include "vtk.h"
 #include <string>
 #include <BTCSet.h>
+#include "Copula.h"
 
 using namespace std;
 
@@ -16,7 +17,7 @@ public:
 	void create_range_x(double x_min, double x_max, double dx);
 	CPathway& operator=(const CPathway & P);
 	~CPathway();
-	vector<CPosition> positions; 
+	vector<CPosition> positions;
 	void append(CPosition pos);
 	CVector get_velocity_at_x(double x);
 	CPosition get_position_at_x(double x);
@@ -33,14 +34,16 @@ public:
 	double maxt = -0.1234567;
 	double mint = -0.1234567;
 	void write(string filename);
-	void create(CDistribution *dist, double x_min, double x_max, double kappa, double dx, double weight=1);
+	void create_ou(CDistribution *dist, double x_min, double x_max, double kappa, double dx, double weight=1);
+	void create_copula(CDistribution *dist, double x_min, double x_max, double epsilon, double r, double dx, double weight=1);
+	void create_copula(CDistribution *dist, double x_min, double x_max, double epsilon, CCopula *copula, double dx, double _weight=1);
 	vtkSmartPointer<vtkPolyData> pathway_vtk_pdt_vtp(double z_factor = 1, double offset = 0);
 	CBTCSet get_distribution(bool _log, int n_bins);
-	CBTC& get_distribution(string var, bool _log = false, int nbins = 100);
+	CBTC get_distribution(string var, bool _log = false, int nbins = 100);
 	vector<double> minmax(string var);
 	bool uniform = false;
 	double get_cross_time(double x);
-        double weight = 1; 
+        double weight = 1;
 
 };
 

@@ -30,7 +30,7 @@ double CDistribution::evaluate(double x)
 	if (name == "normal")
 		return 1 / (sqrt(2*pi)*params[1])*exp(-pow(x - params[0], 2) / (2 * params[1] * params[1]));
 	if (name == "lognormal")
-		return 1 / (sqrt(2*pi)*params[1] * x)*exp(-pow(log(x) - log(params[0]), 2) / (2 * params[1] * params[1]));
+		return 1 / (sqrt(2*pi)*params[1] * x)*exp(-pow(log(x) - params[0], 2) / (2 * params[1] * params[1]));
 	if (name == "levy")
 		return sqrt(params[0] / (2 * pi))*exp(-params[0] / (2 * x)) / pow(x, 1.5);
 	if (name == "exp")

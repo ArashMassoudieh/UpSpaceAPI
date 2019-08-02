@@ -1190,4 +1190,16 @@ TDMap CTimeSeriesSet::get2DMap(int number_of_bins)
     return M;
 }
 
+CTimeSeriesSet CTimeSeriesSet::getcummulative()
+{
+    CTimeSeriesSet out;
+    for (int i=0; i<nvars; i++)
+    {
+        CTimeSeries B = BTC[i].getcummulative();
+        out.append(B);
+        out.setname(i,names[i]);
+    }
+    return out;
+}
+
 

@@ -62,7 +62,7 @@ public:
 	void setname(int i, string name);
     void append(string name, double time, double c, double weight=1);
 	CVector get_kappa_gamma(double delta_x);
-
+    CTimeSeriesSet getcummulative();
 
 	bool file_not_found=false;
 	CBTC &operator[](int index);

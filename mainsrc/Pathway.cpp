@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "gsl/gsl_cdf.h"
+#include "Copula.h"
 
 
 
@@ -177,10 +178,10 @@ void CPathway::write(string filename)
 
 }
 
-void CPathway::create(CDistribution *dist, double x_min, double x_max, double kappa, double dx, double _weight)
+void CPathway::create_ou(CDistribution *dist, double x_min, double x_max, double kappa, double dx, double _weight)
 {
 	CPosition p;
-        weight = _weight;
+    weight = _weight;
 	p.u = unitrandom();
 	p.z = gsl_cdf_gaussian_Pinv(p.u,1);
 	p.v[0] = dist->inverseCDF(p.u);
@@ -195,6 +196,63 @@ void CPathway::create(CDistribution *dist, double x_min, double x_max, double ka
 		p.x += dx;
 		p.y = 0;
 		p.v[0] = dist->inverseCDF(p.u);
+		p.t += dx / p.v[0];
+		append(p);
+	}
+}
+
+void CPathway::create_copula(CDistribution *dist, double x_min, double x_max, double epsilon, double r, double dx, double _weight)
+{
+    CCopula C;
+    C.SetCorrelation(r);
+    CPosition p;
+    weight = _weight;
+	p.u = unitrandom();
+	p.z = gsl_cdf_gaussian_Pinv(p.u, 1);
+
+	p.v[0] = dist->inverseCDF(p.u);
+	p.x = x_min;
+	p.y = p.u;
+	p.t = 0;
+	append(p);
+	while (p.x < x_max)
+	{
+		if (unitrandom()<1-exp(-dx/epsilon))
+        {
+            p.u = C.get_random_at(p.u);
+            p.z = C.w;
+            p.v[0] = dist->inverseCDF(p.u);
+        }
+
+		p.x += dx;
+		p.y = p.u;
+		p.t += dx / p.v[0];
+		append(p);
+	}
+}
+
+void CPathway::create_copula(CDistribution *dist, double x_min, double x_max, double epsilon, CCopula *copula, double dx, double _weight)
+{
+    CPosition p;
+    weight = _weight;
+	p.u = unitrandom();
+	p.z = gsl_cdf_gaussian_Pinv(p.u, 1);
+	p.v[0] = dist->inverseCDF(p.u);
+	p.x = x_min;
+	p.y = p.u;
+	p.t = 0;
+	append(p);
+	while (p.x < x_max)
+	{
+		if (unitrandom()<1-exp(-dx/epsilon))
+        {
+            p.u = copula->get_random_at(p.u);
+            p.z = copula->w;
+            p.v[0] = dist->inverseCDF(p.u);
+            p.y = p.u;
+        }
+
+		p.x += dx;
 		p.t += dx / p.v[0];
 		append(p);
 	}
@@ -293,15 +351,26 @@ vtkSmartPointer<vtkPolyData> CPathway::pathway_vtk_pdt_vtp(double z_factor, doub
 CBTCSet CPathway::get_distribution(bool _log, int n_bins)
 {
 	CBTCSet B;
-	B.append(get_distribution("t", _log, n_bins));
-	B.append(get_distribution("x", _log, n_bins));
-	B.append(get_distribution("y", _log, n_bins));
-	B.append(get_distribution("vx", _log, n_bins));
-	B.append(get_distribution("vy", _log, n_bins));
-	B.append(get_distribution("u", _log, n_bins));
-	B.append(get_distribution("z", _log, n_bins));
-	B.append(get_distribution("v_eff", _log, n_bins));
-	B.append(get_distribution("t_eff", _log, n_bins));
+	CBTC tBTC=get_distribution("t", _log, n_bins);
+	CBTC xBTC=get_distribution("x", _log, n_bins);
+	CBTC yBTC=get_distribution("y", _log, n_bins);
+	CBTC vxBTC=get_distribution("vx", _log, n_bins);
+	CBTC vyBTC=get_distribution("vy", _log, n_bins);
+	CBTC uBTC=get_distribution("u", _log, n_bins);
+	CBTC zBTC=get_distribution("z", _log, n_bins);
+	CBTC v_effBTC=get_distribution("v_eff", _log, n_bins);
+	CBTC t_effBTC=get_distribution("t_eff", _log, n_bins);
+
+
+	B.append(tBTC);
+	B.append(xBTC);
+	B.append(yBTC);
+	B.append(vxBTC);
+	B.append(vyBTC);
+	B.append(uBTC);
+	B.append(zBTC);
+	B.append(v_effBTC);
+	B.append(t_effBTC);
 
 	B.setname(0, "t");
 	B.setname(1, "x");
@@ -317,7 +386,7 @@ CBTCSet CPathway::get_distribution(bool _log, int n_bins)
 
 }
 
-CBTC& CPathway::get_distribution(string var, bool _log, int n_bins)
+CBTC CPathway::get_distribution(string var, bool _log, int n_bins)
 {
 	CBTC out(n_bins + 2);
 

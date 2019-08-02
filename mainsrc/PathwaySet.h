@@ -2,6 +2,7 @@
 #include "Pathway.h"
 #include <vector>
 #include <string>
+#include "Copula.h"
 
 using namespace std;
 class CPathwaySet
@@ -16,7 +17,9 @@ public:
     void write(string filename);
     void append(const CPathway& P, double weight=1);
     int max_num_points();
-    void create(int n, CDistribution *dist, double x_min, double x_max, double kappa, double dx, double weight=1);
+    void create_ou_paths(int n, CDistribution *dist, double x_min, double x_max, double kappa, double dx, double weight=1);
+    void create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, double r, double dx, double weight=1);
+    void create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, CCopula *copula, double dx, double weight=1);
     void write_vtk(vtkSmartPointer<vtkPolyDataMapper>, string filename);
     vtkSmartPointer<vtkPolyDataMapper> pathways_vtk_pdt_vtp(double z_factor=1, double offset=0);
     CPathway snapshotattime(double t);

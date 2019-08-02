@@ -1397,6 +1397,7 @@ vector<double> CTimeSeries::trend()
 CTimeSeries CTimeSeries::getcummulative()
 {
 	CTimeSeries X(n);
+	if (n==0) return X;
 	X.t = t;
 	X.C[0] = 0;
 	for (int i = 1; i<n; i++)
