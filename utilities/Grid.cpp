@@ -2777,7 +2777,7 @@ CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename)
 
 double CGrid::GetConcentrationAtX(double x, int timestep)
 {
-    int i=x/GP.dx;
+    int i=x/GP.dx+1;
     double output = 0;
     for (int j=0; j<GP.ny; j++)
         output += p[i][j].C[timestep]/GP.ny;
