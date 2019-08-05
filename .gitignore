@@ -8,3 +8,5 @@ UpSpaceAPI\.depend
 *.layout
 
 *.depend
+
+bin/Release/
