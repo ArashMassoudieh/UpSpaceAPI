@@ -158,7 +158,9 @@ public:
 	CPathway gettrajectory_fix_dx(CPosition pp, double dt, double t_end);
 	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double weight = 0.5);
 	CVector v_correlation_single_point(const CPosition &pp, double dx0, double x_inc);
+	CVector v_correlation_single_point_dt(const CPosition &pp, double dt0, double t_inc);
 	CBTCSet get_correlation_based_on_random_samples(int nsamples, double dx0, double x_inc);
+	CBTCSet get_correlation_based_on_random_samples_dt(int nsamples, double dt0, double t_inc);
     CPosition getrandompoint();
 	CPathwaySet gettrajectories(double dt, double t_end);
 	CPathwaySet gettrajectories_fixed_dx(double dt, double x_end);

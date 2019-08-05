@@ -593,6 +593,23 @@ CBTCSet CGrid::get_correlation_based_on_random_samples(int nsamples, double dx0,
     return output;
 }
 
+CBTCSet CGrid::get_correlation_based_on_random_samples_dt(int nsamples, double dt0, double t_inc)
+{
+    CBTCSet output(2);
+    for (int i=0; i<nsamples; i++)
+    {
+        CPosition pt = getrandompoint();
+        CVector V = v_correlation_single_point_dt(pt,dt0,t_inc);
+        if (V.num==2)
+        {
+            output.BTC[0].append(i,V[0]);
+            output.BTC[1].append(i,V[1]);
+        }
+    }
+    return output;
+}
+
+
 CPosition CGrid::getrandompoint()
 {
     CPosition out;
@@ -672,6 +689,47 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
     return Vout;
 
 }
+
+CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, double t_inc)
+{
+    CPosition pt = pp;
+    CPosition p_new;
+    CVector Vout;
+    bool ex = false;
+    while (pt.t < dt0 && ex==false)
+    {
+        CVector V = getvelocity(pt);
+        if (V.getsize() == 0)
+            {
+                return Vout;
+            }
+        double dx = V[0]*t_inc;
+        double dy = V[1]*t_inc;
+
+        if (V.num == 2)
+        {
+            p_new.x = pt.x + dx;
+            p_new.y = pt.y + dy;
+            CVector V_new = getvelocity(p_new);
+
+            p_new.y = pt.y + 0.5*(V[1]+V_new[1])*t_inc;
+            p_new.x = pt.x + 0.5*(V[0]+V_new[0])*t_inc;
+            V_new = getvelocity(p_new);
+            if (V_new.num!=2)
+                return CVector();
+            p_new.t += dt;
+            pt = p_new;
+         }
+    }
+    Vout = CVector(2);
+    Vout[0] = getvelocity(pp)[0];
+    Vout[1] = getvelocity(p_new)[0];
+
+    return Vout;
+
+}
+
+
 
 CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double x_end, double weight)
 {
@@ -1909,20 +1967,30 @@ void CGrid::runcommands_qt()
                 show_in_window("Extracting pairs ... ");
                 CBTCSet pairs;
                 bool random_sampling = false;
-
+                bool time_based = false;
 
                 if (commands[i].parameters.count("random_sampling")==1)
                     if (atoi(commands[i].parameters["random_sampling"].c_str())==1)
                         random_sampling = true;
 
+                if (commands[i].parameters.count("time_based")==1)
+                    if (atoi(commands[i].parameters["time_based"].c_str())==1)
+                        random_sampling = true;
+
+
                 if (!commands[i].parameters.count("nsequence"))
                             commands[i].parameters["nsequence"] = "2";
+
 
                 if (random_sampling)
                     {
                         double dx;
                         dx = atof(commands[i].parameters["delta_x"].c_str());
-                        pairs = get_correlation_based_on_random_samples(atoi(commands[i].parameters["n"].c_str()),dx,atof(commands[i].parameters["increment"].c_str()));
+                        if (!time_based)
+                            pairs = get_correlation_based_on_random_samples(atoi(commands[i].parameters["n"].c_str()),dx,atof(commands[i].parameters["increment"].c_str()));
+                        else
+                            pairs = get_correlation_based_on_random_samples_dt(atoi(commands[i].parameters["n"].c_str()),dt,atof(commands[i].parameters["increment"].c_str()));
+
                     }
                     else
                     {
