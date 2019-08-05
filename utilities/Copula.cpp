@@ -1,6 +1,6 @@
 #include "Copula.h"
 #include "NormalDist.h"
-# include "gsl/gsl_randist.h"
+#include "gsl/gsl_randist.h"
 
 CCopula::CCopula()
 {

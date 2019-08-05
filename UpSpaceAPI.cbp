@@ -139,6 +139,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=c++0x" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -470,9 +471,12 @@
 			<Add option="-lblas" />
 			<Add option="-llapack" />
 			<Add option="-larmadillo" />
+			<Add option="-lsuperlu" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgsl.so" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgslcblas.so" />
 			<Add library="../../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
+			<Add library="../../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
+			<Add library="/usr/lib/x86_64-linux-gnu/libsuperlu.so" />
 		</Linker>
 		<Unit filename="mainsrc/Pathway.cpp" />
 		<Unit filename="mainsrc/Pathway.h" />

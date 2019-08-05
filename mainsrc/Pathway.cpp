@@ -92,7 +92,11 @@ CPathway CPathway::make_uniform_x(double dx)
 	CPathway pathout;
 	pathout.uniform = true;
         pathout.weight = weight;
-	double x = positions[0].x;
+	double x;
+	if (positions.size()>0)
+        x = positions[0].x;
+    else
+        return pathout;
 	pathout.append(positions[0]);
 	x += dx;
 	for (int i = 1; i < int(positions.size()); i++)

@@ -7,7 +7,10 @@
 #include "qdebug.h"
 #include <QCursor>
 #endif // Qt_version
-
+#include "gsl/gsl_rng.h"
+#include "gsl/gsl_cdf.h"
+#include "gsl/gsl_randist.h"
+#include <math.h>
 
 #include <sys/resource.h>
 
@@ -692,6 +695,7 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
 
 CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, double t_inc)
 {
+    if (t_inc>dt0) t_inc = dt0/10.0;
     CPosition pt = pp;
     CPosition p_new;
     CVector Vout;
@@ -711,13 +715,14 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
             p_new.x = pt.x + dx;
             p_new.y = pt.y + dy;
             CVector V_new = getvelocity(p_new);
-
+            if (V_new.num!=2)
+                return CVector();
             p_new.y = pt.y + 0.5*(V[1]+V_new[1])*t_inc;
             p_new.x = pt.x + 0.5*(V[0]+V_new[0])*t_inc;
             V_new = getvelocity(p_new);
             if (V_new.num!=2)
                 return CVector();
-            p_new.t += dt;
+            p_new.t += t_inc;
             pt = p_new;
          }
     }
@@ -731,7 +736,7 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
 
 
 
-CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double x_end, double weight)
+CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double x_end, double D, double weight)
 {
     CPosition pt = pp;
     CPathway Trajectory;
@@ -749,7 +754,12 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
             {
                 return Trajectory;
             }
-        double dx = dx0/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0];
+        if (V[0]==0)
+        {
+            cout<< "Vx = 0!" <<endl;
+        }
+
+        double dx = fabs(dx0/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0]);
 
         bool changed_sign = true;
         while (changed_sign)
@@ -759,10 +769,20 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
                 {
                     cout<<"Vx = 0!"<<endl;
                 }
-                double dt = dx/V[0];
+
+                double dt0 = fabs(dx/V[0]);
+                if (dt0<0)
+                {
+                    cout<<"negative dt0!"<<endl;
+                }
+
+                CVector diffusion(2);
+
+                diffusion[0] = gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
+                diffusion[1] = gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
                 CPosition p_new;
-                p_new.x = pt.x + dt*V[0];
-                p_new.y = pt.y + dt*V[1];
+                p_new.x = pt.x + dt0*V[0]+diffusion[0];
+                p_new.y = pt.y + dt0*V[1]+diffusion[1];
                 CVector V_new = getvelocity(p_new);
                 if (V_new.getsize() == 0)
                 {
@@ -775,21 +795,23 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
                 }
                 else
                 {   changed_sign = false;
+                    double dt1;
                     if (V[0]==V_new[0])
-                        dt = dx/V[0];
+                        dt1 = fabs(dx/V[0]);
                     else
-                        dt = dx*(log(V_new[0])-log(V[0]))/(V_new[0]-V[0]);
-                    if (dt<0)
-                    {
-                        cout<<"Negative dt!"<<endl;
-                    }
-                    p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt;
-                    p_new.x = pt.x + dx;
+                        dt1 = fabs(dx*(log(fabs(V_new[0]))-log(fabs(V[0])))/(fabs(V_new[0])-fabs(V[0])));
+
+                    p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt1 + diffusion[1]*sqrt(dt1/dt0);
+                    p_new.x = pt.x + dx + diffusion[0]*sqrt(dt1/dt0);
                     p_new.v = V_new;
-                    p_new.t = t+dt;
+                    p_new.t = t+dt1;
+                    if (isnan(p_new.x))
+                    {
+                        cout<< "nan!" << endl;
+                    }
                     Trajectory.append(p_new);
                     pt = p_new;
-                    t += dt;
+                    t += dt1;
                 }
             }
             else ex = true;
@@ -822,7 +844,7 @@ CPathwaySet CGrid::gettrajectories(double dt, double t_end)
     return X;
 }
 
-CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end)
+CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double diffusion)
 {
     //qDebug() << "Simulating trajectories"<<endl;
 
@@ -831,7 +853,7 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end)
     {
 //	qDebug() << i << endl;
 
-        CPathway X1 = gettrajectory_fix_dx_2nd_order(pts[i], dx, x_end);
+        CPathway X1 = gettrajectory_fix_dx_2nd_order(pts[i], dx, x_end, diffusion);
         //cout << "\r" << "Trajectory #"<<  i << " Weight: " << X1.weight<< std::flush;
         if (weighted)
             {   X.weighted = true;
@@ -1558,7 +1580,7 @@ void CGrid::runcommands_qt()
                 QApplication::processEvents();
                 #endif // QT_version
                 cout << "Simulating trajectories with fixed dx..." << endl;
-                Traj = gettrajectories_fixed_dx(atof(commands[i].parameters["dx"].c_str()), atof(commands[i].parameters["x_end"].c_str()));
+                Traj = gettrajectories_fixed_dx(atof(commands[i].parameters["dx"].c_str()), atof(commands[i].parameters["x_end"].c_str()), atof(commands[i].parameters["diffusion"].c_str()));
             }
 
             if (commands[i].command == "write_breakthrough_curve")
@@ -1975,7 +1997,7 @@ void CGrid::runcommands_qt()
 
                 if (commands[i].parameters.count("time_based")==1)
                     if (atoi(commands[i].parameters["time_based"].c_str())==1)
-                        random_sampling = true;
+                        time_based = true;
 
 
                 if (!commands[i].parameters.count("nsequence"))
@@ -1984,12 +2006,20 @@ void CGrid::runcommands_qt()
 
                 if (random_sampling)
                     {
-                        double dx;
-                        dx = atof(commands[i].parameters["delta_x"].c_str());
+
+
                         if (!time_based)
+                        {
+                            double dx;
+                            dx = atof(commands[i].parameters["delta_x"].c_str());
                             pairs = get_correlation_based_on_random_samples(atoi(commands[i].parameters["n"].c_str()),dx,atof(commands[i].parameters["increment"].c_str()));
+                        }
                         else
+                        {
+                            double dt;
+                            dt = atof(commands[i].parameters["delta_t"].c_str());
                             pairs = get_correlation_based_on_random_samples_dt(atoi(commands[i].parameters["n"].c_str()),dt,atof(commands[i].parameters["increment"].c_str()));
+                        }
 
                     }
                     else
@@ -2057,13 +2087,28 @@ void CGrid::runcommands_qt()
                     {
                         show_in_window("Calculating OU params");
 
-                        CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_x"].c_str()));
-                        extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_x"].c_str()), X[0]);
-                        extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_x"].c_str()), X[1]);
-                        if (atoi(commands[i].parameters["nsequence"].c_str())>2)
-                            extracted_OU_parameters.append("p3", atoi(commands[i].parameters["increment"].c_str()), X[2]);
-                        show_in_window("Writing OU params");
-                        X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+                        if (!time_based)
+                        {
+                            CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_x"].c_str()));
+                            extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_x"].c_str()), X[0]);
+                            extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_x"].c_str()), X[1]);
+
+                            if (atoi(commands[i].parameters["nsequence"].c_str())>2)
+                                extracted_OU_parameters.append("p3", atoi(commands[i].parameters["increment"].c_str()), X[2]);
+
+                            show_in_window("Writing OU params");
+                            X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+                        }
+                        else
+                        {
+                            CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_t"].c_str()));
+                            extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_t"].c_str()), X[0]);
+                            extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_t"].c_str()), X[1]);
+
+                            show_in_window("Writing OU params");
+                            X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+                        }
+
                     }
                 }
             }
