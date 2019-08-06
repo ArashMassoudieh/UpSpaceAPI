@@ -152,8 +152,8 @@ vtkSmartPointer<vtkActor> CGrid::get_K_field_vtk_pdt(double z_factor)
 	double minz = bounds[4];
 	double maxz = bounds[5];
 
-	std::cout << "minz: " << minz << std::endl;
-	std::cout << "maxz: " << maxz << std::endl;
+	//std::cout << "minz: " << minz << std::endl;
+	//std::cout << "maxz: " << maxz << std::endl;
 
 	// Create the color map
 	vtkSmartPointer<vtkLookupTable> colorLookupTable =
@@ -934,8 +934,8 @@ void CGrid::write_K_solution_to_vtp(string filename, double z_factor, bool _log)
 	double minz = bounds[4];
 	double maxz = bounds[5];
 
-	std::cout << "minz: " << minz << std::endl;
-	std::cout << "maxz: " << maxz << std::endl;
+	//std::cout << "minz: " << minz << std::endl;
+	//std::cout << "maxz: " << maxz << std::endl;
 
 	// Create the color map
 	vtkSmartPointer<vtkLookupTable> colorLookupTable =
@@ -1027,6 +1027,7 @@ void CGrid::write_C_to_vtp(string filename, double z_factor, bool _log, vector<d
 	{
 		string filename_1 = split(filename, '.')[0] + "_" + numbertostring(i) +"." + split(filename, '.')[1];
 		write_C_to_vtp(filename_1, z_factor, _log, t[i]);
+		set_progress_value(double(i)/double(t.size()));
 	}
 }
 
@@ -1093,8 +1094,8 @@ void CGrid::write_C_to_vtp(string filename, double z_factor, bool _log, double t
 	double minz = bounds[4];
 	double maxz = bounds[5];
 
-	std::cout << "minz: " << minz << std::endl;
-	std::cout << "maxz: " << maxz << std::endl;
+	//std::cout << "minz: " << minz << std::endl;
+	//std::cout << "maxz: " << maxz << std::endl;
 
 	// Create the color map
 	vtkSmartPointer<vtkLookupTable> colorLookupTable =
