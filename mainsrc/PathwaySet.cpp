@@ -11,7 +11,7 @@ CPathwaySet::CPathwaySet()
 CPathwaySet::CPathwaySet(const CPathwaySet & P)
 {
 	paths = P.paths;
-        weighted = P.weighted;
+    weighted = P.weighted;
 
 }
 

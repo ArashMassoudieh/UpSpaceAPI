@@ -155,6 +155,7 @@ public:
 	void writeasmatrixK(string filename, int component);
 	CVector getvelocity(CPosition pp);
 	CPathway gettrajectory(CPosition pp, double dt, double t_end);
+	CPathway gettrajectory_vdt(CPosition pp, double dt, double t_end, double tol, double diffusion=0);
 	CPathway gettrajectory_fix_dx(CPosition pp, double dt, double t_end);
 	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double D=0, double weight = 0.5);
 	CVector v_correlation_single_point(const CPosition &pp, double dx0, double x_inc);
@@ -163,6 +164,7 @@ public:
 	CBTCSet get_correlation_based_on_random_samples_dt(int nsamples, double dt0, double t_inc);
     CPosition getrandompoint();
 	CPathwaySet gettrajectories(double dt, double t_end);
+	CPathwaySet gettrajectories_vdt(double dt, double t_end, double tol, double diffusion=0);
 	CPathwaySet gettrajectories_fixed_dx(double dt, double x_end, double diffusion=0);
 	vector<CPosition> pts;
         bool weighted;

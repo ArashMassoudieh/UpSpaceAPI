@@ -519,9 +519,9 @@ vector<double> CGrid::interpolate_V(double x, double y)
 	return getvelocity(pp).vec;
 }
 
-CPathway CGrid::gettrajectory(point pp, double dt, double t_end)
+CPathway CGrid::gettrajectory(CPosition pp, double dt, double t_end)
 {
-	point pt = pp;
+	CPosition pt = pp;
 	CPathway Trajectory;
         Trajectory.weight = getvelocity(pt)[0];
 	double t = 0;
@@ -543,6 +543,46 @@ CPathway CGrid::gettrajectory(point pp, double dt, double t_end)
 
 	return Trajectory;
 }
+
+CPathway CGrid::gettrajectory_vdt(CPosition pp, double dt0, double x_end, double tol, double diffusion)
+{
+	CPosition pt = pp;
+	CPathway Trajectory;
+        Trajectory.weight = getvelocity(pt)[0];
+	double t = 0;
+    double dt = dt0;
+
+	while (pt.x < x_end)
+	{
+        CPosition ps;
+        double err = tol;
+        while (err>=tol)
+        {
+            dt /= (err/tol);
+            CVector V = getvelocity(pt);
+            if (V.getsize() == 0) return Trajectory;
+            ps.x = pt.x;
+            ps.y = pt.y;
+            ps.t = t;
+            ps.v = V;
+            pt.x += V[0] * dt;
+            pt.y += V[1] * dt;
+            CVector V2 = getvelocity(pt);
+            if (V2.num == 0) return Trajectory;
+            err = norm(V-V2);
+            pt.x += -(V-V2)[0]*dt/2.0;
+            pt.y += -(V-V2)[1]*dt/2.0;
+        }
+        t += dt;
+        dt /= (err/tol);
+        pt.x += gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
+        pt.y += gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
+        Trajectory.append(ps);
+	}
+
+	return Trajectory;
+}
+
 
 CPathway CGrid::gettrajectory_fix_dx(CPosition pp, double dx, double x_end)
 {
@@ -844,6 +884,26 @@ CPathwaySet CGrid::gettrajectories(double dt, double t_end)
     return X;
 }
 
+CPathwaySet CGrid::gettrajectories_vdt(double dt, double t_end, double tol, double diffusion)
+{
+    CPathwaySet X;
+    for (int i = 0; i < int(pts.size()); i++)
+    {
+        CPathway X1 = gettrajectory_vdt(pts[i], dt, t_end, tol, diffusion);
+        if (weighted)
+        {   X.weighted = true;
+            X.append(X1);
+        }
+        else
+        {   X.weighted = false;
+            X.append(X1);
+        }
+        set_progress_value(double(i) / double(pts.size()));
+    }
+    cout<<endl;
+    return X;
+}
+
 CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double diffusion)
 {
     //qDebug() << "Simulating trajectories"<<endl;
@@ -899,6 +959,7 @@ CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, strin
                 v_x = getvelocity(pt_0)[0];
                 double u = unitrandom();
                 if (u < (v_x / v_max/5)) accepted = true;
+                accepted = true;
             }
             pts.push_back(pt_0);
             vels.append(i,v_x);
@@ -1570,7 +1631,7 @@ void CGrid::runcommands_qt()
                 QApplication::processEvents();
                 #endif // QT_version
                 cout << "Simulating trajectories ..." << endl;
-                Traj = gettrajectories(atof(commands[i].parameters["dt"].c_str()), atof(commands[i].parameters["t_end"].c_str()));
+                Traj = gettrajectories_vdt(atof(commands[i].parameters["dt"].c_str()), atof(commands[i].parameters["x_end"].c_str()),atof(commands[i].parameters["tol"].c_str()),atof(commands[i].parameters["diffusion"].c_str()));
             }
 
             if (commands[i].command == "create_trajectories_fix_dx")
