@@ -568,15 +568,19 @@ CPathway CGrid::gettrajectory_vdt(CPosition pp, double dt0, double x_end, double
             pt.x += V[0] * dt;
             pt.y += V[1] * dt;
             CVector V2 = getvelocity(pt);
-            if (V2.num == 0) return Trajectory;
+            if (V2.num == 0)
+            {
+                Trajectory.append(ps);
+                return Trajectory;
+            }
             err = norm(V-V2);
             pt.x += -(V-V2)[0]*dt/2.0;
             pt.y += -(V-V2)[1]*dt/2.0;
         }
         t += dt;
-        dt /= (err/tol);
-        pt.x += gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
-        pt.y += gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
+        pt.x += gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt));
+        pt.y += gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt));
+        dt *= pow(1.05,1.0-err/tol);
         Trajectory.append(ps);
 	}
 
@@ -776,8 +780,12 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
 
 
 
-CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double x_end, double D, double weight)
+CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double x_end, double D, double tol, double weight)
 {
+    double x0 = pp.x;
+    double backward = 1;
+    if (x_end<x0) backward = -1;
+
     CPosition pt = pp;
     CPathway Trajectory;
     if (weighted)
@@ -787,7 +795,7 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
     double t = 0;
 
     bool ex = false;
-    while (pt.x < x_end && ex==false)
+    while (x0<pt.x < x_end && ex==false)
     {
         CVector V = getvelocity(pt);
         if (V.getsize() == 0)
@@ -816,13 +824,9 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
                     cout<<"negative dt0!"<<endl;
                 }
 
-                CVector diffusion(2);
-
-                diffusion[0] = gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
-                diffusion[1] = gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt0));
                 CPosition p_new;
-                p_new.x = pt.x + dt0*V[0]+diffusion[0];
-                p_new.y = pt.y + dt0*V[1]+diffusion[1];
+                p_new.x = pt.x + dt0*V[0];//+diffusion[0];
+                p_new.y = pt.y + dt0*V[1];//+diffusion[1];
                 CVector V_new = getvelocity(p_new);
                 if (V_new.getsize() == 0)
                 {
@@ -835,22 +839,38 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
                 }
                 else
                 {   changed_sign = false;
+                    double err = norm(V-V_new);
                     double dt1;
-                    if (V[0]==V_new[0])
-                        dt1 = fabs(dx/V[0]);
-                    else
-                        dt1 = fabs(dx*(log(fabs(V_new[0]))-log(fabs(V[0])))/(fabs(V_new[0])-fabs(V[0])));
+                    while (err>=tol)
+                    {
 
-                    p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt1 + diffusion[1]*sqrt(dt1/dt0);
-                    p_new.x = pt.x + dx + diffusion[0]*sqrt(dt1/dt0);
+                        if (V[0]==V_new[0])
+                            dt1 = fabs(dx/V[0]);
+                        else
+                            dt1 = fabs(dx*(log(fabs(V_new[0]))-log(fabs(V[0])))/(fabs(V_new[0])-fabs(V[0])));
+
+                        p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt1*backward;// + diffusion[1]*sqrt(dt1/dt0);
+                        p_new.x = pt.x + dx*backward; // + diffusion[0]*sqrt(dt1/dt0);
+                        CVector V_star = getvelocity(p_new);
+                        err = norm(V_star - V_new);
+                        V_new = V_star;
+                    }
                     p_new.v = V_new;
                     p_new.t = t+dt1;
+                    CVector diffusion(2);
+
+                    diffusion[0] = gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt1));
+                    diffusion[1] = gsl_ran_gaussian(Copula.RngPtr(),sqrt(D*dt1));
+                    p_new.x = p_new.x + diffusion[0];
+                    p_new.y = p_new.y + diffusion[1];
+
                     if (isnan(p_new.x))
                     {
                         cout<< "nan!" << endl;
                     }
                     Trajectory.append(p_new);
                     pt = p_new;
+
                     t += dt1;
                 }
             }
@@ -904,7 +924,7 @@ CPathwaySet CGrid::gettrajectories_vdt(double dt, double t_end, double tol, doub
     return X;
 }
 
-CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double diffusion)
+CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double tol, double diffusion)
 {
     //qDebug() << "Simulating trajectories"<<endl;
 
@@ -913,7 +933,7 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double diff
     {
 //	qDebug() << i << endl;
 
-        CPathway X1 = gettrajectory_fix_dx_2nd_order(pts[i], dx, x_end, diffusion);
+        CPathway X1 = gettrajectory_fix_dx_2nd_order(pts[i], dx, x_end, diffusion, tol);
         //cout << "\r" << "Trajectory #"<<  i << " Weight: " << X1.weight<< std::flush;
         if (weighted)
             {   X.weighted = true;
@@ -1641,7 +1661,7 @@ void CGrid::runcommands_qt()
                 QApplication::processEvents();
                 #endif // QT_version
                 cout << "Simulating trajectories with fixed dx..." << endl;
-                Traj = gettrajectories_fixed_dx(atof(commands[i].parameters["dx"].c_str()), atof(commands[i].parameters["x_end"].c_str()), atof(commands[i].parameters["diffusion"].c_str()));
+                Traj = gettrajectories_fixed_dx(atof(commands[i].parameters["dx"].c_str()), atof(commands[i].parameters["x_end"].c_str()), atof(commands[i].parameters["tol"].c_str()), atof(commands[i].parameters["diffusion"].c_str()));
             }
 
             if (commands[i].command == "write_breakthrough_curve")

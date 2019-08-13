@@ -90,26 +90,51 @@ CVector CPathway::get_velocity_at_t(double t)
 CPathway CPathway::make_uniform_x(double dx)
 {
 	CPathway pathout;
+	double backward = 1;
+	if (positions[positions.size()-1].x>positions[0].x)
+        backward = 1;
+    else
+        backward = -1;
+
 	pathout.uniform = true;
         pathout.weight = weight;
 	double x;
 	if (positions.size()>0)
-        x = positions[0].x;
+    {
+        if (backward == 1)
+            x = positions[0].x;
+        else
+            x = positions[positions.size()-1].x;
+    }
     else
         return pathout;
 	pathout.append(positions[0]);
 	x += dx;
-	for (int i = 1; i < int(positions.size()); i++)
-	{
+	if (backward == 1)
+    {
+        for (int i = 1; i < int(positions.size()); i++)
+        {
 
-		while (positions[i].x > x)
-		{
-                    CPosition p = positions[i - 1] + (positions[i] - positions[i - 1]) / (positions[i].x - positions[i - 1].x)*(x - positions[i - 1].x);
-                    pathout.append(p);
-                    x += dx;
-		}
-	}
-
+            while (positions[i].x > x)
+            {
+                CPosition p = positions[i - 1] + (positions[i] - positions[i - 1]) / (positions[i].x - positions[i - 1].x)*(x - positions[i - 1].x);
+                pathout.append(p);
+                x += dx;
+            }
+        }
+    }
+    else
+    {
+        for (int i = int(positions.size()); i > 0 ; i--)
+        {
+            while (positions[i].x > x)
+            {
+                CPosition p = positions[i - 1] + (positions[i] - positions[i - 1]) / (positions[i].x - positions[i - 1].x)*(x - positions[i - 1].x);
+                pathout.append(p);
+                x += dx;
+            }
+        }
+    }
 	return pathout;
 }
 

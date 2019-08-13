@@ -157,7 +157,7 @@ public:
 	CPathway gettrajectory(CPosition pp, double dt, double t_end);
 	CPathway gettrajectory_vdt(CPosition pp, double dt, double t_end, double tol, double diffusion=0);
 	CPathway gettrajectory_fix_dx(CPosition pp, double dt, double t_end);
-	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double D=0, double weight = 0.5);
+	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double D, double tol, double weight = 0.5);
 	CVector v_correlation_single_point(const CPosition &pp, double dx0, double x_inc);
 	CVector v_correlation_single_point_dt(const CPosition &pp, double dt0, double t_inc);
 	CBTCSet get_correlation_based_on_random_samples(int nsamples, double dx0, double x_inc);
@@ -165,7 +165,7 @@ public:
     CPosition getrandompoint();
 	CPathwaySet gettrajectories(double dt, double t_end);
 	CPathwaySet gettrajectories_vdt(double dt, double t_end, double tol, double diffusion=0);
-	CPathwaySet gettrajectories_fixed_dx(double dt, double x_end, double diffusion=0);
+	CPathwaySet gettrajectories_fixed_dx(double dt, double x_end, double diffusion, double tol);
 	vector<CPosition> pts;
         bool weighted;
 	CBTC initialize(int numpoints, double x_0, double smoothing_factor=0, string boundary_v_dist_filename = "", bool weighted=false);
