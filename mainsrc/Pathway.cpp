@@ -102,13 +102,19 @@ CPathway CPathway::make_uniform_x(double dx)
 	if (positions.size()>0)
     {
         if (backward == 1)
+        {
             x = positions[0].x;
+            pathout.append(positions[0]);
+        }
         else
+        {
             x = positions[positions.size()-1].x;
+            pathout.append(positions[positions.size()-1]);
+        }
     }
     else
         return pathout;
-	pathout.append(positions[0]);
+
 	x += dx;
 	if (backward == 1)
     {
@@ -125,7 +131,7 @@ CPathway CPathway::make_uniform_x(double dx)
     }
     else
     {
-        for (int i = int(positions.size()); i > 0 ; i--)
+        for (int i = int(positions.size()-1); i >= 0 ; i--)
         {
             while (positions[i].x > x)
             {
