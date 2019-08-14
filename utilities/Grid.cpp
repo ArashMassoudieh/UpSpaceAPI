@@ -784,7 +784,8 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
 {
     double x0 = pp.x;
     double backward = 1;
-    if (x_end<x0) backward = -1;
+    if (x_end<x0)
+        backward = -1;
 
     CPosition pt = pp;
     CPathway Trajectory;
