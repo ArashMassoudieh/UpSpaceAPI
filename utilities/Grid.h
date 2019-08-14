@@ -37,6 +37,10 @@ struct prop
 	CVector K;
 	CVector K_gauss;
 	CVector V;
+	double Vtx;
+	double Vbx;
+	double Vfy;
+	double Vby;
 	bool k_det = false;
 	vector<double> C;
 };
@@ -154,6 +158,7 @@ public:
 	void writeasmatrix(string filename, int);
 	void writeasmatrixK(string filename, int component);
 	CVector getvelocity(CPosition pp);
+	CVector getvelocity_exact(point pp);
 	CPathway gettrajectory(CPosition pp, double dt, double t_end);
 	CPathway gettrajectory_vdt(CPosition pp, double dt, double t_end, double tol, double diffusion=0);
 	CPathway gettrajectory_fix_dx(CPosition pp, double dt, double t_end);

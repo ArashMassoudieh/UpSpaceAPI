@@ -497,6 +497,22 @@ CVector CGrid::getvelocity(point pp)
 	return V;
 }
 
+
+CVector CGrid::getvelocity_exact(point pp)
+{
+	int i_floar = int(pp.x / GP.dx);
+	int j_floar = int(pp.y / GP.dy);
+	if ((i_floar > GP.nx - 2) || (j_floar>GP.ny - 2) || (i_floar<0) || (j_floar<0))
+        {   //qDebug() << "Empty CVector returned";
+            return CVector();
+
+        }
+	CVector V1 = p[i_floar][j_floar].V + (1.0 / GP.dx*(pp.x - GP.dx*i_floar))*(p[i_floar + 1][j_floar].V - p[i_floar][j_floar].V);
+	CVector V2 = p[i_floar][j_floar+1].V + (1.0 / GP.dx*(pp.x - GP.dx*i_floar))*(p[i_floar + 1][j_floar+1].V - p[i_floar][j_floar+1].V);
+	CVector V = V1 + (1.0 / GP.dy*(pp.y - GP.dy*j_floar))*(V2 - V1);
+	return V;
+}
+
 double CGrid::interpolate_K(double x, double y)
 {
 	point pp;
@@ -796,7 +812,7 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
     double t = 0;
 
     bool ex = false;
-    while (x0<pt.x < x_end && ex==false)
+    while ( backward*x0<=backward*pt.x && backward*pt.x<=backward*x_end && ex==false)
     {
         CVector V = getvelocity(pt);
         if (V.getsize() == 0)
@@ -826,8 +842,8 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
                 }
 
                 CPosition p_new;
-                p_new.x = pt.x + dt0*V[0];//+diffusion[0];
-                p_new.y = pt.y + dt0*V[1];//+diffusion[1];
+                p_new.x = pt.x + backward*dt0*V[0];//+diffusion[0];
+                p_new.y = pt.y + backward*dt0*V[1];//+diffusion[1];
                 CVector V_new = getvelocity(p_new);
                 if (V_new.getsize() == 0)
                 {
@@ -853,6 +869,8 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
                         p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt1*backward;// + diffusion[1]*sqrt(dt1/dt0);
                         p_new.x = pt.x + dx*backward; // + diffusion[0]*sqrt(dt1/dt0);
                         CVector V_star = getvelocity(p_new);
+                        if (V_star.getsize()!=2)
+                            return Trajectory;
                         err = norm(V_star - V_new);
                         V_new = V_star;
                     }
@@ -907,6 +925,7 @@ CPathwaySet CGrid::gettrajectories(double dt, double t_end)
 
 CPathwaySet CGrid::gettrajectories_vdt(double dt, double t_end, double tol, double diffusion)
 {
+
     CPathwaySet X;
     for (int i = 0; i < int(pts.size()); i++)
     {
@@ -921,6 +940,10 @@ CPathwaySet CGrid::gettrajectories_vdt(double dt, double t_end, double tol, doub
         }
         set_progress_value(double(i) / double(pts.size()));
     }
+    pts.clear();
+    for (int i=0; i<X.paths.size(); i++)
+        pts.push_back(X.paths[i].positions[X.paths[i].positions.size()-1]);
+
     cout<<endl;
     return X;
 }
@@ -946,6 +969,9 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double tol,
             }
         set_progress_value(double(i) / double(pts.size()));
     }
+    pts.clear();
+    for (int i=0; i<X.paths.size(); i++)
+        pts.push_back(X.paths[i].positions[X.paths[i].positions.size()-1]);
     cout<<endl;
     return X;
 }
@@ -953,6 +979,7 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double tol,
 
 CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, string boundary_dist_filename, bool _weighted)
 {
+    pts.clear();
     weighted = _weighted;
     cout << "weighted = " << weighted<<endl;
     CBTC vels;
@@ -1168,7 +1195,7 @@ CMatrix CGrid::solve()
     CVector_arma S = solve_ar(K, V);
 //    qDebug() << "Solved"<< endl;
     H = CMatrix(GP.nx+1,GP.ny+1);
-    vx = CMatrix(GP.nx, GP.ny - 1);
+    vx = CMatrix(GP.nx, GP.ny-1);
     vy = CMatrix(GP.nx - 1, GP.ny);
     for (int i = 0; i < GP.nx+1; i++)
         for (int j = 0; j < GP.ny+1; j++)
@@ -1178,11 +1205,15 @@ CMatrix CGrid::solve()
 	for (int j = 0; j < GP.ny; j++)
 	{
             double Kx1 = 0.5*(p[i][max(j - 1,0)].K[0] + p[i][j].K[0]);
-            double Kx2 = 0.5*(p[min(i + 1, GP.nx - 1)][max(j - 1, 0)].K[0] + p[min(i+1,GP.nx-1)][j].K[0]);
+            double Kx2 = 0.5*(p[i][j].K[0] + p[i][min(j+1,GP.ny-1)].K[0]);
             double Ky1 = 0.5*(p[max(i - 1, 0)][j].K[0] + p[i][j].K[0]);
-            double Ky2 = 0.5*(p[i][min(j+1,GP.ny-1)].K[0] + p[min(i+1,GP.nx-1)][min(j + 1, GP.ny - 1)].K[0]);
+            double Ky2 = 0.5*(p[i][j].K[0] + p[min(i+1,GP.nx-1)][j].K[0]);
             p[i][j].V[0] = -(0.5*Kx1 * (H[i + 1][j] - H[i][j]) / GP.dx + 0.5*Kx2 * (H[i + 1][j+1] - H[i][j+1]) / GP.dx);
-            p[i][j].V[1] = -(0.5*Ky1 * (H[i][j+1] - H[i][j]) / GP.dx + 0.5*Ky2 * (H[i + 1][j + 1] - H[i+1][j]) / GP.dx);
+            p[i][j].V[1] = -(0.5*Ky1 * (H[i][j+1] - H[i][j]) / GP.dy + 0.5*Ky2 * (H[i + 1][j + 1] - H[i+1][j]) / GP.dy);
+            p[i][j].Vbx = -Kx1*(H[i+1][j] - H[i][j]) / GP.dx;
+            p[i][j].Vtx = -Kx2*(H[i+1][j+1] - H[i][j+1]) / GP.dx;
+            p[i][j].Vby = -Ky1*(H[i][j+1] - H[i][j]) / GP.dy;
+            p[i][j].Vtx = -Ky2*(H[i+1][j+1] - H[i+1][j]) / GP.dy;
 	}
 
 	for (int i=0; i<GP.nx; i++)
@@ -1906,9 +1937,12 @@ void CGrid::runcommands_qt()
             {
                 double concentration_interval = -1;
                 show_in_window("Saving Concentration (VTK)...");
-                if (commands[i].parameters.count("interval") > 0) concentration_interval = atof(commands[i].parameters["[c_interval"].c_str());
+                if (commands[i].parameters.count("interval") > 0)
+                    concentration_interval = atof(commands[i].parameters["interval"].c_str());
+                else
+                    concentration_interval = 1;
                 vector<double> intervals;
-                for (int i = 0; i < p[0][0].C.size(); i++)
+                for (int i = 0; i < p[0][0].C.size(); i+=concentration_interval)
                 {
                         intervals.push_back(i*dt);
                 }
