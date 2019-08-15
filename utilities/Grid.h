@@ -173,7 +173,7 @@ public:
 	CPathwaySet gettrajectories_fixed_dx(double dt, double x_end, double diffusion, double tol);
 	vector<CPosition> pts;
         bool weighted;
-	CBTC initialize(int numpoints, double x_0, double smoothing_factor=0, string boundary_v_dist_filename = "", bool weighted=false);
+	CBTC initialize(int numpoints, double x_0, double smoothing_factor=0, bool flow_weighted= true, string boundary_v_dist_filename = "", bool weighted=false);
 	CMatrix_arma_sp create_stiffness_matrix_arma();
 	CVector_arma create_RHS_arma();
 	CVector create_RHS();

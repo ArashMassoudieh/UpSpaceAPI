@@ -977,7 +977,7 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double tol,
 }
 
 
-CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, string boundary_dist_filename, bool _weighted)
+CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, bool flow_weighted, string boundary_dist_filename, bool _weighted)
 {
     pts.clear();
     weighted = _weighted;
@@ -1006,8 +1006,11 @@ CBTC CGrid::initialize(int numpoints, double x_0, double smoothing_factor, strin
                 pt_0.x = x_0; pt_0.y = y_0;
                 v_x = getvelocity(pt_0)[0];
                 double u = unitrandom();
-                if (u < (v_x / v_max/5)) accepted = true;
-                accepted = true;
+                if (flow_weighted)
+                    if (u < (v_x / v_max/5)) accepted = true;
+                else
+                    accepted = true;
+
             }
             pts.push_back(pt_0);
             vels.append(i,v_x);
@@ -1526,6 +1529,8 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "write_all_btc_points")
             {
                 show_in_window("Writing all btc points");
+                for (int = 0, i<All_Breakthroughpoints.nvars; i++)
+                    All_Breakthroughpoints.append(All_Breakthroughpoints.BTC[i].getcummulative(),All_Breakthroughpoints.names[i]+"_cum");
                 All_Breakthroughpoints.writetofile(pathout + commands[i].parameters["filename"]);
             }
 
@@ -1665,11 +1670,17 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("Initializing trajectories ...");
                 cout << "Initializing trajectories ..." << endl;
+                bool flow_weighted;
+                if (commands[i].parameters.count("flow_weighted")>0)
+                    flow_weighted = atoi(commands[i].parameters["flow_weighted"].c_str());
+                else
+                    flow_weighted = true;
+
                 CBTC ini_vel;
                 if (commands[i].parameters["boundary_v_dist_filename"]!="")
-                    ini_vel=initialize(atoi(commands[i].parameters["n"].c_str()), atof(commands[i].parameters["x_0"].c_str()), 0, pathout+commands[i].parameters["boundary_v_dist_filename"], atoi(commands[i].parameters["weighted"].c_str()));
+                    ini_vel=initialize(atoi(commands[i].parameters["n"].c_str()), atof(commands[i].parameters["x_0"].c_str()), 0, flow_weighted, pathout+commands[i].parameters["boundary_v_dist_filename"], atoi(commands[i].parameters["weighted"].c_str()));
                 else
-                    ini_vel=initialize(atoi(commands[i].parameters["n"].c_str()), atof(commands[i].parameters["x_0"].c_str()), 0, "", atoi(commands[i].parameters["weighted"].c_str()));
+                    ini_vel=initialize(atoi(commands[i].parameters["n"].c_str()), atof(commands[i].parameters["x_0"].c_str()), 0, flow_weighted, "", atoi(commands[i].parameters["weighted"].c_str()));
                 weighted = atoi(commands[i].parameters["weighted"].c_str());
                 cout << "weighted = " << weighted;
                 if (commands[i].parameters.count("filename"))
@@ -1704,6 +1715,7 @@ void CGrid::runcommands_qt()
                 {
                     CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()));
                     All_Breakthroughpoints.append(BTC, "x=" + commands[i].parameters["x"]);
+
                 }
                 else
                 {   CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()));
