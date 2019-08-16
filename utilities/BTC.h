@@ -7,7 +7,7 @@
 #include "QuickSort.h"
 #include "NormalDist.h"
 
-#define GNUplot
+//#define GNUplot
 
 #define CBTC CTimeSeries
 

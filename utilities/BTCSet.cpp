@@ -11,7 +11,7 @@
 #include <qdebug.h>
 #endif
 
-#define GNUplot
+//#define GNUplot
 
 using namespace std;
 

@@ -12,7 +12,7 @@
 #ifdef Qt_version
 #include <qdebug.h>
 #endif // Qt_version
-#define GNUplot
+//#define GNUplot
 
 using namespace std;
 

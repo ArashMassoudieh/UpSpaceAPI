@@ -1529,8 +1529,6 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "write_all_btc_points")
             {
                 show_in_window("Writing all btc points");
-                for (int = 0, i<All_Breakthroughpoints.nvars; i++)
-                    All_Breakthroughpoints.append(All_Breakthroughpoints.BTC[i].getcummulative(),All_Breakthroughpoints.names[i]+"_cum");
                 All_Breakthroughpoints.writetofile(pathout + commands[i].parameters["filename"]);
             }
 
@@ -1721,13 +1719,13 @@ void CGrid::runcommands_qt()
                 {   CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()));
                     All_Breakthroughpoints.BTC[All_Breakthroughpoints.lookup("x=" + commands[i].parameters["x"])].append(BTC);
                 }
-                Breakthroughcurve_from_trajs.writefile(pathout+commands[i].parameters["filename"]);
+                Breakthroughcurve_from_trajs.getcummulative().writefile(pathout+commands[i].parameters["filename"]);
             }
 
             if (commands[i].command == "write_breakthrough_curves_all")
             {
                 show_in_window("Writing break through curves for all realizations");
-                All_Breakthroughpoints.distribution(atoi(commands[i].parameters["nbins"].c_str()), All_Breakthroughpoints.BTC.size(),0, atof(commands[i].parameters["smoothing_factor"].c_str())).writetofile(pathout + commands[i].parameters["filename"],true);
+                All_Breakthroughpoints.distribution(atoi(commands[i].parameters["nbins"].c_str()), All_Breakthroughpoints.BTC.size(),0, atof(commands[i].parameters["smoothing_factor"].c_str())).getcummulative().writetofile(pathout + commands[i].parameters["filename"],true);
             }
 
 
