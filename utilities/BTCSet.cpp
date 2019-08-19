@@ -665,6 +665,7 @@ CTimeSeriesSet CTimeSeriesSet::distribution(int n_bins, int n_columns, int limit
     for (int i = 0; i < n_columns; i++)
     {
         A.BTC[i] = BTC[i].distribution(n_bins, (BTC[i].maxC()-BTC[i].minC())*smoothing_factor, limit);
+        A.names[i] = names[i];
 
     }
 

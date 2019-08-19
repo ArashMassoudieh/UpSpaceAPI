@@ -231,18 +231,29 @@ CBTC CPathwaySet::get_BTC(double x, int n_bins, bool velweight, double smoothing
 
 }
 
-CBTC CPathwaySet::get_BTC_points(double x)
+CBTC CPathwaySet::get_BTC_points(double x, bool vel_inv_weighted)
 {
     CBTC BTC;
     if (weighted)
     {   BTC.weighted = true;
         for (int i = 0; i < paths.size(); i++)
-            BTC.append(i, paths[i].get_cross_time(x),paths[i].weight);
+        {
+            if (vel_inv_weighted)
+                BTC.append(i, paths[i].get_cross_time_vx(x)[0],1.0/paths[i].get_cross_time_vx(x)[1]);
+            else
+                BTC.append(i, paths[i].get_cross_time(x),paths[i].weight);
+        }
+
     }
     else
     {   BTC.weighted = false;
         for (int i = 0; i < paths.size(); i++)
-            BTC.append(i, paths[i].get_cross_time(x));
+        {
+            if (vel_inv_weighted)
+                BTC.append(i, paths[i].get_cross_time_vx(x)[0],1.0/paths[i].get_cross_time_vx(x)[1]);
+            else
+                BTC.append(i, paths[i].get_cross_time(x));
+        }
     }
 
 

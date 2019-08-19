@@ -1711,12 +1711,12 @@ void CGrid::runcommands_qt()
                 CBTC Breakthroughcurve_from_trajs = Traj.get_BTC(atof(commands[i].parameters["x"].c_str()), atoi(commands[i].parameters["nbins"].c_str()), atoi(commands[i].parameters["velweight"].c_str()), atof(commands[i].parameters["smoothing_factor"].c_str()));
                 if (All_Breakthroughpoints.lookup("x=" + commands[i].parameters["x"]) == -1)
                 {
-                    CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()));
+                    CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()),atoi(commands[i].parameters["velweight"].c_str()));
                     All_Breakthroughpoints.append(BTC, "x=" + commands[i].parameters["x"]);
 
                 }
                 else
-                {   CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()));
+                {   CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()),atoi(commands[i].parameters["velweight"].c_str()));
                     All_Breakthroughpoints.BTC[All_Breakthroughpoints.lookup("x=" + commands[i].parameters["x"])].append(BTC);
                 }
                 Breakthroughcurve_from_trajs.getcummulative().writefile(pathout+commands[i].parameters["filename"]);
