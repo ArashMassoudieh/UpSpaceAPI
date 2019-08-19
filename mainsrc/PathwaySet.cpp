@@ -201,20 +201,30 @@ CBTCSet CPathwaySet::get_pair_v(int increment, int n, int num_seq)
 
 }
 
-CBTC CPathwaySet::get_BTC(double x, int n_bins, double smoothing_factor)
+CBTC CPathwaySet::get_BTC(double x, int n_bins, bool velweight, double smoothing_factor)
 {
     CBTC BTC;
     if (weighted)
     {
         BTC.weighted = true;
         for (int i = 0; i < paths.size(); i++)
-           BTC.append(i, paths[i].get_cross_time(x),paths[i].weight);
+        {
+            if (velweight)
+                BTC.append(i, paths[i].get_cross_time_vx(x)[0],1.0/paths[i].get_cross_time_vx(x)[1]);
+            else
+                BTC.append(i, paths[i].get_cross_time(x),paths[i].weight);
+        }
     }
     else
     {
         BTC.weighted = false;
         for (int i = 0; i < paths.size(); i++)
-           BTC.append(i, paths[i].get_cross_time(x));
+        {
+            if (velweight)
+                BTC.append(i, paths[i].get_cross_time_vx(x)[0],1.0/paths[i].get_cross_time_vx(x)[1]);
+            else
+                BTC.append(i, paths[i].get_cross_time(x));
+        }
     }
 
     return BTC.distribution(n_bins,(BTC.maxC()-BTC.minC())*smoothing_factor, 0);

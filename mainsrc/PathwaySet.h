@@ -28,7 +28,7 @@ public:
     void make_uniform_at_t(double dt);
     CPosition get_pair_v_pos(int increment, int num_seq=2);
     CBTCSet get_pair_v(int increment, int n, int num_seq=2);
-    CBTC get_BTC(double x, int n_bins, double smoothing_factor=0);
+    CBTC get_BTC(double x, int n_bins, bool vel_inv_weighted = true, double smoothing_factor=0);
     CBTC get_BTC_points(double x);
 
 

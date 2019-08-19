@@ -1708,7 +1708,7 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "write_breakthrough_curve")
             {
                 show_in_window("Get breakthrough curve at x = " + commands[i].parameters["x"]);
-                CBTC Breakthroughcurve_from_trajs = Traj.get_BTC(atof(commands[i].parameters["x"].c_str()), atoi(commands[i].parameters["nbins"].c_str()), atof(commands[i].parameters["smoothing_factor"].c_str()));
+                CBTC Breakthroughcurve_from_trajs = Traj.get_BTC(atof(commands[i].parameters["x"].c_str()), atoi(commands[i].parameters["nbins"].c_str()), atoi(commands[i].parameters["velweight"].c_str()), atof(commands[i].parameters["smoothing_factor"].c_str()));
                 if (All_Breakthroughpoints.lookup("x=" + commands[i].parameters["x"]) == -1)
                 {
                     CBTC BTC = Traj.get_BTC_points(atof(commands[i].parameters["x"].c_str()));

@@ -43,7 +43,8 @@ public:
 	vector<double> minmax(string var);
 	bool uniform = false;
 	double get_cross_time(double x);
-        double weight = 1;
+    vector<double> get_cross_time_vx(double x);
+    double weight = 1;
 
 };
 

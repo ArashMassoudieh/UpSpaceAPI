@@ -15,6 +15,7 @@ CPathway::CPathway(const CPathway &P)
 	maxx = P.maxx;
 	minx = P.minx;
 	positions = P.positions;
+	uniform = P.uniform;
     weight = P.weight;
 }
 
@@ -29,7 +30,8 @@ CPathway& CPathway::operator=(const CPathway &P)
 	maxx = P.maxx;
 	minx = P.minx;
 	positions = P.positions;
-        weight = P.weight;
+    weight = P.weight;
+    uniform = P.uniform;
 	return *this;
 }
 
@@ -97,7 +99,7 @@ CPathway CPathway::make_uniform_x(double dx)
         backward = -1;
 
 	pathout.uniform = true;
-        pathout.weight = weight;
+    pathout.weight = weight;
 	double x;
 	if (positions.size()>0)
     {
@@ -509,6 +511,47 @@ double CPathway::get_cross_time(double xx)
         if (xx > positions[positions.size() - 1].x)
         {
             return positions[positions.size() - 2].t + (positions[positions.size() - 1].t - positions[positions.size() - 2].t) / (positions[positions.size() - 1].x - positions[positions.size() - 2].x)*(xx - positions[positions.size() - 2].x);
+        }
+    }
+}
+
+
+vector<double> CPathway::get_cross_time_vx(double xx)
+{
+    vector<double> out(2);
+    if (uniform)
+    {
+        double dx = positions[1].x - positions[0].x;
+        int i = int(xx / dx);
+        if (i < positions.size() - 1)
+        {
+            out[0] = positions[i].t + (positions[i + 1].t - positions[i].t) / dx*(xx - positions[i].x);
+            out[1] = positions[i].v[0] + (positions[i + 1].v[0] - positions[i].v[0]) / dx*(xx - positions[i].x);
+            return out;
+        }
+        else
+        {
+            out[0] = positions[positions.size()-2].t + (positions[positions.size() - 1].t - positions[positions.size() - 2].t) / dx*(xx - positions[positions.size() - 2].x);
+            out[1] = positions[positions.size()-2].v[0] + (positions[positions.size() - 1].v[0] - positions[positions.size() - 2].v[0]) / dx*(xx - positions[positions.size() - 2].x);
+            return out;
+        }
+}
+    else
+    {
+        for (int i = 0; i < positions.size()-1; i++)
+        {
+            if (xx < positions[i + 1].x && xx >= positions[i].x)
+            {
+                out[0] = positions[i].t + (positions[i + 1].t - positions[i].t) / (positions[i+1].x-positions[i].x)*(xx - positions[i].x);
+                out[1] = positions[i].v[0] + (positions[i + 1].v[0] - positions[i].v[0]) / (positions[i+1].x-positions[i].x)*(xx - positions[i].x);
+                return out;
+            }
+        }
+        if (xx > positions[positions.size() - 1].x)
+        {
+            out[0] = positions[positions.size() - 2].t + (positions[positions.size() - 1].t - positions[positions.size() - 2].t) / (positions[positions.size() - 1].x - positions[positions.size() - 2].x)*(xx - positions[positions.size() - 2].x);
+            out[1] = positions[positions.size() - 2].v[0] + (positions[positions.size() - 1].v[0] - positions[positions.size() - 2].v[0]) / (positions[positions.size() - 1].x - positions[positions.size() - 2].x)*(xx - positions[positions.size() - 2].x);
+            return out;
         }
     }
 }

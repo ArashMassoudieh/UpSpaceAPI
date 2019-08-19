@@ -131,6 +131,10 @@
 					<Add library="$(VTK_build)/lib/libvtkViewsInfovis-8.1.so" />
 					<Add library="$(VTK_build)/lib/libvtkzlib-8.1.so" />
 				</Linker>
+				<Environment>
+					<Variable name="VTK" value="/home/arash/VTK-8.1.0" />
+					<Variable name="VTK_build" value="/home/arash/VTK-8.1-build" />
+				</Environment>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/UpSpaceAPI" prefix_auto="1" extension_auto="1" />
