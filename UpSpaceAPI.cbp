@@ -261,6 +261,10 @@
 					<Add library="$(VTK_build)/lib/libvtkViewsInfovis-8.1.so" />
 					<Add library="$(VTK_build)/lib/libvtkzlib-8.1.so" />
 				</Linker>
+				<Environment>
+					<Variable name="VTK" value="/home/arash/VTK-8.1.0" />
+					<Variable name="VTK_build" value="/home/arash/VTK-8.1-build" />
+				</Environment>
 			</Target>
 			<Target title="Debug_VTK9">
 				<Option output="bin/Debug/UpSpaceAPI" prefix_auto="1" extension_auto="1" />
@@ -553,6 +557,8 @@
 			<Add option="-std=c++0x" />
 			<Add option="-fexceptions" />
 			<Add option="-fopenmp" />
+			<Add option="-DUSE_ARMA_LAPACK" />
+			<Add option="-DUSE_ARMA_BLAS" />
 			<Add directory="$(VTK)/Common/Core" />
 			<Add directory="mainsrc" />
 			<Add directory="$(VTK_build)/Common/Core" />
@@ -603,9 +609,9 @@
 			<Add option="-lblas" />
 			<Add option="-llapack" />
 			<Add option="-larmadillo" />
+			<Add option="-lsuperlu" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgsl.so" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgslcblas.so" />
-			<Add library="../../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
 		</Linker>
 		<Unit filename="mainsrc/Pathway.cpp" />
 		<Unit filename="mainsrc/Pathway.h" />
@@ -650,6 +656,11 @@
 			<code_completion />
 			<debugger />
 			<envvars />
+			<lib_finder>
+				<lib name="hdf5" />
+				<lib name="armadillo" />
+				<lib name="lapack" />
+			</lib_finder>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
