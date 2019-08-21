@@ -484,16 +484,27 @@ void CGrid::writeasmatrixK(string filename, int component)
 
 CVector CGrid::getvelocity(point pp)
 {
-	int i_floar = int(pp.x / GP.dx);
-	int j_floar = int(pp.y / GP.dy);
-	if ((i_floar > GP.nx - 2) || (j_floar>GP.ny - 2) || (i_floar<0) || (j_floar<0))
+	int i_floar_x = int(pp.x / GP.dx);
+	int j_floar_x = int(pp.y / GP.dy+0.5);
+	int i_floar_y = int(pp.x / GP.dx+0.5);
+	int j_floar_y = int(pp.y / GP.dy);
+	if (pp.x<=0 || pp.x>=GP.nx*GP.dx || pp.y<=0 || pp.y>=GP.dy*GP.ny)
         {   //qDebug() << "Empty CVector returned";
             return CVector();
 
         }
-	CVector V1 = p[i_floar][j_floar].V + (1.0 / GP.dx*(pp.x - GP.dx*i_floar))*(p[i_floar + 1][j_floar].V - p[i_floar][j_floar].V);
-	CVector V2 = p[i_floar][j_floar+1].V + (1.0 / GP.dx*(pp.x - GP.dx*i_floar))*(p[i_floar + 1][j_floar+1].V - p[i_floar][j_floar+1].V);
-	CVector V = V1 + (1.0 / GP.dy*(pp.y - GP.dy*j_floar))*(V2 - V1);
+
+    double vx1 = vx[i_floar_x][max(j_floar_x-1,0)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][max(j_floar_x-1,0)]-vx[i_floar_x][max(j_floar_x-1,0)]);
+    double vx2 = vx[i_floar_x][min(j_floar_x,GP.ny-2)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][min(j_floar_x,GP.ny-2)]-vx[i_floar_x][min(j_floar_x,GP.ny-2)]);
+    double vx_interp = vx1 + (vx2-vx1)/GP.dy*(pp.y-GP.dy*(double(j_floar_x)-0.5));
+
+    double vy1 = vy[max(i_floar_y-1,0)][j_floar_y] + 1.0/GP.dy*(pp.y - GP.dy*j_floar_y)*(vy[max(i_floar_y-1,0)][min(j_floar_y+1,GP.nx-1)]-vy[max(i_floar_y-1,0)][j_floar_y]);
+    double vy2 = vy[min(i_floar_y,GP.nx-2)][j_floar_y] + 1.0/GP.dy*(pp.y - GP.dy*j_floar_y)*(vy[min(i_floar_y,GP.nx-2)][min(j_floar_y+1,GP.ny-1)]-vy[min(i_floar_y,GP.nx-2)][j_floar_y]);
+    double vy_interp = vy1 + (vy2-vy1)/GP.dx*(pp.x-GP.dx*(double(i_floar_y)-0.5));
+
+	CVector V(2);
+	V[0] = vx_interp;
+	V[1] = vy_interp;
 	return V;
 }
 
@@ -2489,10 +2500,10 @@ void CGrid::solve_transport(double t_end)
 	set_K_transport(dt, D, time_weight);
 	C = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
 	CMatrix_arma_sp K = KD + Kt + Kv;
-	Kt.writetofile(pathout + "Kt_matrix.txt");
-	KD.writetofile(pathout + "KD_matrix.txt");
-	Kv.writetofile(pathout + "Kv_matrix.txt");
-	K.writetofile(pathout + "transport_matrix.txt");
+	//Kt.writetofile(pathout + "Kt_matrix.txt");
+	//KD.writetofile(pathout + "KD_matrix.txt");
+	//Kv.writetofile(pathout + "Kv_matrix.txt");
+	//K.writetofile(pathout + "transport_matrix.txt");
 	set_progress_value(0);
         for (double t = 0; t < t_end; t += dt)
         {
