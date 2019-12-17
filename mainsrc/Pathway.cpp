@@ -275,6 +275,8 @@ void CPathway::create_copula(CDistribution *dist, double x_min, double x_max, do
 	p.u = unitrandom();
 	p.z = gsl_cdf_gaussian_Pinv(p.u, 1);
 	p.v[0] = dist->inverseCDF(p.u);
+	double v1 = p.v[0];
+	double v2 = v1;
 	p.x = x_min;
 	p.y = p.u;
 	p.t = 0;
@@ -286,11 +288,13 @@ void CPathway::create_copula(CDistribution *dist, double x_min, double x_max, do
             p.u = copula->get_random_at(p.u);
             p.z = copula->w;
             p.v[0] = dist->inverseCDF(p.u);
+            v2 = p.v[0];
             p.y = p.u;
+
         }
 
 		p.x += dx;
-		p.t += dx / p.v[0];
+		p.t += 2*dx / (v1+v2);
 		append(p);
 	}
 }
