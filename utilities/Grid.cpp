@@ -335,8 +335,14 @@ CGrid::CGrid(string filename)
 #if QT_version
             show_in_window("File " + filename + "was not found!");
 #endif
-            cout << "File " + filename + "was not found!" << endl;
-            return;
+            filename = "/home/arash/Projects/UpscalingInputfiles/" + filename;
+            file.open(filename);
+            if (!file.good())
+            {
+                cout << "File " + filename + "was not found!" << endl;
+                return;
+            }
+
         }
         else
         {
