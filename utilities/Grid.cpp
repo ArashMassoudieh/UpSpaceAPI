@@ -335,8 +335,14 @@ CGrid::CGrid(string filename)
 #if QT_version
             show_in_window("File " + filename + "was not found!");
 #endif
-            cout << "File " + filename + "was not found!" << endl;
-            return;
+            filename = "/home/arash/Projects/UpscalingInputfiles/" + filename;
+            file.open(filename);
+            if (!file.good())
+            {
+                cout << "File " + filename + "was not found!" << endl;
+                return;
+            }
+
         }
         else
         {
@@ -488,7 +494,7 @@ CVector CGrid::getvelocity(point pp)
 	int j_floar_x = int(pp.y / GP.dy+0.5);
 	int i_floar_y = int(pp.x / GP.dx+0.5);
 	int j_floar_y = int(pp.y / GP.dy);
-	if (pp.x<=0 || pp.x>=GP.nx*GP.dx || pp.y<=0 || pp.y>=GP.dy*GP.ny)
+	if (pp.x<=0 || pp.x>=(GP.nx-1)*GP.dx || pp.y<=0 || pp.y>=GP.dy*(GP.ny-1))
         {   //qDebug() << "Empty CVector returned";
             return CVector();
 
@@ -687,8 +693,8 @@ CBTCSet CGrid::get_correlation_based_on_random_samples_dt(int nsamples, double d
 CPosition CGrid::getrandompoint()
 {
     CPosition out;
-    out.x = unitrandom()*GP.dx*GP.nx;
-    out.y = unitrandom()*GP.dy*GP.ny;
+    out.x = unitrandom()*GP.dx*(GP.nx-1);
+    out.y = unitrandom()*GP.dy*(GP.ny-1);
     return out;
 }
 

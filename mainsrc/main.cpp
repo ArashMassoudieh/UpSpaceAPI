@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     //filename = "/home/arash/Projects/Upscaling_outputs/input_test_BTC_log_normal_loop_std1_l_res_corr_s.txt";
     //filename = "/home/arash/Projects/UpscalingInputfiles/input_test_BTC_log_normal_loop_std1_l_res_corr.txt";
     if (filename == "x")
-        filename = "/home/arash/Projects/UpscalingInputfiles/test_trajs_velweight_hr.txt";
+        filename = "/home/arash/Projects/UpscalingInputfiles/ls=0.1_lr.txt";
     //filename = "/home/arash/Projects/UpscalingInputfiles/input_copula_balistic.txt";
     CGrid G(filename);
     cout << "running [" << filename << "]..." << endl;
