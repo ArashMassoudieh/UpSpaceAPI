@@ -1619,7 +1619,8 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "write_btc_from_concentration")
             {
                 show_in_window("Writing Breakthrough curve at x = " + commands[i].parameters["x"] + "...");
-                GetConcentrationBTCAtX(atof(commands[i].parameters["x"].c_str()),commands[i].parameters["filename"]);
+                GetConcentrationBTCAtX(atof(commands[i].parameters["x"].c_str()),commands[i].parameters["filename"],commands[i].parameters["filename_d"]);
+
             }
 
             if (commands[i].command == "solve_transport_ou")
@@ -2702,9 +2703,9 @@ void CGrid::create_inv_K_Copula(double dt, double decay)
             {
                 if (i < GP.nx + 1)
                 {
-                    M(j + GP.ny*i,j + GP.ny*i) = 2 * copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
-                    M(j + GP.ny*i,j + GP.ny*(i-1)) = -copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
-                    M(j + GP.ny*i,j + GP.ny*(i+1)) = -copula_params.diffusion*time_weight*pow(OU.FinvU[j], 2) / pow(GP.dx, 2);
+                    M(j + GP.ny*i,j + GP.ny*i) = 2 * copula_params.diffusion*time_weight / pow(GP.dx, 2);
+                    M(j + GP.ny*i,j + GP.ny*(i-1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
+                    M(j + GP.ny*i,j + GP.ny*(i+1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
                 }
             }
             for (int k = 0; k < GP.ny; k++)
@@ -2775,9 +2776,9 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double decay)
             {
                 if (i < GP.nx + 1)
                 {
-                    RHS[j + GP.ny*i] += -2 * copula_params.diffusion*(1-time_weight)*pow(OU.FinvU[j], 2) / pow(GP.dx, 2)*C[i][j];
-                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight)*pow(OU.FinvU[j], 2) / pow(GP.dx, 2)*C[i][j-1];
-                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight)*pow(OU.FinvU[j], 2) / pow(GP.dx, 2)*C[i][j+1];
+                    RHS[j + GP.ny*i] += -2 * copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i][j];
+                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i][j-1];
+                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i][j+1];
                 }
             }
 
@@ -3020,7 +3021,7 @@ void CGrid::clear_contents()
 	}
 }
 
-CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename)
+CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename, const string &filename_d)
 {
     CTimeSeries output;
     for (int tt=0; tt<p[0][0].C.size(); tt++)
@@ -3028,6 +3029,8 @@ CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename)
         output.append(tt*dt,GetConcentrationAtX(x,tt));
     }
     output.writefile(pathout + filename);
+    if (filename_d!="")
+        output.derivative().writefile(pathout + filename_d);
     return output;
 }
 
