@@ -2695,8 +2695,8 @@ void CGrid::create_inv_K_Copula(double dt, double decay)
     {
         for (int j = 0; j < GP.ny; j++)
         {
-            M(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt;
-            M(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx + time_weight*decay;
+            M(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt + time_weight*decay;
+            M(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
             M(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
             if (copula_params.diffusion>0)
             {
@@ -2767,7 +2767,7 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double decay)
     {
         for (int j = 0; j < GP.ny; j++)
         {
-            RHS[j + GP.ny*i]+= C[i][j] / dt - (1-time_weight)*decay;
+            RHS[j + GP.ny*i]+= C[i][j] / dt - (1-time_weight)*decay*C[i][j];
             RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
 

@@ -294,7 +294,7 @@ void CPathway::create_copula(CDistribution *dist, double x_min, double x_max, do
         }
 
 		p.x += dx;
-		p.t += 2*dx / (v1+v2);
+		p.t += (v1+v2)*dx / (2*v1*v2) ;
 		append(p);
 	}
 }
