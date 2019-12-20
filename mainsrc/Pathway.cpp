@@ -49,7 +49,7 @@ void CPathway::append(CPosition pos)
 CVector CPathway::get_velocity_at_x(double x)
 {
 	for (int i = 0; i < int(positions.size())-1; i++)
-		if (positions[i].x<x && positions[i + 1].x>x)
+		if (positions[i].x<x && positions[i + 1].x>=x)
 			return (x - positions[i].x) / (positions[i + 1].x - positions[i].x)*(positions[i + 1].v - positions[i].v) + positions[i].v;
 
 	return CVector();
@@ -59,7 +59,7 @@ CPosition CPathway::get_position_at_x(double x)
 {
 	CPosition p;
 	for (int i = 0; i < int(positions.size()) - 1; i++)
-		if (positions[i].x<x && positions[i + 1].x>x)
+		if (positions[i].x<x && positions[i + 1].x>=x)
 		{
 			p = (x - positions[i].x) / (positions[i + 1].x - positions[i].x)*(positions[i + 1] - positions[i]) + positions[i];
 			return p;
@@ -274,7 +274,10 @@ void CPathway::create_copula(CDistribution *dist, double x_min, double x_max, do
     weight = _weight;
 	p.u = unitrandom();
 	p.z = gsl_cdf_gaussian_Pinv(p.u, 1);
-	p.v[0] = dist->inverseCDF(p.u);
+	//p.v[0] = dist->inverseCDF(p.u,true);
+	//*** after change ***///
+	p.v[0] = dist->inverseCDF(p.u,false);
+	p.u = dist->evaluate_CDF(p.v[0],true);
 	double v1 = p.v[0];
 	double v2 = v1;
 	p.x = x_min;
@@ -287,7 +290,7 @@ void CPathway::create_copula(CDistribution *dist, double x_min, double x_max, do
         {
             p.u = copula->get_random_at(p.u);
             p.z = copula->w;
-            p.v[0] = dist->inverseCDF(p.u);
+            p.v[0] = dist->inverseCDF(p.u,true);
             v2 = p.v[0];
             p.y = p.u;
 
@@ -392,6 +395,7 @@ vtkSmartPointer<vtkPolyData> CPathway::pathway_vtk_pdt_vtp(double z_factor, doub
 CBTCSet CPathway::get_distribution(bool _log, int n_bins)
 {
 	CBTCSet B;
+	//CBTC tBTC=get_distribution("t", "vx", _log, n_bins);
 	CBTC tBTC=get_distribution("t", _log, n_bins);
 	CBTC xBTC=get_distribution("x", _log, n_bins);
 	CBTC yBTC=get_distribution("y", _log, n_bins);
@@ -477,6 +481,69 @@ CBTC CPathway::get_distribution(string var, bool _log, int n_bins)
 	return out;
 }
 
+
+CBTC CPathway::get_distribution(string var, string weight_var, bool _log, int n_bins)
+{
+	CBTC out(n_bins + 2);
+
+	if (!_log)
+	{
+		vector<double> min_max = minmax(var);
+		double p_start = min_max[0];
+		double p_end = min_max[1] * 1.001;
+		double dp = abs(p_end - p_start) / n_bins;
+		if (dp == 0){
+                    CBTC X = CBTC();
+                    return X;
+                }
+		out.t[0] = p_start - dp / 2;
+
+		for (int i = 0; i < n_bins + 1; i++)
+			out.t[i + 1] = out.t[i] + dp;
+
+        double sum_weights = 0;
+        for (int i = 0; i < int(positions.size()); i++)
+		{
+		    sum_weights += positions[i].getvar(weight_var,true);
+		}
+
+		for (int i = 0; i < int(positions.size()); i++)
+		{
+		    out.C[int((positions[i].getvar(var) - p_start) / dp) + 1] += positions[i].getvar(weight_var,true) / sum_weights / dp;
+		}
+	}
+	else
+	{
+		vector<double> min_max = minmax(var);
+		double p_start = min_max[0];
+		if (p_start <= 0){
+                    CBTC X = CBTC();
+                    return X;
+                }
+		if (min_max[0] == min_max[1]) return out;
+		double p_end = min_max[1] * 1.001;
+		double dp = (log(p_end) - log(p_start)) / n_bins;
+		if (dp == 0)
+                {
+                    CBTC X = CBTC();
+                    return X;
+                }
+		out.t[0] = exp(log(p_start) - dp / 2.0);
+
+        double sum_weights = 0;
+        for (int i = 0; i < int(positions.size()); i++)
+		{
+		    sum_weights += positions[i].getvar(weight_var,true);
+		}
+
+		for (int i = 0; i < n_bins + 1; i++)
+			out.t[i + 1] = out.t[i] * exp(dp);
+
+		for (int i = 0; i < positions.size(); i++)
+			out.C[int((log(positions[i].getvar(var)) - log(p_start)) / dp) + 1] += positions[i].getvar(weight_var,true) / sum_weights / (out.t[int((log(positions[i].getvar(var)) - log(p_start)) / dp) + 2]- out.t[int((log(positions[i].getvar(var)) - log(p_start)) / dp)])*2;
+	}
+	return out;
+}
 
 vector<double> CPathway::minmax(string var)
 {

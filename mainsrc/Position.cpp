@@ -52,18 +52,34 @@ CPosition::~CPosition()
 {
 }
 
-double CPosition::getvar(string var)
+double CPosition::getvar(string var, bool inverse)
 {
-	if (var == "t") return t;
-	if (var == "u") return u;
-	if (var == "z") return z;
-	if (var == "x") return x;
-	if (var == "y") return y;
-	if (var == "vx") return v[0];
-	if (var == "vy") return v[1];
-	if (var == "v_eff") {if (t > 0) return x / t; else return 0;};
-	if (var == "t_eff") {if (x > 0) return t / x; else return 0;};
-    if (var == "weight") return weight;
+	if (!inverse)
+    {
+        if (var == "t") return t;
+        if (var == "u") return u;
+        if (var == "z") return z;
+        if (var == "x") return x;
+        if (var == "y") return y;
+        if (var == "vx") return v[0];
+        if (var == "vy") return v[1];
+        if (var == "v_eff") {if (t > 0) return x / t; else return 0;};
+        if (var == "t_eff") {if (x > 0) return t / x; else return 0;};
+        if (var == "weight") return weight;
+    }
+    else
+    {
+        if (var == "t") return 1/t;
+        if (var == "u") return 1/u;
+        if (var == "z") return 1/z;
+        if (var == "x") return 1/x;
+        if (var == "y") return 1/y;
+        if (var == "vx") return 1/v[0];
+        if (var == "vy") return 1/v[1];
+        if (var == "v_eff") {if (t > 0) return t / x; else return 0;};
+        if (var == "t_eff") {if (x > 0) return x / t; else return 0;};
+        if (var == "weight") return weight;
+    }
 	return 0;
 }
 

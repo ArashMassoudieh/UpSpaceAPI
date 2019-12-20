@@ -172,7 +172,7 @@ int CDistribution::GetRand()
 
 
 
-double CDistribution::inverseCDF(double u )
+double CDistribution::inverseCDF(double u,bool flux_w)
 {
 	if (tolower(name) == "exp" || tolower(name) == "exponential")
 	{
@@ -184,7 +184,10 @@ double CDistribution::inverseCDF(double u )
 	}
 	if (tolower(name) == "lognormal" || tolower(name) == "log-normal")
 	{
-		return gsl_cdf_lognormal_Pinv(u, params[0], params[1]);
+		if (flux_w)
+            return gsl_cdf_lognormal_Pinv(u, params[0]+pow(params[1],2), params[1]);
+        else
+            return gsl_cdf_lognormal_Pinv(u, params[0], params[1]);
 	}
 	if (tolower(name) == "normal" || tolower(name) == "gaussian")
 	{
@@ -210,6 +213,17 @@ double std_normal_phi_inv(double u)
 	double u1 = gsl_cdf_ugaussian_Pinv(u);
 	double out = 1.0 / sqrt(2.0 * 4.0 * atan(1.0))*exp(-0.5*pow(u1, 2.0));
 	return out;
+}
+
+double CDistribution::evaluate_CDF(double x, bool flux_w)
+{
+    if (tolower(name) == "lognormal" || tolower(name) == "log-normal")
+	{
+		if (flux_w)
+            return gsl_cdf_lognormal_P(x, params[0]+pow(params[1],2), params[1]);
+        else
+            return gsl_cdf_lognormal_P(x, params[0], params[1]);
+	}
 }
 
 
