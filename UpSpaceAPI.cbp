@@ -549,6 +549,7 @@
 			<Add option="-std=c++0x" />
 			<Add option="-fexceptions" />
 			<Add option="-fopenmp" />
+			<Add option="-Dsymetrical" />
 			<Add directory="$(VTK)/Common/Core" />
 			<Add directory="mainsrc" />
 			<Add directory="$(VTK_build)/Common/Core" />

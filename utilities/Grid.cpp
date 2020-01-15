@@ -14,6 +14,8 @@
 
 #include <sys/resource.h>
 
+
+#define symetrical
 //#define Qt_version
 
 CGrid::CGrid()
@@ -657,13 +659,13 @@ CPathway CGrid::gettrajectory_fix_dx(CPosition pp, double dx, double x_end)
 }
 
 
-CBTCSet CGrid::get_correlation_based_on_random_samples(int nsamples, double dx0, double x_inc)
+CBTCSet CGrid::get_correlation_based_on_random_samples(int nsamples, double dx0, double x_inc, bool magnitude)
 {
     CBTCSet output(2);
     for (int i=0; i<nsamples; i++)
     {
         CPosition pt = getrandompoint();
-        CVector V = v_correlation_single_point(pt,dx0,x_inc);
+        CVector V = v_correlation_single_point(pt,dx0,x_inc, magnitude);
         if (V.num==2)
         {
             output.BTC[0].append(i,V[0]);
@@ -698,7 +700,7 @@ CPosition CGrid::getrandompoint()
     return out;
 }
 
-CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, double x_inc)
+CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, double x_inc, bool magnitude)
 {
     CPosition pt = pp;
     CPosition p_new;
@@ -763,8 +765,16 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
         }
     }
     Vout = CVector(2);
-    Vout[0] = getvelocity(pp)[0];
-    Vout[1] = getvelocity(p_new)[0];
+    if (!magnitude)
+    {
+        Vout[0] = getvelocity(pp)[0];
+        Vout[1] = getvelocity(p_new)[0];
+    }
+    else
+    {
+        Vout[0] = sqrt(pow(getvelocity(pp)[0],2)+pow(getvelocity(pp)[1],2));
+        Vout[1] = sqrt(pow(getvelocity(p_new)[0],2)+pow(getvelocity(p_new)[1],2));
+    }
 
     return Vout;
 
@@ -2147,16 +2157,21 @@ void CGrid::runcommands_qt()
                 if (!commands[i].parameters.count("nsequence"))
                             commands[i].parameters["nsequence"] = "2";
 
+                bool magnitude = false;
+                if (commands[i].parameters.count("magnitude"))
+                {
+                    magnitude = atoi(commands[i].parameters["magnitude"].c_str());
+                }
+
+                cout<<"Magnitude = "<<magnitude<<endl;
 
                 if (random_sampling)
                     {
-
-
                         if (!time_based)
                         {
                             double dx;
                             dx = atof(commands[i].parameters["delta_x"].c_str());
-                            pairs = get_correlation_based_on_random_samples(atoi(commands[i].parameters["n"].c_str()),dx,atof(commands[i].parameters["increment"].c_str()));
+                            pairs = get_correlation_based_on_random_samples(atoi(commands[i].parameters["n"].c_str()),dx,atof(commands[i].parameters["increment"].c_str()),magnitude);
                         }
                         else
                         {
@@ -2736,7 +2751,7 @@ void CGrid::create_inv_K_Copula(double dt, double decay)
 void CGrid::create_k_mat_copula()
 {
     copula_params.K = CMatrix(GP.ny);
-
+    #ifdef symetric
     for (int i = 0; i < GP.ny; i++)
         for (int j = 0; j < GP.ny; j++)
             if (i != j)
@@ -2747,6 +2762,18 @@ void CGrid::create_k_mat_copula()
                 copula_params.K[i][i] -= copula_params.K[i][j];
 
             }
+#else
+    for (int i = 0; i < GP.ny; i++)
+        for (int j = 0; j < GP.ny; j++)
+            if (i != j)
+            {
+                double u1 = double(i)*GP.dy + GP.dy / 2;
+                double u2 = double(j)*GP.dy + GP.dy / 2;
+                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*mean(dist.inverseCDF(u2),dist.inverseCDF(u1));
+                copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*mean(dist.inverseCDF(u1),dist.inverseCDF(u2));
+
+            }
+#endif
 }
 
 void CGrid::create_f_inv_u()
@@ -2788,8 +2815,16 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double decay)
         }
     }
     int i = 0;
+    #ifdef symetrical
     for (int j = 0; j < GP.ny; j++)
         RHS[j + GP.ny*i] = 1;
+    #else
+    double sum = 1;
+    for (int j = 0; j < GP.ny; j++)
+        sum += OU.FinvU[j]*GP.dy;
+    for (int j = 0; j < GP.ny; j++)
+        RHS[j + GP.ny*i] = 1.0/OU.FinvU[j]*sum;
+    #endif
 
     i = GP.nx + 1;
     for (int j = 0; j < GP.ny; j++)
