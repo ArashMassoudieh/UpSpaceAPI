@@ -37,7 +37,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (jj>=0)
 			for (int ii = max(i - k,0); ii <= min(i + k,GP.nx-1); ii++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -57,7 +57,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (jj < GP.ny)
 			for (int ii = max(i - k, 0); ii <= min(i + k, GP.nx - 1); ii++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -77,7 +77,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (ii >= 0)
 			for (int jj = max(j - k+1, 0); jj <= min(j + k-1, GP.ny - 1); jj++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -97,7 +97,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (ii < GP.nx)
 			for (int jj = max(j - k + 1, 0); jj <= min(j + k - 1, GP.ny - 1); jj++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -186,6 +186,7 @@ void CGrid::assign_K_gauss(int i, int j)
 	p[i][j].K_gauss[0] = K_gauss;
 	p[i][j].K[0] = map_to_KCDF(getnormalcdf(K_gauss));
 }
+
 
 void CGrid::assign_K_gauss()
 {
@@ -1585,7 +1586,17 @@ void CGrid::runcommands_qt()
                 field_gen.max_correl_n = atoi(commands[i].parameters["n_neighbors"].c_str());
                 field_gen.k_correlation_lenght_scale_x = atof(commands[i].parameters["corr_length_scale_x"].c_str());
                 field_gen.k_correlation_lenght_scale_y = atof(commands[i].parameters["corr_length_scale_y"].c_str());
-                assign_K_gauss();
+                if (commands[i].parameters.count("layered"))
+                    {
+                        if (commands[i].parameters["layered"] == "1")
+                        {
+
+                        }
+                        else
+                        assign_K_gauss();
+                    }
+                else
+                    assign_K_gauss();
             }
 
             if (commands[i].command == "write_k_field")
@@ -3091,6 +3102,7 @@ double CGrid::mean(double u1, double u2)
 		return u1;
 	if (copula_params.mean_method == "2")
 		return u2;
+    return 0.5*(u1+u2);
 
 
 }
