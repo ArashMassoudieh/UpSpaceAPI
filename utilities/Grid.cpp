@@ -715,6 +715,7 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
             {
                 return Vout;
             }
+        if (V[0]<0) return Vout;
         double dx = min(x_inc/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0],x_end-pt.x);
 
         bool changed_sign = true;
@@ -803,8 +804,10 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
             p_new.x = pt.x + dx;
             p_new.y = pt.y + dy;
             CVector V_new = getvelocity(p_new);
+
             if (V_new.num!=2)
                 return CVector();
+            if (V_new[0]<=0) return CVector();
             p_new.y = pt.y + 0.5*(V[1]+V_new[1])*t_inc;
             p_new.x = pt.x + 0.5*(V[0]+V_new[0])*t_inc;
             V_new = getvelocity(p_new);
