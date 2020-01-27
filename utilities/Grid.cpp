@@ -37,7 +37,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (jj>=0)
 			for (int ii = max(i - k,0); ii <= min(i + k,GP.nx-1); ii++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -57,7 +57,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (jj < GP.ny)
 			for (int ii = max(i - k, 0); ii <= min(i + k, GP.nx - 1); ii++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -77,7 +77,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (ii >= 0)
 			for (int jj = max(j - k+1, 0); jj <= min(j + k-1, GP.ny - 1); jj++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -97,7 +97,7 @@ vector<ijval> CGrid::get_closest_K_dets(int i, int j, int n)
 		if (ii < GP.nx)
 			for (int jj = max(j - k + 1, 0); jj <= min(j + k - 1, GP.ny - 1); jj++)
 			{
-				double dist2 = ((i - ii)*GP.dx*(i - ii)*GP.dx + (j - jj)*GP.dy*(j - jj)*GP.dy);
+				double dist2 = ((i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x*(i - ii)*GP.dx/field_gen.k_correlation_lenght_scale_x + (j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y*(j - jj)*GP.dy/field_gen.k_correlation_lenght_scale_y);
 				min_dist = min(min_dist, dist2);
 				if (p[ii][jj].k_det)
 				{
@@ -186,6 +186,7 @@ void CGrid::assign_K_gauss(int i, int j)
 	p[i][j].K_gauss[0] = K_gauss;
 	p[i][j].K[0] = map_to_KCDF(getnormalcdf(K_gauss));
 }
+
 
 void CGrid::assign_K_gauss()
 {
@@ -714,6 +715,7 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
             {
                 return Vout;
             }
+        if (V[0]<0) return Vout;
         double dx = min(x_inc/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0],x_end-pt.x);
 
         bool changed_sign = true;
@@ -802,8 +804,10 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
             p_new.x = pt.x + dx;
             p_new.y = pt.y + dy;
             CVector V_new = getvelocity(p_new);
+
             if (V_new.num!=2)
                 return CVector();
+            if (V_new[0]<=0) return CVector();
             p_new.y = pt.y + 0.5*(V[1]+V_new[1])*t_inc;
             p_new.x = pt.x + 0.5*(V[0]+V_new[0])*t_inc;
             V_new = getvelocity(p_new);
@@ -1585,7 +1589,17 @@ void CGrid::runcommands_qt()
                 field_gen.max_correl_n = atoi(commands[i].parameters["n_neighbors"].c_str());
                 field_gen.k_correlation_lenght_scale_x = atof(commands[i].parameters["corr_length_scale_x"].c_str());
                 field_gen.k_correlation_lenght_scale_y = atof(commands[i].parameters["corr_length_scale_y"].c_str());
-                assign_K_gauss();
+                if (commands[i].parameters.count("layered"))
+                    {
+                        if (commands[i].parameters["layered"] == "1")
+                        {
+
+                        }
+                        else
+                        assign_K_gauss();
+                    }
+                else
+                    assign_K_gauss();
             }
 
             if (commands[i].command == "write_k_field")
@@ -3091,6 +3105,7 @@ double CGrid::mean(double u1, double u2)
 		return u1;
 	if (copula_params.mean_method == "2")
 		return u2;
+    return 0.5*(u1+u2);
 
 
 }
