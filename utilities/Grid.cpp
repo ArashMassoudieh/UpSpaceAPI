@@ -711,6 +711,7 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
     while (pt.x < x_end && ex==false)
     {
         CVector V = getvelocity(pt);
+        if (V[0]<=0) return Vout;
         if (V.getsize() == 0)
             {
                 return Vout;
@@ -730,6 +731,7 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
                 p_new.x = pt.x + dt*V[0];
                 p_new.y = pt.y + dt*V[1];
                 CVector V_new = getvelocity(p_new);
+                if (V_new[0]<=0) return CVector();
                 if (V_new.getsize() == 0)
                 {
                     return Vout;
