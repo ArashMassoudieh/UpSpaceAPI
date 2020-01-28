@@ -1060,6 +1060,22 @@ void CTimeSeriesSet::setname(int index, string name)
 
 }
 
+double CTimeSeriesSet::get_correlation()
+{
+    CVector X(nvars);
+	double sum_prod = 0;
+	double sum_2 = 0;
+    cout<<"     Calculating Correlation..."<<endl;
+	for (int i=0; i<BTC[0].n; i++)
+	{
+            for (int ii=0; ii<nvars-1; ii++)
+            {   sum_prod += BTC[ii].C[i] * BTC[ii+1].C[i]*BTC[0].weight[i];
+                sum_2 += (pow(BTC[ii].C[i], 2) + pow(BTC[ii+1].C[i], 2))*0.5*BTC[0].weight[i];
+            }
+	}
+	return sum_prod / sum_2;;
+}
+
 CVector CTimeSeriesSet::get_kappa_gamma(double delta_x)
 {
 	CVector X(nvars);
