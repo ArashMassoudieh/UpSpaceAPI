@@ -338,7 +338,7 @@ CGrid::CGrid(string filename)
 #if QT_version
             show_in_window("File " + filename + "was not found!");
 #endif
-            filename = "/home/Abdulelah/UpscalingInputfiles/" + filename;
+            filename = "/home/arash/Projects/UpscalingInputfiles/" + filename;
             file.open(filename);
             if (!file.good())
             {
@@ -711,7 +711,12 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
     while (pt.x < x_end && ex==false)
     {
         CVector V = getvelocity(pt);
-        if (V[0]<=0) return Vout;
+        if (V[0]<0)
+        {
+            cout<<"Negative Velocity! Quiting! "<<endl;
+            return Vout;
+        }
+
         if (V.getsize() == 0)
             {
                 return Vout;
