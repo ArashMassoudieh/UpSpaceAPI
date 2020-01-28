@@ -14,6 +14,7 @@
 				<Compiler>
 					<Add option="-std=c++0x" />
 					<Add option="-g" />
+					<Add option="-DArash" />
 				</Compiler>
 				<Linker>
 					<Add library="$(VTK_build)/lib/libvtkalglib-8.1.so" />
@@ -144,6 +145,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-DArash" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -276,6 +278,7 @@
 				<Compiler>
 					<Add option="-std=c++0x" />
 					<Add option="-g" />
+					<Add option="-DArash" />
 				</Compiler>
 				<Linker>
 					<Add library="$(VTK_build)/lib/libvtkChartsCore-9.0.so" />
@@ -416,6 +419,7 @@
 				<Option projectCompilerOptionsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-DArash 1" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
