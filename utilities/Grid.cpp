@@ -14,6 +14,13 @@
 
 #include <sys/resource.h>
 
+#ifdef Arash
+#define DEFAULT_FILE_PATH "/home/arash/Projects/UpscalingInputfiles/"
+#endif // Arash
+
+#ifdef Abdullelah
+#define DEFAULT_FILE_PATH "/home/Abdulelah/UpscalingInputfiles/"
+#endif // Abdullelah
 
 #define symetrical
 //#define Qt_version
@@ -338,7 +345,8 @@ CGrid::CGrid(string filename)
 #if QT_version
             show_in_window("File " + filename + "was not found!");
 #endif
-            filename = "/home/arash/Projects/UpscalingInputfiles/" + filename;
+            filename = DEFAULT_FILE_PATH + filename;
+            //filename = "/home/Arash/Projects/UpscalingInputfiles/" + filename;
             file.open(filename);
             if (!file.good())
             {
@@ -692,6 +700,22 @@ CBTCSet CGrid::get_correlation_based_on_random_samples_dt(int nsamples, double d
     return output;
 }
 
+CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff)
+{
+    CBTCSet output(2);
+    for (int i=0; i<nsamples; i++)
+    {
+        CPosition pt = getrandompoint();
+        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff);
+        if (V.num==2)
+        {
+            output.BTC[0].append(i,V[0]);
+            output.BTC[1].append(i,V[1]);
+        }
+    }
+    return output;
+}
+
 
 CPosition CGrid::getrandompoint()
 {
@@ -736,11 +760,12 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
                 p_new.x = pt.x + dt*V[0];
                 p_new.y = pt.y + dt*V[1];
                 CVector V_new = getvelocity(p_new);
-                if (V_new[0]<=0) return CVector();
+
                 if (V_new.getsize() == 0)
                 {
                     return Vout;
                 }
+                if (V_new[0]<=0) return CVector();
                 if (V_new[0]*V[0]<0)
                 {
                     cout<<"V changed sign!"<<endl;
@@ -827,6 +852,31 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
     Vout = CVector(2);
     Vout[0] = getvelocity(pp)[0];
     Vout[1] = getvelocity(p_new)[0];
+
+    return Vout;
+
+}
+
+CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient)
+{
+    CPosition pt = pp;
+    CVector V1=getvelocity(pp);
+    CPosition p_new;
+    CVector Vout;
+    if (V1[0]<=0) return Vout;
+    if (V1.num!=2) return Vout;
+    bool ex = false;
+    double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+    double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+    p_new.x = pp.x + sqrt(2*dt0*diffusion_coefficient)*zx;
+    p_new.y = pp.y + sqrt(2*dt0*diffusion_coefficient)*zy;
+    CVector V_new = getvelocity(p_new);
+
+    if (V_new.num!=2) return Vout;
+    if (V_new[0]<=0) return Vout;
+    Vout = CVector(2);
+    Vout[0] = V1[0];
+    Vout[1] = V_new[0];
 
     return Vout;
 
@@ -2157,6 +2207,81 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("Making trajectories uniform ... ");
                 Traj.make_uniform_at_x(atof(commands[i].parameters["dx"].c_str()));
+            }
+
+            if (commands[i].command == "extract_pairs_diffusion")
+            {
+                if (!commands[i].parameters.count("nsequence"))
+                    commands[i].parameters["nsequence"] = "2";
+
+                CBTCSet pairs;
+                double dt;
+                dt = atof(commands[i].parameters["delta_t"].c_str());
+                double D = atof(commands[i].parameters["diffusion"].c_str());
+                pairs = get_correlation_based_on_random_samples_diffusion(atoi(commands[i].parameters["n"].c_str()),dt, D);
+
+
+                pairs.writetofile(pathout+commands[i].parameters["filename"]);
+                if (commands[i].parameters.count("dist_filename") > 0)
+                {
+                        pairs.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str()),(pairs.BTC[0].maxC()-pairs.BTC[0].minC())*atof(commands[i].parameters["smoothing_factor"].c_str())).writefile(pathout+commands[i].parameters["dist_filename"]);
+                }
+                if (commands[i].parameters.count("v_gnu_file"))
+                {
+                    TDMap GNU_out = pairs.get2DMap(atoi(commands[i].parameters["nbins"].c_str()));
+                    GNU_out.writetofile_GNU(pathout + commands[i].parameters["v_gnu_file"],"", "v", "v'", "p(v,v')", true);
+                }
+                if (commands[i].parameters.count("ranks_filename") > 0)
+                {
+                    show_in_window("Writing ranks");
+                    CBTCSet ranks(atoi(commands[i].parameters["nsequence"].c_str()));
+                    for (int ii=0; ii<atoi(commands[i].parameters["nsequence"].c_str()); ii++)
+                    {
+                        cout<<pairs.BTC[ii].n<<endl;
+                        pairs.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["ranks_filename"]+"_"+numbertostring(ii));
+                        cout<<pairs.BTC[ii].n<<endl;
+                        ranks.BTC[ii] = pairs.BTC[ii].rank_bd(atoi(commands[i].parameters["nbins"].c_str()));
+                        cout<<ranks.BTC[ii].n<<endl;
+                        ranks.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["ranks_filename"]+"_u"+numbertostring(ii));
+                    }
+                    ranks.writetofile(pathout+commands[i].parameters["ranks_filename"]);
+
+                    if (commands[i].parameters.count("u_gnu_file"))
+                    {
+                        TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
+                        GNU_out.writetofile_GNU(pathout + commands[i].parameters["u_gnu_file"],"", "u", "u'", "p(u,u')");
+                    }
+                }
+                if (commands[i].parameters.count("normal_filename") > 0)
+                {
+                    show_in_window("Writing normals");
+                    CBTCSet normals(atoi(commands[i].parameters["nsequence"].c_str()));
+                    for (int ii=0; ii<atoi(commands[i].parameters["nsequence"].c_str()); ii++)
+                        normals.BTC[ii] = pairs.BTC[ii].map_to_standard_normal(atoi(commands[i].parameters["nbins"].c_str()));
+
+                    if (commands[i].parameters.count("w_gnu_file"))
+                    {
+                        TDMap GNU_out = normals.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),-4,4);
+                        GNU_out.writetofile_GNU(pathout + commands[i].parameters["w_gnu_file"],"", "w", "w'", "p(w,w')");
+                    }
+
+                    normals.writetofile(pathout + commands[i].parameters["normal_filename"]);
+                    if (commands[i].parameters.count("OU_parameters_filename") > 0)
+                    {
+                        show_in_window("Calculating OU params");
+
+                        {
+                            double corr = normals.get_correlation();
+                            extracted_OU_parameters.append("Ro", atof(commands[i].parameters["delta_t"].c_str()), corr);
+                            extracted_OU_parameters.append("-", atof(commands[i].parameters["delta_t"].c_str()), corr);
+                            CVector X(1);
+                            X[0] = corr;
+                            show_in_window("Writing OU params");
+                            X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+                        }
+
+                    }
+                }
             }
 
             if (commands[i].command == "extract_pairs")
