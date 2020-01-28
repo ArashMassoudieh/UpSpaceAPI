@@ -130,6 +130,7 @@
 					<Add library="$(VTK_build)/lib/libvtkViewsCore-8.1.so" />
 					<Add library="$(VTK_build)/lib/libvtkViewsInfovis-8.1.so" />
 					<Add library="$(VTK_build)/lib/libvtkzlib-8.1.so" />
+					<Add library="/usr/local/lib/libsuperlu.so" />
 				</Linker>
 				<Environment>
 					<Variable name="VTK" value="/home/arash/VTK-8.1.0" />
@@ -260,6 +261,7 @@
 					<Add library="$(VTK_build)/lib/libvtkViewsCore-8.1.so" />
 					<Add library="$(VTK_build)/lib/libvtkViewsInfovis-8.1.so" />
 					<Add library="$(VTK_build)/lib/libvtkzlib-8.1.so" />
+					<Add library="/usr/local/lib/libsuperlu.so" />
 				</Linker>
 				<Environment>
 					<Variable name="VTK" value="/home/arash/VTK-8.1.0" />
@@ -399,6 +401,7 @@
 					<Add library="$(VTK_build)/lib/libvtktiff-9.0.so" />
 					<Add library="$(VTK_build)/lib/libvtkverdict-9.0.so" />
 					<Add library="$(VTK_build)/lib/libvtkzlib-9.0.so" />
+					<Add library="/usr/local/lib/libsuperlu.so" />
 				</Linker>
 				<Environment>
 					<Variable name="VTK" value="/home/arash/Projects/VTK" />
@@ -538,7 +541,284 @@
 					<Add library="$(VTK_build)/lib/libvtktiff-9.0.so" />
 					<Add library="$(VTK_build)/lib/libvtkverdict-9.0.so" />
 					<Add library="$(VTK_build)/lib/libvtkzlib-9.0.so" />
+					<Add library="/usr/local/lib/libsuperlu.so" />
 				</Linker>
+			</Target>
+			<Target title="Debug_Abdulelah">
+				<Option output="bin/Debug/UpSpaceAPI" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++0x" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkChartsCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonColor-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonComputationalGeometry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonDataModel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonExecutionModel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonMath-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonMisc-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonSystem-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonTransforms-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkDICOMParser-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkDomainsChemistry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkDomainsChemistryOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersAMR-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersExtraction-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersFlowPaths-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersGeneral-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersGeneric-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersGeometry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersHybrid-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersHyperTree-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersImaging-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersModeling-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersParallel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersParallelImaging-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersPoints-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersProgrammable-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersSMP-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersSelection-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersSources-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersStatistics-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersTexture-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersTopology-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersVerdict-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkGeovisCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOAMR-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOAsynchronous-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOCityGML-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOEnSight-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExodus-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExport-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExportOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExportPDF-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOGeometry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOImage-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOImport-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOInfovis-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOLSDyna-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOLegacy-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOMINC-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOMovie-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIONetCDF-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOPLY-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOParallel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOParallelXML-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOSQL-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOSegY-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOTecplotTable-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOVeraOut-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOVideo-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOXML-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOXMLParser-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingColor-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingFourier-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingGeneral-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingHybrid-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingMath-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingMorphological-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingSources-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingStatistics-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingStencil-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInfovisCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInfovisLayout-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInteractionImage-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInteractionStyle-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInteractionWidgets-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkNetCDF-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkParallelCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingAnnotation-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingContext2D-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingContextOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingFreeType-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingGL2PSOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingImage-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingLOD-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingLabel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingVolume-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingVolumeOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkViewsContext2D-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkViewsCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkViewsInfovis-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkdoubleconversion-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkexodusII-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkexpat-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkfreetype-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkgl2ps-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkglew-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkhdf5-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkhdf5_hl-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkjpeg-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkjsoncpp-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklibharu-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklibxml2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklz4-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklzma-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkmetaio-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkogg-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkpng-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkproj-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkpugixml-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtksqlite-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtksys-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtktheora-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtktiff-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkverdict-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkzlib-8.2.so" />
+				</Linker>
+				<Environment>
+					<Variable name="VTK" value="/home/Abdulelah/VTK-8.2.0" />
+					<Variable name="VTK_build" value="/home/Abdulelah/VTK-build/VTK-Release-build" />
+				</Environment>
+			</Target>
+			<Target title="Release_Abdulelah">
+				<Option output="bin/Release/UpSpaceAPI" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkChartsCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonColor-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonComputationalGeometry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonDataModel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonExecutionModel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonMath-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonMisc-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonSystem-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkCommonTransforms-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkDICOMParser-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkDomainsChemistry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkDomainsChemistryOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersAMR-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersExtraction-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersFlowPaths-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersGeneral-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersGeneric-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersGeometry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersHybrid-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersHyperTree-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersImaging-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersModeling-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersParallel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersParallelImaging-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersPoints-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersProgrammable-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersSMP-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersSelection-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersSources-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersStatistics-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersTexture-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersTopology-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkFiltersVerdict-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkGeovisCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOAMR-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOAsynchronous-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOCityGML-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOEnSight-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExodus-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExport-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExportOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOExportPDF-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOGeometry-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOImage-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOImport-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOInfovis-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOLSDyna-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOLegacy-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOMINC-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOMovie-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIONetCDF-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOPLY-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOParallel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOParallelXML-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOSQL-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOSegY-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOTecplotTable-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOVeraOut-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOVideo-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOXML-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkIOXMLParser-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingColor-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingFourier-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingGeneral-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingHybrid-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingMath-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingMorphological-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingSources-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingStatistics-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkImagingStencil-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInfovisCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInfovisLayout-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInteractionImage-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInteractionStyle-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkInteractionWidgets-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkNetCDF-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkParallelCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingAnnotation-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingContext2D-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingContextOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingFreeType-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingGL2PSOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingImage-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingLOD-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingLabel-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingVolume-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkRenderingVolumeOpenGL2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkViewsContext2D-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkViewsCore-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkViewsInfovis-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkdoubleconversion-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkexodusII-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkexpat-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkfreetype-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkgl2ps-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkglew-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkhdf5-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkhdf5_hl-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkjpeg-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkjsoncpp-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklibharu-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklibxml2-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklz4-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtklzma-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkmetaio-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkogg-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkpng-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkproj-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkpugixml-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtksqlite-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtksys-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtktheora-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtktiff-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkverdict-8.2.so" />
+					<Add library="../VTK-build/VTK-Release-build/lib/libvtkzlib-8.2.so" />
+				</Linker>
+				<Environment>
+					<Variable name="VTK" value="/home/Abdulelah/VTK-8.2.0" />
+					<Variable name="VTK_build" value="/home/Abdulelah/VTK-build/VTK-Release-build" />
+				</Environment>
 			</Target>
 			<Environment>
 				<Variable name="VTK_v" value="9.0" />
@@ -602,7 +882,6 @@
 			<Add option="-larmadillo" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgsl.so" />
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgslcblas.so" />
-			<Add library="/usr/local/lib/libsuperlu.so" />
 		</Linker>
 		<Unit filename="mainsrc/Pathway.cpp" />
 		<Unit filename="mainsrc/Pathway.h" />

@@ -338,7 +338,7 @@ CGrid::CGrid(string filename)
 #if QT_version
             show_in_window("File " + filename + "was not found!");
 #endif
-            filename = "/home/arash/Projects/UpscalingInputfiles/" + filename;
+            filename = "/home/Abdulelah/UpscalingInputfiles/" + filename;
             file.open(filename);
             if (!file.good())
             {
