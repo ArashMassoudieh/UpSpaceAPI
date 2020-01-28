@@ -14,6 +14,13 @@
 
 #include <sys/resource.h>
 
+#ifdef Arash
+#define DEFAULT_FILE_PATH "/home/arash/Projects/UpscalingInputfiles/"
+#endif // Arash
+
+#ifdef Abdullelah
+#define DEFAULT_FILE_PATH "/home/Abdulelah/UpscalingInputfiles/"
+#endif // Abdullelah
 
 #define symetrical
 //#define Qt_version
@@ -338,7 +345,8 @@ CGrid::CGrid(string filename)
 #if QT_version
             show_in_window("File " + filename + "was not found!");
 #endif
-            filename = "/home/Abdulelah/UpscalingInputfiles/" + filename;
+            filename = DEFAULT_FILE_PATH + filename;
+            //filename = "/home/Arash/Projects/UpscalingInputfiles/" + filename;
             file.open(filename);
             if (!file.good())
             {
@@ -731,11 +739,12 @@ CVector CGrid::v_correlation_single_point(const CPosition &pp, double dx0, doubl
                 p_new.x = pt.x + dt*V[0];
                 p_new.y = pt.y + dt*V[1];
                 CVector V_new = getvelocity(p_new);
-                if (V_new[0]<=0) return CVector();
+
                 if (V_new.getsize() == 0)
                 {
                     return Vout;
                 }
+                if (V_new[0]<=0) return CVector();
                 if (V_new[0]*V[0]<0)
                 {
                     cout<<"V changed sign!"<<endl;
