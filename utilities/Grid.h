@@ -221,9 +221,9 @@ public:
 	double max_vy();
 	double min_vy();
 	void set_K_transport(double dt, double D=0, double weight=0.5);
-	CVector_arma create_RHS_transport(double dt, double weight=0.5, double D=0);
+	CVector_arma create_RHS_transport(double dt, double weight=0.5, double D=0, double decay_coefficient=0, double decay_order=1);
 	CVector_arma create_RHS_transport_laplace(double weight, double D, double s);
-	void solve_transport(double t_end);
+	void solve_transport(double t_end, double decay_coefficient=0, double decay_order=1);
 	void solve_transport_laplace(double s);
 	void set_K_transport_laplace(double D, double s);
 	void create_f_inv_u();

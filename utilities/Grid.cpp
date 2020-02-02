@@ -1692,9 +1692,11 @@ void CGrid::runcommands_qt()
                     leftboundary_C = atof(commands[i].parameters["l_boundary"].c_str());
                     D = atof(commands[i].parameters["diffusion"].c_str());
                     dt = atof(commands[i].parameters["dt"].c_str());
+                    double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
+                    double decay_order = atof(commands[i].parameters["decay_order"].c_str());
 
                     cout << "Solving transport ..." << endl;
-                    solve_transport(atof(commands[i].parameters["t_end"].c_str()));
+                    solve_transport(atof(commands[i].parameters["t_end"].c_str()),decay_coeff,decay_order);
             }
 
             if (commands[i].command == "write_btc_from_concentration")
@@ -2536,7 +2538,7 @@ void CGrid::set_K_transport(double dt, double D, double weight)
 
 			Kv.matr(get_cell_no(i, j), get_cell_no(i, j-1)) += -weight*pos(vy[i - 1][j - 1]) / GP.dy;
 			Kv.matr(get_cell_no(i, j), get_cell_no(i, j)) += weight*(neg(vy[i - 1][j - 1]) / GP.dy + pos(vy[i-1][j]) / GP.dy);
-			Kv.matr(get_cell_no(i, j), get_cell_no(i, j-1)) += -weight*neg(vy[i-1][j]) / GP.dy;
+			Kv.matr(get_cell_no(i, j), get_cell_no(i, j+1)) += -weight*neg(vy[i-1][j]) / GP.dy;
 
 			KD.matr(get_cell_no(i, j), get_cell_no(i - 1, j)) += -weight*D / (GP.dx*GP.dx);
 			KD.matr(get_cell_no(i, j), get_cell_no(i, j)) += 2*weight*D / (GP.dx*GP.dx);
@@ -2579,7 +2581,7 @@ void CGrid::set_K_transport(double dt, double D, double weight)
 
 }
 
-CVector_arma CGrid::create_RHS_transport(double dt, double weight,double D)
+CVector_arma CGrid::create_RHS_transport(double dt, double weight,double D, double decay_coefficient, double decay_order)
 {
 	CVector_arma RHS((GP.nx + 1)*(GP.ny + 1));
 	for (int i = 1; i < GP.nx; i++)
@@ -2603,7 +2605,7 @@ CVector_arma CGrid::create_RHS_transport(double dt, double weight,double D)
 			rhs += -2 * (1-weight)*D / (GP.dy*GP.dy)*C[i][j];
 			rhs += (1-weight)*D / (GP.dy*GP.dy)*C[i][j+1];
 
-			rhs += 1.0 / dt*C[i][j];
+			rhs += 1.0 / dt*C[i][j] - decay_coefficient*pow(C[i][j], decay_order);
 			RHS[get_cell_no(i, j)] = rhs;
 		}
 		// top boundary
@@ -2663,7 +2665,7 @@ CVector_arma CGrid::create_RHS_transport_laplace(double weight, double D, double
 
 }
 
-void CGrid::solve_transport(double t_end)
+void CGrid::solve_transport(double t_end, double decay_coeff, double decay_order)
 {
 	set_K_transport(dt, D, time_weight);
 	C = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
@@ -2675,7 +2677,7 @@ void CGrid::solve_transport(double t_end)
 	set_progress_value(0);
         for (double t = 0; t < t_end; t += dt)
         {
-            CVector_arma RHS = create_RHS_transport(dt, time_weight, D);
+            CVector_arma RHS = create_RHS_transport(dt, time_weight, D, decay_coeff, decay_order);
             CVector_arma S = solve_ar(K, RHS);
 
             for (int i=0; i<GP.nx+1; i++)
