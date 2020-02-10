@@ -1825,6 +1825,22 @@ void CGrid::runcommands_qt()
                 Breakthroughcurve_from_trajs.getcummulative().writefile(pathout+commands[i].parameters["filename"]);
             }
 
+            if (commands[i].command == "get_profile")
+            {
+                show_in_window("Getting profile ... ");
+                string filename = pathout + commands[i].parameters["filename"];
+                double x_start = atof(commands[i].parameters["x_start"].c_str());
+                double x_end = atof(commands[i].parameters["x_end"].c_str());
+                double interval = atof(commands[i].parameters["interval"].c_str());
+                int timestep;
+                if (commands[i].parameters.count("at_time")==0)
+                    timestep = p[0][0].C.size()-1;
+                else
+                    timestep = min(int(p[0][0].C.size()-1),int(atof(commands[i].parameters["at_time"].c_str())/dt));
+
+                GetProfile(timestep, x_start, x_end, interval, filename);
+            }
+
             if (commands[i].command == "write_breakthrough_curves_all")
             {
                 show_in_window("Writing break through curves for all realizations");
@@ -3242,6 +3258,15 @@ double CGrid::mean(double u1, double u2)
 	if (copula_params.mean_method == "2")
 		return u2;
     return 0.5*(u1+u2);
+}
 
-
+CTimeSeries CGrid::GetProfile(int timestep, double x_start, double x_end, double interval, const string &filename)
+{
+    CBTC Profile;
+    for (double x=x_start; x<=x_end; x+=interval)
+    {
+        Profile.append(x,GetConcentrationAtX(x,timestep));
+    }
+    Profile.writefile(filename);
+    return Profile;
 }
