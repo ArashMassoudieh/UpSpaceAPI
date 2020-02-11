@@ -2909,8 +2909,8 @@ void CGrid::create_inv_K_Copula(double dt)
     }
 
 
-    copula_params.Inv_M = inv(M);
-    CMatrix INV_MM(copula_params.Inv_M);
+    copula_params.Inv_M = M;
+
 
 }
 
@@ -3139,7 +3139,7 @@ void CGrid::solve_transport_Copula(double t_end, double decay_coeff, double deca
     for (double t = 0; t < t_end; t += dt)
     {
         CVector_arma RHS = create_RHS_Copula(dt,decay_coeff, decay_order);
-        CVector_arma S = copula_params.Inv_M*RHS;
+        CVector_arma S = RHS/copula_params.Inv_M;
 
         for (int i = 0; i < GP.nx+2; i++)
         {
