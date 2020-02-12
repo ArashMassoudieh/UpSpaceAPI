@@ -2908,7 +2908,7 @@ void CGrid::create_inv_K_Copula(double dt)
         M(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
     }
 
-
+    //Changed from inverse
     copula_params.Inv_M = M;
 
 
