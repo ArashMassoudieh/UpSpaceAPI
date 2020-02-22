@@ -1726,12 +1726,13 @@ void CGrid::runcommands_qt()
                 show_in_window("Solving transport (Copula)...");
                 time_weight = atof(commands[i].parameters["weight"].c_str());
                 dt = atof(commands[i].parameters["dt"].c_str());
+                double diffusion = atof(commands[i].parameters["diffusion"].c_str());
                 double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
                 double decay_order = atof(commands[i].parameters["decay_order"].c_str());
                 copula_params.epsilon = atof(commands[i].parameters["epsilon"].c_str());
                 copula_params.diffusion = atof(commands[i].parameters["diffusion"].c_str());
                 copula_params.mean_method = commands[i].parameters["mean_method"];
-                solve_transport_Copula(atof(commands[i].parameters["t_end"].c_str()),decay_coeff, decay_order);
+                solve_transport_Copula(atof(commands[i].parameters["t_end"].c_str()),diffusion,decay_coeff, decay_order);
                 if (commands[i].parameters.count("filename") > 0) OU.BTCs.writetofile(pathout + commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("filename_d") > 0) OU.BTCs.detivative().writetofile(pathout + commands[i].parameters["filename_d"]);
                 if (commands[i].parameters.count("filename_n") > 0) OU.BTC_normal.writetofile(pathout + commands[i].parameters["filename_n"]);
@@ -2138,6 +2139,7 @@ void CGrid::runcommands_qt()
                 for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
                         Copula.parameters.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
                 Copula.SetCorrelation(Copula.parameters[0]);
+                Copula.SetDiffusionParams()atof(commands[i].parameters["diffusion"].c_str()),atof(commands[i].parameters["corr_ls"].c_str()),atof(commands[i].parameters["diffusion_corr_ls"].c_str()));
             }
 
 
@@ -2869,7 +2871,7 @@ void CGrid::create_inverse_K_OU(double dt)
 
 }
 
-void CGrid::create_inv_K_Copula(double dt)
+void CGrid::create_inv_K_Copula(double dt, double Diffusion_coefficient)
 {
     CMatrix_arma M(GP.ny*(GP.nx+2), GP.ny*(GP.nx+2));
 
@@ -2880,6 +2882,9 @@ void CGrid::create_inv_K_Copula(double dt)
             M(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt;
             M(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
             M(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
+            M(j + GP.ny*i,j + GP.ny*i) += 2*time_weight*Diffusion_coefficient/pow(GP.dx,2);
+            M(j + GP.ny*i,j + GP.ny*(i-1)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
+            M(j + GP.ny*i,j + GP.ny*min(i+1,GP.nx)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
             if (copula_params.diffusion>0)
             {
                 if (i < GP.nx + 1)
@@ -2935,8 +2940,8 @@ void CGrid::create_k_mat_copula()
             {
                 double u1 = double(i)*GP.dy + GP.dy / 2;
                 double u2 = double(j)*GP.dy + GP.dy / 2;
-                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*mean(dist.inverseCDF(u2),dist.inverseCDF(u1));
-                copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*mean(dist.inverseCDF(u1),dist.inverseCDF(u2));
+                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u2),dist.inverseCDF(u1)) + Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
+                copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u1),dist.inverseCDF(u2)) + Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
 
             }
 #endif
@@ -2953,7 +2958,7 @@ void CGrid::create_f_inv_u()
 }
 
 
-CVector_arma CGrid::create_RHS_Copula(double dt, double decay_coeff, double decay_order)
+CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double decay_coeff, double decay_order)
 {
     CVector_arma RHS(GP.ny*(GP.nx+2));
 
@@ -2964,6 +2969,9 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double decay_coeff, double deca
             RHS[j + GP.ny*i]+= C[i][j] / dt - decay_coeff*pow(C[i][j],decay_order);
             RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+            RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i][j];
+            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i - 1][j];
+            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[min(i + 1,GP.nx)][j];
 
             if (copula_params.diffusion>0)
             {
@@ -3118,11 +3126,11 @@ void CGrid::solve_transport_OU(double t_end)
 
 }
 
-void CGrid::solve_transport_Copula(double t_end, double decay_coeff, double decay_order)
+void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, double decay_coeff, double decay_order)
 {
 	create_f_inv_u();
 	create_k_mat_copula();
-	create_inv_K_Copula(dt);
+	create_inv_K_Copula(dt,Diffusion_coeff);
 	C = CMatrix(GP.nx+2, GP.ny);
 	OU.BTCs = CBTCSet(GP.nx+2);
 	OU.BTC_normal = CBTCSet(GP.nx + 2);
@@ -3138,7 +3146,7 @@ void CGrid::solve_transport_Copula(double t_end, double decay_coeff, double deca
 	set_progress_value(0);
     for (double t = 0; t < t_end; t += dt)
     {
-        CVector_arma RHS = create_RHS_Copula(dt,decay_coeff, decay_order);
+        CVector_arma RHS = create_RHS_Copula(dt, Diffusion_coeff, decay_coeff, decay_order);
         CVector_arma S = RHS/copula_params.Inv_M;
 
         for (int i = 0; i < GP.nx+2; i++)

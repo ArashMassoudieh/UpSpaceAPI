@@ -17,13 +17,18 @@ public:
 	CCopula();
 	~CCopula();
 	void SetCorrelation(const double &r);
+	void SetDiffusionParams(double D, double cls, double D_cls) {diffusion_coeff = D; diffusion_correlation_ls = D_cls; correlation_ls = cls;}
 	double get_random_at(const double &u1);
 	double w;
 	gsl_rng *RngPtr() {return rng_ptr;}
+	double correlation_ls;
+    double diffusion_correlation_ls;
+    double diffusion_coeff;
 private:
     gsl_rng *rng_ptr;
     CMatrix M_inv;
     double correlation;
+
 
 };
 
