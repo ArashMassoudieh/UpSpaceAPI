@@ -2139,7 +2139,7 @@ void CGrid::runcommands_qt()
                 for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
                         Copula.parameters.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
                 Copula.SetCorrelation(Copula.parameters[0]);
-                Copula.SetDiffusionParams()atof(commands[i].parameters["diffusion"].c_str()),atof(commands[i].parameters["corr_ls"].c_str()),atof(commands[i].parameters["diffusion_corr_ls"].c_str()));
+                Copula.SetDiffusionParams(atof(commands[i].parameters["diffusion"].c_str()),atof(commands[i].parameters["corr_ls"].c_str()),atof(commands[i].parameters["diffusion_corr_ls"].c_str()));
             }
 
 
