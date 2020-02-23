@@ -121,7 +121,7 @@ struct _Copula_Params
 {
     double epsilon;
     CMatrix K;
-    CMatrix_arma Inv_M;
+    CMatrix_arma_sp Inv_M;
     double diffusion;
     string mean_method;
 };

@@ -2873,7 +2873,7 @@ void CGrid::create_inverse_K_OU(double dt)
 
 void CGrid::create_inv_K_Copula(double dt, double Diffusion_coefficient)
 {
-    CMatrix_arma M(GP.ny*(GP.nx+2), GP.ny*(GP.nx+2));
+    CMatrix_arma_sp M(GP.ny*(GP.nx+2), GP.ny*(GP.nx+2));
 
     for (int i = 1; i < GP.nx+1; i++)
     {
