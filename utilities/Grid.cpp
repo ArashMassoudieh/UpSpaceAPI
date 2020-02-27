@@ -2885,38 +2885,38 @@ void CGrid::create_inv_K_Copula(double dt, double Diffusion_coefficient)
     {
         for (int j = 0; j < GP.ny; j++)
         {
-            M(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt;
-            M(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
-            M(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
-            M(j + GP.ny*i,j + GP.ny*i) += 2*time_weight*Diffusion_coefficient/pow(GP.dx,2);
-            M(j + GP.ny*i,j + GP.ny*(i-1)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
-            M(j + GP.ny*i,j + GP.ny*min(i+1,GP.nx)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
+            M.matr(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt;
+            M.matr(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
+            M.matr(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
+            M.matr(j + GP.ny*i,j + GP.ny*i) += 2*time_weight*Diffusion_coefficient/pow(GP.dx,2);
+            M.matr(j + GP.ny*i,j + GP.ny*(i-1)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
+            M.matr(j + GP.ny*i,j + GP.ny*min(i+1,GP.nx)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
             if (copula_params.diffusion>0)
             {
                 if (i < GP.nx + 1)
                 {
-                    M(j + GP.ny*i,j + GP.ny*i) = 2 * copula_params.diffusion*time_weight / pow(GP.dx, 2);
-                    M(j + GP.ny*i,j + GP.ny*(i-1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
-                    M(j + GP.ny*i,j + GP.ny*(i+1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
+                    M.matr(j + GP.ny*i,j + GP.ny*i) = 2 * copula_params.diffusion*time_weight / pow(GP.dx, 2);
+                    M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
+                    M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
                 }
             }
             for (int k = 0; k < GP.ny; k++)
-                M(j + GP.ny*i,k + GP.ny*i) += -time_weight*copula_params.K[j][k] / copula_params.epsilon*GP.dy;
+                M.matr(j + GP.ny*i,k + GP.ny*i) += -time_weight*copula_params.K[j][k] / copula_params.epsilon*GP.dy;
 
         }
     }
     int i = 0;
     for (int j = 0; j < GP.ny; j++)
     {
-        M(j + GP.ny*i,j + GP.ny*i) = 0.5;
-        M(j + GP.ny*i,j + GP.ny*(i+1)) = 0.5;
+        M.matr(j + GP.ny*i,j + GP.ny*i) = 0.5;
+        M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = 0.5;
     }
 
     i = GP.nx + 1;
     for (int j = 0; j < GP.ny; j++)
     {
-        M(j + GP.ny*i,j + GP.ny*i) = 1;
-        M(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+        M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
+        M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
     }
 
     //Changed from inverse
@@ -2984,8 +2984,8 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
                 if (i < GP.nx + 1)
                 {
                     RHS[j + GP.ny*i] += -2 * copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i][j];
-                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i][j-1];
-                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i][j+1];
+                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i-1][j];
+                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i+1][j];
                 }
             }
 
