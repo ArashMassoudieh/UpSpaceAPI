@@ -700,13 +700,13 @@ CBTCSet CGrid::get_correlation_based_on_random_samples_dt(int nsamples, double d
     return output;
 }
 
-CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff)
+CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment)
 {
     CBTCSet output(2);
     for (int i=0; i<nsamples; i++)
     {
         CPosition pt = getrandompoint();
-        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff);
+        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff, increment);
         if (V.num==2)
         {
             output.BTC[0].append(i,V[0]);
@@ -857,8 +857,9 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
 
 }
 
-CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient)
+CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment)
 {
+    if (increment==0) increment = dt0/10.0;
     CPosition pt = pp;
     CVector V1=getvelocity(pp);
     CPosition p_new;
@@ -866,10 +867,15 @@ CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double 
     if (V1[0]<=0) return Vout;
     if (V1.num!=2) return Vout;
     bool ex = false;
-    double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
-    double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
-    p_new.x = pp.x + sqrt(2*dt0*diffusion_coefficient)*zx;
-    p_new.y = pp.y + sqrt(2*dt0*diffusion_coefficient)*zy;
+    p_new = pp;
+    for (double dtt=0; dtt<dt0; dtt+=increment)
+    {
+        double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+        double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+        p_new.x += sqrt(2*dtt*diffusion_coefficient)*zx;
+        p_new.y += sqrt(2*dtt*diffusion_coefficient)*zy;
+    }
+
     CVector V_new = getvelocity(p_new);
 
     if (V_new.num!=2) return Vout;
