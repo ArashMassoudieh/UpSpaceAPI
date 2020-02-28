@@ -2891,15 +2891,7 @@ void CGrid::create_inv_K_Copula(double dt, double Diffusion_coefficient)
             M.matr(j + GP.ny*i,j + GP.ny*i) += 2*time_weight*Diffusion_coefficient/pow(GP.dx,2);
             M.matr(j + GP.ny*i,j + GP.ny*(i-1)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
             M.matr(j + GP.ny*i,j + GP.ny*min(i+1,GP.nx)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
-            if (copula_params.diffusion>0)
-            {
-                if (i < GP.nx + 1)
-                {
-                    M.matr(j + GP.ny*i,j + GP.ny*i) = 2 * copula_params.diffusion*time_weight / pow(GP.dx, 2);
-                    M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
-                    M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = -copula_params.diffusion*time_weight / pow(GP.dx, 2);
-                }
-            }
+
             for (int k = 0; k < GP.ny; k++)
                 M.matr(j + GP.ny*i,k + GP.ny*i) += -time_weight*copula_params.K[j][k] / copula_params.epsilon*GP.dy;
 
@@ -2978,16 +2970,6 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
             RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i - 1][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[min(i + 1,GP.nx)][j];
-
-            if (copula_params.diffusion>0)
-            {
-                if (i < GP.nx + 1)
-                {
-                    RHS[j + GP.ny*i] += -2 * copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i][j];
-                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i-1][j];
-                    RHS[j + GP.ny*i] += copula_params.diffusion*(1-time_weight) / pow(GP.dx, 2)*C[i+1][j];
-                }
-            }
 
             for (int k = 0; k < GP.ny; k++)
                 RHS[j + GP.ny*i] += (1 - time_weight)*copula_params.K[j][k] / copula_params.epsilon*GP.dy*C[i][k];
