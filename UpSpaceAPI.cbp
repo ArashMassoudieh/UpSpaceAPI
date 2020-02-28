@@ -295,7 +295,6 @@
 					<Add library="$(VTK_build)/lib/libvtkDICOMParser-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkDomainsChemistry-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkDomainsChemistryOpenGL2-8.90.so" />
-					<Add library="$(VTK_build)/lib/libvtkexoIIc-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkexpat-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkFiltersAMR-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkFiltersCore-8.90.so" />
@@ -345,7 +344,6 @@
 					<Add library="$(VTK_build)/lib/libvtkIOEnSight-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkIOExodus-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkIOExport-8.90.so" />
-					<Add library="$(VTK_build)/lib/libvtkIOExportOpenGL2-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkIOGeometry-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkIOImage-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkIOImport-8.90.so" />
@@ -369,12 +367,8 @@
 					<Add library="$(VTK_build)/lib/libvtklibxml2-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtklz4-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkmetaio-8.90.so" />
-					<Add library="$(VTK_build)/lib/libvtkNetCDF-8.90.so" />
-					<Add library="$(VTK_build)/lib/libvtknetcdfcpp-8.90.so" />
-					<Add library="$(VTK_build)/lib/libvtkoggtheora-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkParallelCore-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkpng-8.90.so" />
-					<Add library="$(VTK_build)/lib/libvtkproj4-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkRenderingAnnotation-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkRenderingContext2D-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkRenderingContextOpenGL2-8.90.so" />
@@ -395,11 +389,11 @@
 					<Add library="$(VTK_build)/lib/libvtkViewsCore-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkViewsInfovis-8.90.so" />
 					<Add library="$(VTK_build)/lib/libvtkzlib-8.90.so" />
-					<Add library="/usr/local/lib/libsuperlu.so" />
+					<Add library="../../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
 				</Linker>
 				<Environment>
-					<Variable name="VTK" value="/home/arash/VTK-8.1.0" />
-					<Variable name="VTK_build" value="/home/arash/VTK-8.1-build" />
+					<Variable name="VTK" value="/home/arash/Projects/VTK" />
+					<Variable name="VTK_build" value="/home/arash/Projects/VTK-build" />
 				</Environment>
 			</Target>
 			<Target title="Debug_VTK9">
