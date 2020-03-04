@@ -1336,6 +1336,38 @@ CMatrix CGrid::solve()
     cout<<endl;
 }
 
+void CGrid::Assign_Linear_Velocity_Field(double V0, double V_slope)
+{
+    H = CMatrix(GP.nx+1,GP.ny+1);
+    vx = CMatrix(GP.nx, GP.ny-1);
+    vy = CMatrix(GP.nx - 1, GP.ny);
+    for (int i=0; i<GP.nx; i++)
+		for (int j = 0; j < GP.ny - 1; j++)
+		{
+			vx[i][j] = V0 + V_slope*(double(j)+0.5)*GP.dy;
+		}
+
+
+	for (int i = 0; i<GP.nx-1; i++)
+		for (int j = 0; j < GP.ny; j++)
+		{
+			vy[i][j] = 0;
+		}
+
+	for (int i = 0; i < GP.nx; i++)
+	for (int j = 0; j < GP.ny; j++)
+	{
+            p[i][j].K[0] = 1;
+            p[i][j].V[0] = V0 + V_slope*(double(j))*GP.dy;
+            p[i][j].V[1] = 0;
+            p[i][j].Vbx = V0 + V_slope*(double(j)-0.5)*GP.dy;
+            p[i][j].Vtx = V0 + V_slope*(double(j)+0.5)*GP.dy;
+            p[i][j].Vby = 0;
+            p[i][j].Vtx = 0;
+	}
+
+}
+
 vector<int> CGrid::get_ij(int k)
 {
 	vector<int> out(2);
@@ -1663,6 +1695,14 @@ void CGrid::runcommands_qt()
                     }
                 else
                     assign_K_gauss();
+            }
+
+            if (commands[i].command == "assign_linear_velocity_field")
+            {
+                show_in_window("assigning linear velocity field...");
+                double v0 = atof(commands[i].parameters["v0"].c_str());
+                double slope = atof(commands[i].parameters["v_slope"].c_str());
+                Assign_Linear_Velocity_Field(v0, slope);
             }
 
             if (commands[i].command == "write_k_field")
