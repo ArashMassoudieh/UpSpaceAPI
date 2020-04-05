@@ -2279,6 +2279,11 @@ void CGrid::runcommands_qt()
                         TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                         GNU_out.writetofile_GNU(pathout + commands[i].parameters["u_gnu_file"],"", "u", "u'", "p(u,u')");
                     }
+                    if (commands[i].parameters.count("map_file"))
+                    {
+                        TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
+                        GNU_out.writetofile(pathout + commands[i].parameters["map_file"]);
+                    }
                 }
                 if (commands[i].parameters.count("normal_filename") > 0)
                 {
