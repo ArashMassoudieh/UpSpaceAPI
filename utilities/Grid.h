@@ -188,6 +188,7 @@ public:
 	double D;
 	CMatrix solve();
 	vector<int> get_ij(int k);
+	void Assign_Linear_Velocity_Field(double V0, double V_slope);
 	CBTC get_v_btc(int k);
 	CBTC get_kg_btc(int k);
 	void remap_K(int k);
