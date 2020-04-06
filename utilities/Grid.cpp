@@ -700,13 +700,13 @@ CBTCSet CGrid::get_correlation_based_on_random_samples_dt(int nsamples, double d
     return output;
 }
 
-CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment)
+CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment, bool fixed_increment)
 {
     CBTCSet output(2);
     for (int i=0; i<nsamples; i++)
     {
         CPosition pt = getrandompoint();
-        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff, increment);
+        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff, increment, fixed_increment);
         if (V.num==2)
         {
             output.BTC[0].append(i,V[0]);
@@ -857,7 +857,7 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
 
 }
 
-CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment)
+CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment, bool fixed_increment)
 {
     if (increment==0) increment = dt0/10.0;
     CPosition pt = pp;
@@ -868,12 +868,20 @@ CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double 
     if (V1.num!=2) return Vout;
     bool ex = false;
     p_new = pp;
+    if (!fixed_increment)
     for (double dtt=0; dtt<dt0; dtt+=increment)
     {
         double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
         double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
-        p_new.x += sqrt(2*dtt*diffusion_coefficient)*zx;
-        p_new.y += sqrt(2*dtt*diffusion_coefficient)*zy;
+        p_new.x += sqrt(2*increment*diffusion_coefficient)*zx;
+        p_new.y += sqrt(2*increment*diffusion_coefficient)*zy;
+    }
+    else
+    {   double u = unitrandom()*2*3.141521;
+        double zx = dt0*sin(u);
+        double zy = dt0*cos(u);
+        p_new.x += zx;
+        p_new.y += zy;
     }
 
     CVector V_new = getvelocity(p_new);
@@ -2284,10 +2292,16 @@ void CGrid::runcommands_qt()
 
                 CBTCSet pairs;
                 double dt;
+                bool fixed_interval = false;
+                if (commands[i].parameters.count("fixed_interval")>0)
+                    if (commands[i].parameters["fixed_interval"]=="true")
+                        fixed_interval = true;
+
+
                 dt = atof(commands[i].parameters["delta_t"].c_str());
                 double D = atof(commands[i].parameters["diffusion"].c_str());
-                pairs = get_correlation_based_on_random_samples_diffusion(atoi(commands[i].parameters["n"].c_str()),dt, D);
-
+                pairs = get_correlation_based_on_random_samples_diffusion(atoi(commands[i].parameters["n"].c_str()),dt, D, dt/10, fixed_interval);
+                double u_grad;
 
                 pairs.writetofile(pathout+commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("dist_filename") > 0)
@@ -2324,6 +2338,14 @@ void CGrid::runcommands_qt()
                         TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                         GNU_out.writetofile(pathout + commands[i].parameters["map_file"]);
                     }
+
+
+                    if (commands[i].parameters.count("joint_cdf_file"))
+                    {
+                        TDMap GNU_out = ranks.getJointCDF(atoi(commands[i].parameters["nbins"].c_str()),0,1);
+                        GNU_out.writetofile(pathout + commands[i].parameters["joint_cdf_file"]);
+                    }
+                    u_grad = diff(ranks.BTC[0],ranks.BTC[1])/pow(atof(commands[i].parameters["delta_t"].c_str()),2)/double(ranks.BTC[0].n);
                 }
                 if (commands[i].parameters.count("normal_filename") > 0)
                 {
@@ -2346,9 +2368,10 @@ void CGrid::runcommands_qt()
                         {
                             double corr = normals.get_correlation();
                             extracted_OU_parameters.append("Ro", atof(commands[i].parameters["delta_t"].c_str()), corr);
-                            extracted_OU_parameters.append("-", atof(commands[i].parameters["delta_t"].c_str()), corr);
-                            CVector X(1);
+                            extracted_OU_parameters.append("u_grad", atof(commands[i].parameters["delta_t"].c_str()),u_grad);
+                            CVector X(2);
                             X[0] = corr;
+                            X[1] = u_grad;
                             show_in_window("Writing OU params");
                             X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
                         }

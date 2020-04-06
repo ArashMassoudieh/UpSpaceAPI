@@ -1153,7 +1153,7 @@ TDMap CTimeSeriesSet::get2DMap(int number_of_bins_x, int number_of_bins_y, doubl
     {
         int i= int((BTC[0].C[k]-low_lim_x)/(up_lim_x-low_lim_x)*number_of_bins_x);
         int j= int((BTC[1].C[k]-low_lim_y)/(up_lim_y-low_lim_y)*number_of_bins_y);
-        if (i>=0 && i<number_of_bins_x && j>0 && j<number_of_bins_y)
+        if (i>=0 && i<number_of_bins_x && j>=0 && j<number_of_bins_y)
         {
             unsigned int i1 = i;
             unsigned int j1 = j;
@@ -1162,6 +1162,30 @@ TDMap CTimeSeriesSet::get2DMap(int number_of_bins_x, int number_of_bins_y, doubl
     }
     M.normalize();
     return M;
+}
+
+TDMap CTimeSeriesSet::getJointCDF(int number_of_bins, double low_lim, double up_lim)
+{
+    cout<<"Getting joint CDF ... "<<endl;
+    double dx = (up_lim-low_lim)/double(number_of_bins);
+    double dy = (up_lim-low_lim)/double(number_of_bins);
+    TDMap M(number_of_bins+1, number_of_bins+1, low_lim-dx/2.0, up_lim + dx/2.0, low_lim-dy/2.0, up_lim+dy/2.0);
+    for (unsigned int k=0; k<min(BTC[0].C.size(), BTC[1].C.size()); k++)
+    {
+        int i= int((BTC[0].C[k]-low_lim)/(up_lim-low_lim)*number_of_bins);
+        int j= int((BTC[1].C[k]-low_lim)/(up_lim-low_lim)*number_of_bins);
+        if (i>=0 && i<number_of_bins+1 && j>=0 && j<number_of_bins+1)
+        {
+            unsigned int i1 = i;
+            unsigned int j1 = j;
+            for (unsigned int ii=i+1; ii<number_of_bins+1; ii++)
+                for (unsigned int jj=j+1; jj<number_of_bins+1; jj++)
+                    M.add_val(ii,jj,1.0/double(BTC[0].n));
+        }
+    }
+     cout<<"Getting joint CDF (done)! "<<endl;
+    return M;
+
 }
 
 TDMap CTimeSeriesSet::get2DMap(int number_of_bins, double low_lim, double up_lim)
@@ -1191,7 +1215,7 @@ TDMap CTimeSeriesSet::get2DMap(int number_of_bins)
     double low_lim_y = BTC[1].minC();
     double up_lim_y = BTC[1].maxC();
 
-    TDMap M(number_of_bins_x, number_of_bins_y, low_lim_x, up_lim_x, low_lim_y, up_lim_y);
+    TDMap M(number_of_bins_x+1, number_of_bins_y+1, low_lim_x, up_lim_x, low_lim_y, up_lim_y);
     for (unsigned int k=0; k<min(BTC[0].C.size(), BTC[1].C.size()); k++)
     {
         int i= int((BTC[0].C[k]-low_lim_x)/(up_lim_x-low_lim_x)*number_of_bins_x);

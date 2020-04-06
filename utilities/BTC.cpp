@@ -1438,7 +1438,7 @@ CTimeSeries CTimeSeries::getcummulative_direct(int number_of_bins)
         }
 
 	X.structured = true;
-	cout<<"inside getcum direct: "<<X.C[number_of_bins]<<","<<X.C[0]<<endl;
+	//cout<<"inside getcum direct: "<<X.C[number_of_bins]<<","<<X.C[0]<<endl;
 	return X/X.C[number_of_bins];
 }
 

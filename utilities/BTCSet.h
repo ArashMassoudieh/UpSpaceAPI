@@ -79,6 +79,7 @@ public:
 	TDMap get2DMap(int number_of_bins_x, int number_of_bins_y, double low_lim_x, double up_lim_x, double low_lim_y, double up_lim_y);
 	TDMap get2DMap(int number_of_bins, double low_lim, double up_lim);
 	TDMap get2DMap(int number_of_bins);
+	TDMap getJointCDF(int number_of_bins, double low_lim, double up_lim);
 };
 
 double diff(CTimeSeriesSet B1, CTimeSeriesSet B2);
