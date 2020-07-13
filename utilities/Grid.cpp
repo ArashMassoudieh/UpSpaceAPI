@@ -3024,8 +3024,8 @@ void CGrid::create_k_mat_copula()
             {
                 double u1 = double(i)*GP.dy + GP.dy / 2;
                 double u2 = double(j)*GP.dy + GP.dy / 2;
-                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u2),dist.inverseCDF(u1)) + Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
-                copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u1),dist.inverseCDF(u2)) + Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
+                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u2),dist.inverseCDF(u1)) + 2.0*Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
+                copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u1),dist.inverseCDF(u2)) + 2.0*Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
 
             }
 #endif
