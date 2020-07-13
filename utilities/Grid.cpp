@@ -2367,11 +2367,15 @@ void CGrid::runcommands_qt()
 
                         {
                             double corr = normals.get_correlation();
+                            double standard_deviation = (normals.BTC[0]-normals.BTC[1]).moment(2);
+
                             extracted_OU_parameters.append("Ro", atof(commands[i].parameters["delta_t"].c_str()), corr);
                             extracted_OU_parameters.append("u_grad", atof(commands[i].parameters["delta_t"].c_str()),u_grad);
-                            CVector X(2);
+                            extracted_OU_parameters.append("moment2", atof(commands[i].parameters["delta_t"].c_str()),standard_deviation);
+                            CVector X(3);
                             X[0] = corr;
                             X[1] = u_grad;
+                            X[2] = standard_deviation;
                             show_in_window("Writing OU params");
                             X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
                         }
@@ -2469,6 +2473,18 @@ void CGrid::runcommands_qt()
                         TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                         GNU_out.writetofile_GNU(pathout + commands[i].parameters["u_gnu_file"],"", "u", "u'", "p(u,u')");
                     }
+                    if (commands[i].parameters.count("map_file"))
+                    {
+                        TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
+                        GNU_out.writetofile(pathout + commands[i].parameters["map_file"]);
+                    }
+
+
+                    if (commands[i].parameters.count("joint_cdf_file"))
+                    {
+                        TDMap GNU_out = ranks.getJointCDF(atoi(commands[i].parameters["nbins"].c_str()),0,1);
+                        GNU_out.writetofile(pathout + commands[i].parameters["joint_cdf_file"]);
+                    }
                 }
                 if (commands[i].parameters.count("normal_filename") > 0)
                 {
@@ -2491,9 +2507,11 @@ void CGrid::runcommands_qt()
                         if (!time_based)
                         {
                             CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_x"].c_str()));
+
                             extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_x"].c_str()), X[0]);
                             extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_x"].c_str()), X[1]);
-
+                            double corr = normals.get_correlation();
+                            extracted_OU_parameters.append("Ro", atof(commands[i].parameters["delta_x"].c_str()), corr);
                             if (atoi(commands[i].parameters["nsequence"].c_str())>2)
                                 extracted_OU_parameters.append("p3", atoi(commands[i].parameters["increment"].c_str()), X[2]);
 

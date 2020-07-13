@@ -44,6 +44,7 @@ public:
     void writefile(string Filename);
     double maxC();
     double minC();
+    double moment(double m);
     void setnumpoints(int);
     CTimeSeries Log();
     CTimeSeries XLog();

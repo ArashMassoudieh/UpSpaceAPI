@@ -895,6 +895,15 @@ double CTimeSeries::minC()
     return min;
 }
 
+double CTimeSeries::moment(double m)
+{
+    double sum = 0;
+    for (int i=0; i<n; i++)
+        sum+= pow(C[i],m);
+
+    return pow(sum/n,1.0/m);
+}
+
 double CTimeSeries::std()
 {
     double sum = 0;
