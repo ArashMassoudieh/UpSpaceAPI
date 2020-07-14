@@ -108,7 +108,7 @@ struct _geom_params
 
 struct _OU_params
 {
-	double kappa;
+	double lc,ld,diffusion;
 	CVector FinvU;
 	CMatrix_arma Inv_M;
 	CBTCSet BTCs;

@@ -1766,7 +1766,9 @@ void CGrid::runcommands_qt()
                 time_weight = atof(commands[i].parameters["weight"].c_str());
                 D = atof(commands[i].parameters["diffusion"].c_str());
                 dt = atof(commands[i].parameters["dt"].c_str());
-                OU.kappa = atof(commands[i].parameters["kappa"].c_str());
+                OU.lc = atof(commands[i].parameters["lc"].c_str());
+                OU.ld = atof(commands[i].parameters["ld"].c_str());
+                OU.diffusion = atof(commands[i].parameters["diffusion"].c_str());
                 solve_transport_OU(atof(commands[i].parameters["t_end"].c_str()));
                 if (commands[i].parameters.count("filename") > 0) OU.BTCs.writetofile(pathout + commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("filename_d") > 0) OU.BTCs.detivative().writetofile(pathout + commands[i].parameters["filename_d"]);
@@ -2925,19 +2927,19 @@ void CGrid::create_inverse_K_OU(double dt)
 			//Exchange
 			if (j > 0 && j < GP.ny - 1)
 			{
-				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j)) += time_weight*OU.FinvU[j] * OU.kappa*(pow(std_normal_phi_inv((double(j))*GP.dy), 2) + pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2))/pow(GP.dy,2);
-				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j - 1)) -= time_weight*OU.FinvU[j] * OU.kappa*pow(std_normal_phi_inv((double(j))*GP.dy), 2) / pow(GP.dy, 2);
-				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j + 1)) -= time_weight*OU.FinvU[j] * OU.kappa*pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2) / pow(GP.dy, 2);
+				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j)) += time_weight*(OU.FinvU[j] / OU.lc + 2.0*OU.diffusion/pow(OU.ld,2)) *(pow(std_normal_phi_inv((double(j))*GP.dy), 2) + pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2))/pow(GP.dy,2);
+				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j - 1)) -= time_weight*(OU.FinvU[j] / OU.lc + 2.0*OU.diffusion/pow(OU.ld,2))*pow(std_normal_phi_inv((double(j))*GP.dy), 2) / pow(GP.dy, 2);
+				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j + 1)) -= time_weight*(OU.FinvU[j] / OU.lc + 2.0*OU.diffusion/pow(OU.ld,2))*pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2) / pow(GP.dy, 2);
 			}
 			else if (j == 0)
 			{
-				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j)) += time_weight*OU.FinvU[j] * OU.kappa*pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2) / pow(GP.dy, 2);
-				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j + 1)) -= time_weight*OU.FinvU[j] * OU.kappa*pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2) / pow(GP.dy, 2);
+				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j)) += time_weight*(OU.FinvU[j] / OU.lc + 2.0*OU.diffusion/pow(OU.ld,2))*pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2) / pow(GP.dy, 2);
+				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j + 1)) -= time_weight*(OU.FinvU[j] / OU.lc + 2.0*OU.diffusion/pow(OU.ld,2))*pow(std_normal_phi_inv((double(j) + 1)*GP.dy), 2) / pow(GP.dy, 2);
 			}
 			else if (j == GP.ny - 1)
 			{
-				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j)) += time_weight*OU.FinvU[j] * OU.kappa*pow(std_normal_phi_inv((double(j))*GP.dy), 2) / pow(GP.dy, 2);
-				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j - 1)) -= time_weight*OU.FinvU[j] * OU.kappa*pow(std_normal_phi_inv((double(j))*GP.dy), 2) / pow(GP.dy, 2);
+				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j)) += time_weight*(OU.FinvU[j] / OU.lc + 2.0*OU.diffusion/pow(OU.ld,2))*pow(std_normal_phi_inv((double(j))*GP.dy), 2) / pow(GP.dy, 2);
+				M.matr(get_cell_no_OU(i, j), get_cell_no_OU(i, j - 1)) -= time_weight*(OU.FinvU[j] / OU.lc + 2.0*OU.diffusion/pow(OU.ld,2))*pow(std_normal_phi_inv((double(j))*GP.dy), 2) / pow(GP.dy, 2);
 
 			}
 		}
