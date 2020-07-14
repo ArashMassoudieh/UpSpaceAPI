@@ -110,6 +110,7 @@ struct _OU_params
 {
 	double lc,ld,diffusion;
 	CVector FinvU;
+	CVector Exchanges;
 	CMatrix_arma Inv_M;
 	CBTCSet BTCs;
 	CBTCSet BTC_normal;
@@ -228,6 +229,7 @@ public:
 	void solve_transport_laplace(double s);
 	void set_K_transport_laplace(double D, double s);
 	void create_f_inv_u();
+	void create_ou_exchange();
 	void create_k_mat_copula();
 	void create_inv_K_Copula(double dt, double Diffusion_coeff=0);
 	CVector_arma create_RHS_OU(double dt);
