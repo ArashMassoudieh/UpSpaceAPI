@@ -3165,6 +3165,7 @@ CVector_arma CGrid::create_RHS_OU(double dt)
 void CGrid::solve_transport_OU(double t_end)
 {
 	create_f_inv_u();
+	create_ou_exchange();
 	create_inverse_K_OU(dt);
 	C = CMatrix(GP.nx+2, GP.ny);
 	OU.BTCs = CBTCSet(GP.nx+2);
