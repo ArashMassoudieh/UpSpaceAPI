@@ -2386,6 +2386,15 @@ void CGrid::runcommands_qt()
                 }
             }
 
+            if (commands[i].command == "readtrajsfromfile")
+            {
+                show_in_window("Reading trajectories from file '" + commands[i].parameters["filename"] + "'");
+                if (!Traj.getfromMODflowfile(commands[i].parameters["filename"]))
+                {
+                    show_in_window("Reading trajectories failed");
+                }
+            }
+
             if (commands[i].command == "extract_pairs")
             {
                 show_in_window("Extracting pairs ... ");

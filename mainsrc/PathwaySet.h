@@ -13,6 +13,7 @@ public:
     CPathwaySet(const CPathwaySet &P);
     CPathwaySet &operator=(const CPathwaySet &P);
     ~CPathwaySet();
+    bool getfromMODflowfile(const string &filename);
     vector<CPathway> paths;
     void write(string filename);
     void append(const CPathway& P, double weight=1);

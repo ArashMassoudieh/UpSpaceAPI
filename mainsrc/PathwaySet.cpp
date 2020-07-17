@@ -261,5 +261,47 @@ CBTC CPathwaySet::get_BTC_points(double x, bool vel_inv_weighted)
 
 }
 
+bool CPathwaySet::getfromMODflowfile(const string &filename)
+{
+    ifstream file;
+    file.open (filename, std::fstream::in);
+    if (!file.good()) return false;
+    int rownum = 0;
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (rownum == 0)
+            paths.resize(s1[0]);
+        if (s1.size()==2)
+        {
+            int numberofpoints = s1[0];
+            double age = s1[1];
+
+            for (int i=0; i<numberofpoints; i++)
+            {
+                vector<double> s2 = ATOF(getline(file,' '));
+                CPosition P;
+                P.x = s2[1];
+                P.y = s2[2];
+                P.z = s2[3];
+                P.v = CVector(2);
+                P.t = age;
+                if (rownum>0)
+                {
+                    P.v[0] = (P.x - paths[i].positions[paths[i].size()-1].x)/(P.t - paths[i].positions[paths[i].size()-1].t);
+                    P.v[1] = (P.y - paths[i].positions[paths[i].size()-1].y)/(P.t - paths[i].positions[paths[i].size()-1].t);
+
+                }
+
+                P.weight = s2[5];
+                paths[i].append(P);
+            }
+
+        }
+        rownum++;
+    }
+    file.close();
+}
+
 
 
