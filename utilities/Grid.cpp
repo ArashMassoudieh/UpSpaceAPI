@@ -1769,7 +1769,9 @@ void CGrid::runcommands_qt()
                 OU.lc = atof(commands[i].parameters["lc"].c_str());
                 OU.ld = atof(commands[i].parameters["ld"].c_str());
                 OU.diffusion = atof(commands[i].parameters["diffusion"].c_str());
-                solve_transport_OU(atof(commands[i].parameters["t_end"].c_str()));
+                double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
+                double decay_order = atof(commands[i].parameters["decay_order"].c_str());
+                solve_transport_OU(atof(commands[i].parameters["t_end"].c_str()),decay_coeff, decay_order);
                 if (commands[i].parameters.count("filename") > 0) OU.BTCs.writetofile(pathout + commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("filename_d") > 0) OU.BTCs.detivative().writetofile(pathout + commands[i].parameters["filename_d"]);
                 if (commands[i].parameters.count("filename_n") > 0) OU.BTC_normal.writetofile(pathout + commands[i].parameters["filename_n"]);
@@ -3103,7 +3105,7 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
 }
 
 
-CVector_arma CGrid::create_RHS_OU(double dt)
+CVector_arma CGrid::create_RHS_OU(double dt, double decay_coeff, double decay_order)
 {
 	CVector_arma RHS(GP.ny*(GP.nx+2));
 
@@ -3112,7 +3114,7 @@ CVector_arma CGrid::create_RHS_OU(double dt)
 		for (int j = 0; j < GP.ny; j++)
 		{
 			// Advection
-			RHS[get_cell_no_OU(i, j)] = 1.0 / dt*C[i][j];
+			RHS[get_cell_no_OU(i, j)] = 1.0 / dt*C[i][j] - decay_coeff*pow(C[i][j],decay_order);
 			RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
 			RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.FinvU[j] / GP.dx*C[i-1][j];
 
@@ -3171,7 +3173,7 @@ CVector_arma CGrid::create_RHS_OU(double dt)
 
 }
 
-void CGrid::solve_transport_OU(double t_end)
+void CGrid::solve_transport_OU(double t_end, double decay_coeff, double decay_order)
 {
 	create_f_inv_u();
 	create_ou_exchange();
@@ -3191,7 +3193,7 @@ void CGrid::solve_transport_OU(double t_end)
 	set_progress_value(0);
     for (double t = 0; t < t_end; t += dt)
     {
-        CVector_arma RHS = create_RHS_OU(dt);
+        CVector_arma RHS = create_RHS_OU(dt,decay_coeff, decay_order);
         CVector_arma S = OU.Inv_M*RHS;
 
         for (int i = 0; i < GP.nx+2; i++)
