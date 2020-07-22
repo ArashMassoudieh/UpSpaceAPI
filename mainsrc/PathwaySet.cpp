@@ -270,8 +270,9 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
     while (!file.eof())
     {
         vector<double> s1 = ATOF(getline(file,' '));
-        if (rownum == 0)
-            paths.resize(s1[0]);
+        if (n() == 0)
+            if (s1[0]!=0)
+                paths.resize(s1[0]);
         if (s1.size()==2)
         {
             int numberofpoints = s1[0];
@@ -286,7 +287,7 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
                 P.z = s2[3];
                 P.v = CVector(2);
                 P.t = age;
-                if (rownum>0)
+                if (paths[i].size()>0)
                 {
                     P.v[0] = (P.x - paths[i].positions[paths[i].size()-1].x)/(P.t - paths[i].positions[paths[i].size()-1].t);
                     P.v[1] = (P.y - paths[i].positions[paths[i].size()-1].y)/(P.t - paths[i].positions[paths[i].size()-1].t);
@@ -294,7 +295,7 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
                 }
 
                 P.weight = s2[5];
-                paths[i].append(P);
+                paths[(int)s2[0]-1].append(P);
             }
 
         }

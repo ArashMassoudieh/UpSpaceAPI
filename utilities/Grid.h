@@ -249,7 +249,7 @@ public:
 	vtkSmartPointer<vtkActor> traj_vtk_pdt(int trajno, double z_factor=0.5,double offset = 0);
 	vtkSmartPointer<vtkPolyData> traj_vtk_pdt_vtp(int trajno, double z_factor=0.5, double offset=0, bool _log = false, bool _color = true);
 	vector<vtkSmartPointer<vtkActor>> trajs_vtk_pdt(double z_factor=0.5, double offset = 0);
-	void trajs_vtk_pdt_to_vtp(string filename = "paths.vtp", double z_factor = 0.5, double offset = 0, bool _log = false, bool _color = true);
+	void trajs_vtk_pdt_to_vtp(string filename = "paths.vtp", double z_factor = 0.5, double offset = 0, bool _log = false, bool _color = true, int interval=1);
     vtkSmartPointer<vtkActor> get_K_field_vtk_pdt(double z_factor=0.5);
 	vtkSmartPointer<vtkRenderer> renderer;
 	vtkSmartPointer<vtkRenderWindow> renderWindow;

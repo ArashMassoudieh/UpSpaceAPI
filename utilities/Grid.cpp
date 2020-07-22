@@ -2176,7 +2176,12 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("Writing trajectories into vtp... ");
                 if (commands[i].parameters.count("filename") == 0) commands[i].parameters["filename"] == "paths.vtp";
-                trajs_vtk_pdt_to_vtp(pathout+commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atof(commands[i].parameters["offset"].c_str()), atof(commands[i].parameters["log"].c_str()), atof(commands[i].parameters["color"].c_str()));
+                int interval = 1;
+                if (commands[i].parameters.count("interval") == 0)
+                    interval = 1;
+                else
+                    interval = atoi(commands[i].parameters["interval"].c_str());
+                trajs_vtk_pdt_to_vtp(pathout+commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atof(commands[i].parameters["offset"].c_str()), atof(commands[i].parameters["log"].c_str()), atof(commands[i].parameters["color"].c_str()),interval);
             }
 
             if (commands[i].command == "initialize_marginal_v_dist")

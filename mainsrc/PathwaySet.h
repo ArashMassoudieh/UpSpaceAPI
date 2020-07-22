@@ -18,6 +18,7 @@ public:
     void write(string filename);
     void append(const CPathway& P, double weight=1);
     int max_num_points();
+    int n() {return paths.size();}
     void create_ou_paths(int n, CDistribution *dist, double x_min, double x_max, double kappa, double dx, double weight=1);
     void create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, double r, double dx, double weight=1);
     void create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, CCopula *copula, double dx, double weight=1);
