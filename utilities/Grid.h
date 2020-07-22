@@ -232,9 +232,9 @@ public:
 	void create_ou_exchange();
 	void create_k_mat_copula();
 	void create_inv_K_Copula(double dt, double Diffusion_coeff=0);
-	CVector_arma create_RHS_OU(double dt);
+	CVector_arma create_RHS_OU(double dt, double decay_coeff, double decay_order);
 	CVector_arma create_RHS_Copula(double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
-	void solve_transport_OU(double t_end);
+	void solve_transport_OU(double t_end, double decay_coeff=0, double decay_order=0);
 	void solve_transport_Copula(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
 	double time_weight;
 	double min_v_x = 0;
