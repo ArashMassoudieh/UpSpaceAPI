@@ -700,13 +700,13 @@ CBTCSet CGrid::get_correlation_based_on_random_samples_dt(int nsamples, double d
     return output;
 }
 
-CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment, bool fixed_increment)
+CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment, bool fixed_increment, const string &direction)
 {
     CBTCSet output(2);
     for (int i=0; i<nsamples; i++)
     {
         CPosition pt = getrandompoint();
-        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff, increment, fixed_increment);
+        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff, increment, fixed_increment, direction);
         if (V.num==2)
         {
             output.BTC[0].append(i,V[0]);
@@ -857,7 +857,7 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
 
 }
 
-CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment, bool fixed_increment)
+CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment, bool fixed_increment, const string &direction)
 {
     if (increment==0) increment = dt0/10.0;
     CPosition pt = pp;
@@ -877,9 +877,17 @@ CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double 
         p_new.y += sqrt(2*increment*diffusion_coefficient)*zy;
     }
     else
-    {   double u = unitrandom()*2*3.141521;
-        double zx = dt0*sin(u);
-        double zy = dt0*cos(u);
+    {
+        double u;
+        if (direction == "y")
+            u = (int(unitrandom()-0.5) + 0.5)*3.141521;
+        else if (direction == "x")
+            u = int(unitrandom()-0.5)*3.141521;
+        else
+            u = unitrandom()*2*3.141521;
+
+        double zx = dt0*cos(u);
+        double zy = dt0*sin(u);
         p_new.x += zx;
         p_new.y += zy;
     }
@@ -2309,7 +2317,7 @@ void CGrid::runcommands_qt()
 
                 dt = atof(commands[i].parameters["delta_t"].c_str());
                 double D = atof(commands[i].parameters["diffusion"].c_str());
-                pairs = get_correlation_based_on_random_samples_diffusion(atoi(commands[i].parameters["n"].c_str()),dt, D, dt/10, fixed_interval);
+                pairs = get_correlation_based_on_random_samples_diffusion(atoi(commands[i].parameters["n"].c_str()),dt, D, dt/10, fixed_interval, commands[i].parameters["direction"]);
                 double u_grad;
 
                 pairs.writetofile(pathout+commands[i].parameters["filename"]);
