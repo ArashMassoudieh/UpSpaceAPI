@@ -867,23 +867,10 @@ CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double 
     if (V1[0]<=0) return Vout;
     if (V1.num!=2) return Vout;
     bool ex = false;
-    p_new = pp;
-    if (!fixed_increment)
-    for (double dtt=0; dtt<dt0; dtt+=increment)
-    {
-        double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
-        double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
-        p_new.x += sqrt(2*increment*diffusion_coefficient)*zx;
-        p_new.y += sqrt(2*increment*diffusion_coefficient)*zy;
-    }
-    else
-    {   double u = unitrandom()*2*3.141521;
-        double zx = dt0*sin(u);
-        double zy = dt0*cos(u);
-        p_new.x += zx;
-        p_new.y += zy;
-    }
-
+    double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+    double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+    p_new.x = pp.x + sqrt(2.0*dt0*diffusion_coefficient)*zx;
+    p_new.y = pp.y + sqrt(2.0*dt0*diffusion_coefficient)*zy;
     CVector V_new = getvelocity(p_new);
 
     if (V_new.num!=2) return Vout;
