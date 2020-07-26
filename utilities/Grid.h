@@ -166,10 +166,10 @@ public:
 	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double D, double tol, double weight = 0.5);
 	CVector v_correlation_single_point(const CPosition &pp, double dx0, double x_inc, bool magnitude=false);
 	CVector v_correlation_single_point_dt(const CPosition &pp, double dt0, double t_inc);
-	CVector v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment=0, bool fixed_increment=false);
+	CVector v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment=0, bool fixed_increment=false, const string &direction = "");
 	CBTCSet get_correlation_based_on_random_samples(int nsamples, double dx0, double x_inc, bool magnitude = false);
 	CBTCSet get_correlation_based_on_random_samples_dt(int nsamples, double dt0, double t_inc);
-	CBTCSet get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment=0, bool fixed_increment=false);
+	CBTCSet get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment=0, bool fixed_increment=false, const string &direction = "");
     CPosition getrandompoint();
 	CPathwaySet gettrajectories(double dt, double t_end);
 	CPathwaySet gettrajectories_vdt(double dt, double t_end, double tol, double diffusion=0);
@@ -232,9 +232,9 @@ public:
 	void create_ou_exchange();
 	void create_k_mat_copula();
 	void create_inv_K_Copula(double dt, double Diffusion_coeff=0);
-	CVector_arma create_RHS_OU(double dt);
+	CVector_arma create_RHS_OU(double dt, double decay_coeff, double decay_order);
 	CVector_arma create_RHS_Copula(double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
-	void solve_transport_OU(double t_end);
+	void solve_transport_OU(double t_end, double decay_coeff=0, double decay_order=0);
 	void solve_transport_Copula(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
 	double time_weight;
 	double min_v_x = 0;
@@ -249,7 +249,7 @@ public:
 	vtkSmartPointer<vtkActor> traj_vtk_pdt(int trajno, double z_factor=0.5,double offset = 0);
 	vtkSmartPointer<vtkPolyData> traj_vtk_pdt_vtp(int trajno, double z_factor=0.5, double offset=0, bool _log = false, bool _color = true);
 	vector<vtkSmartPointer<vtkActor>> trajs_vtk_pdt(double z_factor=0.5, double offset = 0);
-	void trajs_vtk_pdt_to_vtp(string filename = "paths.vtp", double z_factor = 0.5, double offset = 0, bool _log = false, bool _color = true);
+	void trajs_vtk_pdt_to_vtp(string filename = "paths.vtp", double z_factor = 0.5, double offset = 0, bool _log = false, bool _color = true, int interval=1);
     vtkSmartPointer<vtkActor> get_K_field_vtk_pdt(double z_factor=0.5);
 	vtkSmartPointer<vtkRenderer> renderer;
 	vtkSmartPointer<vtkRenderWindow> renderWindow;

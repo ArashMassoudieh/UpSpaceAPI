@@ -610,11 +610,15 @@ vector<vtkSmartPointer<vtkActor>> CGrid::trajs_vtk_pdt(double z_factor, double o
 	return outactors;
 }
 
-void CGrid::trajs_vtk_pdt_to_vtp(string filename, double z_factor, double offset, bool _log, bool _color)
+void CGrid::trajs_vtk_pdt_to_vtp(string filename, double z_factor, double offset, bool _log, bool _color, int interval)
 {
 	vector<vtkSmartPointer<vtkPolyData>> outputmappers;
-	for (int i = 0; i < Traj.paths.size(); i++)
-		outputmappers.push_back(traj_vtk_pdt_vtp(i, z_factor, offset, _log, _color));
+	if (max_v_x == 0) max_v_x = 1;
+	set_progress_value(0);
+	for (int i = 0; i < Traj.paths.size(); i+=interval)
+	{	outputmappers.push_back(traj_vtk_pdt_vtp(i, z_factor, offset, _log, _color));
+        set_progress_value((double)i/(double)Traj.n());
+	}
 
 	vtkSmartPointer<vtkAppendPolyData> appendFilter =
 		vtkSmartPointer<vtkAppendPolyData>::New();

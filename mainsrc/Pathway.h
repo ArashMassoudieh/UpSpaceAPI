@@ -25,6 +25,7 @@ public:
 	CVector get_velocity_at_t(double t);
 	CPathway make_uniform_x(double dx);
 	CPathway make_uniform_t(double dt);
+	int size() {return positions.size();}
 	double max_x();
 	double min_x();
 	double max_t();

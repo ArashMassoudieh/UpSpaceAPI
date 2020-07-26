@@ -700,13 +700,13 @@ CBTCSet CGrid::get_correlation_based_on_random_samples_dt(int nsamples, double d
     return output;
 }
 
-CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment, bool fixed_increment)
+CBTCSet CGrid::get_correlation_based_on_random_samples_diffusion(int nsamples, double dt0, double diffusion_coeff, double increment, bool fixed_increment, const string &direction)
 {
     CBTCSet output(2);
     for (int i=0; i<nsamples; i++)
     {
         CPosition pt = getrandompoint();
-        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff, increment, fixed_increment);
+        CVector V = v_correlation_single_point_diffusion(pt,dt0,diffusion_coeff, increment, fixed_increment, direction);
         if (V.num==2)
         {
             output.BTC[0].append(i,V[0]);
@@ -857,7 +857,7 @@ CVector CGrid::v_correlation_single_point_dt(const CPosition &pp, double dt0, do
 
 }
 
-CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment, bool fixed_increment)
+CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment, bool fixed_increment, const string &direction)
 {
     if (increment==0) increment = dt0/10.0;
     CPosition pt = pp;
@@ -867,10 +867,31 @@ CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double 
     if (V1[0]<=0) return Vout;
     if (V1.num!=2) return Vout;
     bool ex = false;
-    double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
-    double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
-    p_new.x = pp.x + sqrt(2.0*dt0*diffusion_coefficient)*zx;
-    p_new.y = pp.y + sqrt(2.0*dt0*diffusion_coefficient)*zy;
+    p_new = pp;
+    if (!fixed_increment)
+    for (double dtt=0; dtt<dt0; dtt+=increment)
+    {
+        double zx = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+        double zy = gsl_cdf_gaussian_Pinv(unitrandom(),1);
+        p_new.x += sqrt(2*increment*diffusion_coefficient)*zx;
+        p_new.y += sqrt(2*increment*diffusion_coefficient)*zy;
+    }
+    else
+    {
+        double u;
+        if (direction == "y")
+            u = (int(unitrandom()-0.5) + 0.5)*3.141521;
+        else if (direction == "x")
+            u = int(unitrandom()-0.5)*3.141521;
+        else
+            u = unitrandom()*2*3.141521;
+
+        double zx = dt0*cos(u);
+        double zy = dt0*sin(u);
+        p_new.x += zx;
+        p_new.y += zy;
+    }
+
     CVector V_new = getvelocity(p_new);
 
     if (V_new.num!=2) return Vout;
@@ -1756,7 +1777,9 @@ void CGrid::runcommands_qt()
                 OU.lc = atof(commands[i].parameters["lc"].c_str());
                 OU.ld = atof(commands[i].parameters["ld"].c_str());
                 OU.diffusion = atof(commands[i].parameters["diffusion"].c_str());
-                solve_transport_OU(atof(commands[i].parameters["t_end"].c_str()));
+                double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
+                double decay_order = atof(commands[i].parameters["decay_order"].c_str());
+                solve_transport_OU(atof(commands[i].parameters["t_end"].c_str()),decay_coeff, decay_order);
                 if (commands[i].parameters.count("filename") > 0) OU.BTCs.writetofile(pathout + commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("filename_d") > 0) OU.BTCs.detivative().writetofile(pathout + commands[i].parameters["filename_d"]);
                 if (commands[i].parameters.count("filename_n") > 0) OU.BTC_normal.writetofile(pathout + commands[i].parameters["filename_n"]);
@@ -2163,7 +2186,12 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("Writing trajectories into vtp... ");
                 if (commands[i].parameters.count("filename") == 0) commands[i].parameters["filename"] == "paths.vtp";
-                trajs_vtk_pdt_to_vtp(pathout+commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atof(commands[i].parameters["offset"].c_str()), atof(commands[i].parameters["log"].c_str()), atof(commands[i].parameters["color"].c_str()));
+                int interval = 1;
+                if (commands[i].parameters.count("interval") == 0)
+                    interval = 1;
+                else
+                    interval = atoi(commands[i].parameters["interval"].c_str());
+                trajs_vtk_pdt_to_vtp(pathout+commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atof(commands[i].parameters["offset"].c_str()), atof(commands[i].parameters["log"].c_str()), atof(commands[i].parameters["color"].c_str()),interval);
             }
 
             if (commands[i].command == "initialize_marginal_v_dist")
@@ -2289,7 +2317,7 @@ void CGrid::runcommands_qt()
 
                 dt = atof(commands[i].parameters["delta_t"].c_str());
                 double D = atof(commands[i].parameters["diffusion"].c_str());
-                pairs = get_correlation_based_on_random_samples_diffusion(atoi(commands[i].parameters["n"].c_str()),dt, D, dt/10, fixed_interval);
+                pairs = get_correlation_based_on_random_samples_diffusion(atoi(commands[i].parameters["n"].c_str()),dt, D, dt/10, fixed_interval, commands[i].parameters["direction"]);
                 double u_grad;
 
                 pairs.writetofile(pathout+commands[i].parameters["filename"]);
@@ -2370,6 +2398,15 @@ void CGrid::runcommands_qt()
                         }
 
                     }
+                }
+            }
+
+            if (commands[i].command == "readtrajsfromfile")
+            {
+                show_in_window("Reading trajectories from file '" + commands[i].parameters["filename"] + "'");
+                if (!Traj.getfromMODflowfile(commands[i].parameters["filename"]))
+                {
+                    show_in_window("Reading trajectories failed");
                 }
             }
 
@@ -3081,7 +3118,7 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
 }
 
 
-CVector_arma CGrid::create_RHS_OU(double dt)
+CVector_arma CGrid::create_RHS_OU(double dt, double decay_coeff, double decay_order)
 {
 	CVector_arma RHS(GP.ny*(GP.nx+2));
 
@@ -3090,7 +3127,7 @@ CVector_arma CGrid::create_RHS_OU(double dt)
 		for (int j = 0; j < GP.ny; j++)
 		{
 			// Advection
-			RHS[get_cell_no_OU(i, j)] = 1.0 / dt*C[i][j];
+			RHS[get_cell_no_OU(i, j)] = 1.0 / dt*C[i][j] - decay_coeff*pow(C[i][j],decay_order);
 			RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
 			RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.FinvU[j] / GP.dx*C[i-1][j];
 
@@ -3149,7 +3186,7 @@ CVector_arma CGrid::create_RHS_OU(double dt)
 
 }
 
-void CGrid::solve_transport_OU(double t_end)
+void CGrid::solve_transport_OU(double t_end, double decay_coeff, double decay_order)
 {
 	create_f_inv_u();
 	create_ou_exchange();
@@ -3169,7 +3206,7 @@ void CGrid::solve_transport_OU(double t_end)
 	set_progress_value(0);
     for (double t = 0; t < t_end; t += dt)
     {
-        CVector_arma RHS = create_RHS_OU(dt);
+        CVector_arma RHS = create_RHS_OU(dt,decay_coeff, decay_order);
         CVector_arma S = OU.Inv_M*RHS;
 
         for (int i = 0; i < GP.nx+2; i++)
