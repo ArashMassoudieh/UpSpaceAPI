@@ -499,6 +499,21 @@ void CGrid::writeasmatrixK(string filename, int component)
 	}
 }
 
+
+CTimeSeries CGrid::getvelocity_gradient_samples()
+{
+    CTimeSeries out;
+    for (int i=1; i<GP.nx; i++)
+        for (int j=1; j<GP.ny; j++)
+        {
+            point p;
+            p.x = i*GP.dx;
+            p.y = j*GP.dy;
+            out.append(i*GP.ny+j,getvelocity_gradient(p));
+        }
+    return out;
+}
+
 double CGrid::getvelocity_gradient(const point &pp, const string &direction)
 {
     CVector out(2);
@@ -519,25 +534,6 @@ double CGrid::getvelocity_gradient(const point &pp, const string &direction)
     return vx_grad;
 }
 
-double CGrid::getvelocity_ns_gradient(const point &pp, const string &direction)
-{
-    CVector out(2);
-    int i_floar_x = int(pp.x / GP.dx);
-	int j_floar_x = int(pp.y / GP.dy+0.5);
-	int i_floar_y = int(pp.x / GP.dx+0.5);
-	int j_floar_y = int(pp.y / GP.dy);
-	if (pp.x<=0 || pp.x>=(GP.nx-1)*GP.dx || pp.y<=0 || pp.y>=GP.dy*(GP.ny-1))
-        {   //qDebug() << "Empty CVector returned";
-            return 0;
-
-        }
-
-    double vx1 = vx[i_floar_x][max(j_floar_x-1,0)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][max(j_floar_x-1,0)]-vx[i_floar_x][max(j_floar_x-1,0)]);
-    double vx2 = vx[i_floar_x][min(j_floar_x,GP.ny-2)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][min(j_floar_x,GP.ny-2)]-vx[i_floar_x][min(j_floar_x,GP.ny-2)]);
-    double vx_grad = (vx2-vx1)/GP.dy;
-
-    return vx_grad;
-}
 
 CVector CGrid::getvelocity(point pp)
 {
@@ -1390,6 +1386,23 @@ CMatrix CGrid::solve()
 	min_v_x = min_vx();
 	return H;
     cout<<endl;
+}
+
+CTimeSeriesSet CGrid::get_Eulerian_vdist()
+{
+    CTimeSeriesSet out(2);
+    for (int i=0; i<GP.nx; i++)
+		for (int j = 0; j < GP.ny - 1; j++)
+            out.BTC[0].append(i*10000+j,vx[i][j]);
+
+        set_progress_value(0.5);
+	for (int i = 0; i<GP.nx-1; i++)
+		for (int j = 0; j < GP.ny; j++)
+            out.BTC[1].append(i*10000+j,vy[i][j]);
+
+        set_progress_value(1);
+
+
 }
 
 void CGrid::Assign_Linear_Velocity_Field(double V0, double V_slope)

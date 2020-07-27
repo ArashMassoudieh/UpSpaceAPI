@@ -159,6 +159,7 @@ public:
 	void writeasmatrix(string filename, int);
 	void writeasmatrixK(string filename, int component);
 	CVector getvelocity(CPosition pp);
+	CTimeSeries getvelocity_gradient_samples();
 	double getvelocity_gradient(const point &pp, const string &direction = "y");
 	double getvelocity_ns_gradient(const point &pp, const string &direction="y");
 	CVector getvelocity_exact(point pp);
@@ -192,6 +193,7 @@ public:
 	CMatrix solve();
 	vector<int> get_ij(int k);
 	void Assign_Linear_Velocity_Field(double V0, double V_slope);
+	CTimeSeriesSet get_Eulerian_vdist();
 	CBTC get_v_btc(int k);
 	CBTC get_kg_btc(int k);
 	void remap_K(int k);
