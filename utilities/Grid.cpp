@@ -499,6 +499,46 @@ void CGrid::writeasmatrixK(string filename, int component)
 	}
 }
 
+double CGrid::getvelocity_gradient(const point &pp, const string &direction)
+{
+    CVector out(2);
+    int i_floar_x = int(pp.x / GP.dx);
+	int j_floar_x = int(pp.y / GP.dy+0.5);
+	int i_floar_y = int(pp.x / GP.dx+0.5);
+	int j_floar_y = int(pp.y / GP.dy);
+	if (pp.x<=0 || pp.x>=(GP.nx-1)*GP.dx || pp.y<=0 || pp.y>=GP.dy*(GP.ny-1))
+        {   //qDebug() << "Empty CVector returned";
+            return -999;
+
+        }
+
+    double vx1 = vx[i_floar_x][max(j_floar_x-1,0)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][max(j_floar_x-1,0)]-vx[i_floar_x][max(j_floar_x-1,0)]);
+    double vx2 = vx[i_floar_x][min(j_floar_x,GP.ny-2)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][min(j_floar_x,GP.ny-2)]-vx[i_floar_x][min(j_floar_x,GP.ny-2)]);
+    double vx_grad = (vx2-vx1)/GP.dy;
+
+    return vx_grad;
+}
+
+double CGrid::getvelocity_ns_gradient(const point &pp, const string &direction)
+{
+    CVector out(2);
+    int i_floar_x = int(pp.x / GP.dx);
+	int j_floar_x = int(pp.y / GP.dy+0.5);
+	int i_floar_y = int(pp.x / GP.dx+0.5);
+	int j_floar_y = int(pp.y / GP.dy);
+	if (pp.x<=0 || pp.x>=(GP.nx-1)*GP.dx || pp.y<=0 || pp.y>=GP.dy*(GP.ny-1))
+        {   //qDebug() << "Empty CVector returned";
+            return 0;
+
+        }
+
+    double vx1 = vx[i_floar_x][max(j_floar_x-1,0)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][max(j_floar_x-1,0)]-vx[i_floar_x][max(j_floar_x-1,0)]);
+    double vx2 = vx[i_floar_x][min(j_floar_x,GP.ny-2)] + 1.0/GP.dx*(pp.x - GP.dx*i_floar_x)*(vx[min(i_floar_x+1,GP.nx-1)][min(j_floar_x,GP.ny-2)]-vx[i_floar_x][min(j_floar_x,GP.ny-2)]);
+    double vx_grad = (vx2-vx1)/GP.dy;
+
+    return vx_grad;
+}
+
 CVector CGrid::getvelocity(point pp)
 {
 	int i_floar_x = int(pp.x / GP.dx);
@@ -3392,3 +3432,23 @@ CTimeSeries CGrid::GetProfile(int timestep, double x_start, double x_end, double
     Profile.writefile(filename);
     return Profile;
 }
+
+CTimeSeries CGrid::GetAllVelocities(const string &dir)
+{
+    CTimeSeries out;
+    if (dir=="x")
+    {
+        for (int i=0; i<GP.nx; i++)
+            for (int j = 0; j < GP.ny - 1; j++)
+                out.append(i*(GP.ny-1)+j,vx[i][j]);
+    }
+    else if (dir=="y")
+    {
+        for (int i = 0; i<GP.nx-1; i++)
+            for (int j = 0; j < GP.ny; j++)
+                out.append(i*(GP.ny)+j,vx[i][j]);
+    }
+    return out;
+
+}
+

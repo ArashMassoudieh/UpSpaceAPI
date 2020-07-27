@@ -159,6 +159,8 @@ public:
 	void writeasmatrix(string filename, int);
 	void writeasmatrixK(string filename, int component);
 	CVector getvelocity(CPosition pp);
+	double getvelocity_gradient(const point &pp, const string &direction = "y");
+	double getvelocity_ns_gradient(const point &pp, const string &direction="y");
 	CVector getvelocity_exact(point pp);
 	CPathway gettrajectory(CPosition pp, double dt, double t_end);
 	CPathway gettrajectory_vdt(CPosition pp, double dt, double t_end, double tol, double diffusion=0);
@@ -258,6 +260,7 @@ public:
 	void show_K_field_vtk(double z_factor = 0.5);
     CTimeSeries GetConcentrationBTCAtX(double x, const string &filename, const string &filename_d="");
     CTimeSeries GetProfile(int timestep, double x_start, double x_end, double inerval, const string &filename);
+    CTimeSeries GetAllVelocities(const string &dir);
     double GetConcentrationAtX(double x, int i);
 	void screen_shot(string filename = "screen_shot.png");
 	void screenshot_test();
