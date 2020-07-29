@@ -1060,6 +1060,18 @@ void CTimeSeriesSet::setname(int index, string name)
 
 }
 
+
+CTimeSeries CTimeSeriesSet::GetGradientDistribution(double dx, int nbins)
+{
+    CTimeSeries gradients;
+    for (int i=0; i<BTC[0].n; i++)
+    {
+        gradients.append(i,(BTC[0].C[i]-BTC[1].C[i])/dx);
+    }
+    return gradients.distribution(nbins);
+
+}
+
 double CTimeSeriesSet::get_correlation()
 {
     CVector X(nvars);

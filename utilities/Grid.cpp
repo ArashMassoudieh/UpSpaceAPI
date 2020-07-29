@@ -2378,6 +2378,12 @@ void CGrid::runcommands_qt()
                 {
                         pairs.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str()),(pairs.BTC[0].maxC()-pairs.BTC[0].minC())*atof(commands[i].parameters["smoothing_factor"].c_str())).writefile(pathout+commands[i].parameters["dist_filename"]);
                 }
+
+                if (commands[i].parameters.count("v_grad_dist_file"))
+                {
+                    pairs.GetGradientDistribution(atof(commands[i].parameters["delta_t"].c_str()), atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["v_grad_dist_file"]);
+                }
+
                 if (commands[i].parameters.count("v_gnu_file"))
                 {
                     TDMap GNU_out = pairs.get2DMap(atoi(commands[i].parameters["nbins"].c_str()));
@@ -2428,6 +2434,11 @@ void CGrid::runcommands_qt()
                     {
                         TDMap GNU_out = normals.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),-4,4);
                         GNU_out.writetofile_GNU(pathout + commands[i].parameters["w_gnu_file"],"", "w", "w'", "p(w,w')");
+                    }
+
+                    if (commands[i].parameters.count("w_grad_dist_file"))
+                    {
+                        normals.GetGradientDistribution(atof(commands[i].parameters["delta_t"].c_str()),atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["w_grad_dist_file"]);
                     }
 
                     normals.writetofile(pathout + commands[i].parameters["normal_filename"]);
@@ -2525,8 +2536,14 @@ void CGrid::runcommands_qt()
                 pairs.writetofile(pathout+commands[i].parameters["filename"]);
                 if (commands[i].parameters.count("dist_filename") > 0)
                 {
-                        pairs.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str()),(pairs.BTC[0].maxC()-pairs.BTC[0].minC())*atof(commands[i].parameters["smoothing_factor"].c_str())).writefile(pathout+commands[i].parameters["dist_filename"]);
+                    pairs.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str()),(pairs.BTC[0].maxC()-pairs.BTC[0].minC())*atof(commands[i].parameters["smoothing_factor"].c_str())).writefile(pathout+commands[i].parameters["dist_filename"]);
                 }
+
+                if (commands[i].parameters.count("v_grad_dist_file"))
+                {
+                    pairs.GetGradientDistribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["v_grad_dist_file"]);
+                }
+
                 if (commands[i].parameters.count("v_gnu_file"))
                 {
                     TDMap GNU_out = pairs.get2DMap(atoi(commands[i].parameters["nbins"].c_str()));
@@ -2577,6 +2594,13 @@ void CGrid::runcommands_qt()
                         TDMap GNU_out = normals.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),-4,4);
                         GNU_out.writetofile_GNU(pathout + commands[i].parameters["w_gnu_file"],"", "w", "w'", "p(w,w')");
                     }
+
+
+                    if (commands[i].parameters.count("w_grad_dist_file"))
+                    {
+                        normals.GetGradientDistribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["w_grad_dist_file"]);
+                    }
+
 
                     normals.writetofile(pathout + commands[i].parameters["normal_filename"]);
                     if (commands[i].parameters.count("OU_parameters_filename") > 0)

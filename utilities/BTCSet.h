@@ -63,6 +63,7 @@ public:
     void append(string name, double time, double c, double weight=1);
 	CVector get_kappa_gamma(double delta_x);
 	double get_correlation();
+	CTimeSeries GetGradientDistribution(double dx, int nbins=40);
     CTimeSeriesSet getcummulative();
 
 	bool file_not_found=false;
