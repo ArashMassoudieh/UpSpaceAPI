@@ -49,6 +49,7 @@ public:
     CTimeSeries Log();
     CTimeSeries XLog();
     CTimeSeries Log(double min);
+    CTimeSeries XLog(const double &m);
     double std();
     double mean();
     double percentile(double x);

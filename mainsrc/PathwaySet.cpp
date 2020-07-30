@@ -267,41 +267,71 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
     file.open (filename, std::fstream::in);
     if (!file.good()) return false;
     int rownum = 0;
+    double age=0;
     while (!file.eof())
     {
         vector<double> s1 = ATOF(getline(file,' '));
         if (n() == 0)
             if (s1[0]!=0)
-                paths.resize(s1[0]);
+            {   paths.resize(s1[0]);
+                cout<<"Number of paths = " << s1[0]<< endl;
+
+            }
         if (s1.size()==2)
         {
             int numberofpoints = s1[0];
-            double age = s1[1];
+
+            age = s1[1];
 
             for (int i=0; i<numberofpoints; i++)
             {
+                //cout <<i<< endl;
                 vector<double> s2 = ATOF(getline(file,' '));
-                CPosition P;
-                P.x = s2[1];
-                P.y = s2[2];
-                P.z = s2[3];
-                P.v = CVector(2);
-                P.t = age;
-                if (paths[i].size()>0)
+
+                if (s2.size()>5);
                 {
-                    P.v[0] = (P.x - paths[i].positions[paths[i].size()-1].x)/(P.t - paths[i].positions[paths[i].size()-1].t);
-                    P.v[1] = (P.y - paths[i].positions[paths[i].size()-1].y)/(P.t - paths[i].positions[paths[i].size()-1].t);
+                    //cout <<i<<","<<s2[0]<<","<<s2[1]<<","<<s2[2]<<","<<s2[3]<<","<<s2[4]<<","<<s2[5]<< endl;
+                    CPosition P;
+                    P.x = s2[1];
+                    P.y = s2[2];
+                    P.z = s2[3];
+                    P.v = CVector(2);
+                    P.t = age;
+                    if (paths[i].size()>0)
+                    {
+                        P.v[0] = (P.x - paths[i].positions[paths[i].size()-1].x)/(P.t - paths[i].positions[paths[i].size()-1].t);
+                        P.v[1] = (P.y - paths[i].positions[paths[i].size()-1].y)/(P.t - paths[i].positions[paths[i].size()-1].t);
 
+                    }
+
+                    P.weight = s2[5];
+                    paths[(int)s2[0]-1].append(P);
+                    //cout <<"Done!"<<endl;
                 }
-
-                P.weight = s2[5];
-                paths[(int)s2[0]-1].append(P);
             }
-
+            //cout << "Number of points = " << numberofpoints << "," << endl;
+            set_progress_value(age);
         }
+        else
+        {
+            cout<<"!"<<s1.size();
+        }
+
         rownum++;
+
     }
     file.close();
+    //cout<<"Reading Trajectories Done!"<<endl;
+    return true;
+}
+
+void CPathwaySet::set_progress_value(double s)
+{
+#ifdef QT_version
+	main_window->get_ui()->progressBar->setValue(s*100);
+	QApplication::processEvents();
+#endif // QT_version
+    cout << "\r Progress: " << s << "                         ";
 }
 
 

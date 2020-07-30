@@ -32,7 +32,7 @@ public:
     CBTCSet get_pair_v(int increment, int n, int num_seq=2);
     CBTC get_BTC(double x, int n_bins, bool vel_inv_weighted = true, double smoothing_factor=0);
     CBTC get_BTC_points(double x, bool vel_inv_weighted = true);
-
+    void set_progress_value(double s);
 
 };
 

@@ -2472,6 +2472,8 @@ void CGrid::runcommands_qt()
                 {
                     show_in_window("Reading trajectories failed");
                 }
+                else
+                    show_in_window("Reading trajectories completed");
             }
 
             if (commands[i].command == "extract_pairs")

@@ -69,7 +69,7 @@ CTimeSeries CTimeSeries::rank()
 }
 CTimeSeries CTimeSeries::rank_bd(int nintervals)
 {
-	CTimeSeries X = getcummulative_direct(nintervals).XLog();
+	CTimeSeries X = getcummulative_direct(nintervals).XLog(1e-12);
     X.structured = true;
 
 	CTimeSeries out;
@@ -237,6 +237,18 @@ CTimeSeries CTimeSeries::XLog()
     return _BTC;
 }
 
+CTimeSeries CTimeSeries::XLog(const double &m)
+{
+    CTimeSeries _BTC;
+    _BTC.weighted = weighted;
+    for (int i=0; i<n; i++)
+    {
+        if (C[i]>0)
+           _BTC.append(log(max(t[i],m)),C[i]);
+
+    }
+    return _BTC;
+}
 
 CTimeSeries CTimeSeries::Log(double m)
 {
@@ -1427,7 +1439,7 @@ CTimeSeries CTimeSeries::getcummulative_direct(int number_of_bins)
 {
 	CTimeSeries X(number_of_bins+1);
 	for (int j=0; j<number_of_bins+1; j++)
-        X.t[j] = exp(log(minC()) + j*(log(maxC())-log(minC()))/(number_of_bins));
+        X.t[j] = exp(log(minC()) + j*(log(maxC())-max(log(minC()),1e-12)/(number_of_bins));
 
 	for (int i = 0; i<n; i++)
         for (int j=number_of_bins; j>=0; j--)
