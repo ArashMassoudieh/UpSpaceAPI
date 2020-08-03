@@ -1456,6 +1456,26 @@ CBTC CGrid::get_v_btc(int k)
 	return out;
 }
 
+CBTC CGrid::get_v_dist_MODFlow(const string &filename)
+{
+    ifstream file;
+    file.open (filename, std::fstream::in);
+    if (!file.good()) return false;
+    CBTC out;
+    int rownum=0;
+    getline(file);
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()>=5)
+            out.append(rownum,s1[3]);
+        rownum++;
+    }
+    return out;
+
+
+}
+
 CBTC CGrid::get_v_mag_btc()
 {
 	CBTC out;
@@ -2009,6 +2029,19 @@ void CGrid::runcommands_qt()
                 vy_dist.writefile(pathout+commands[i].parameters["filename_y"]);
                 v_dist.writefile(pathout+commands[i].parameters["filename_mag"]);
             }
+
+            if (commands[i].command == "write_velocity_dist_mf")
+            {
+                show_in_window("Reading spatial velocity...");
+                CBTC vx = get_v_dist_MODFlow(commands[i].parameters["v_filename"]);
+                vx.distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["filename"]);
+                CVector stats(2);
+                stats[0] = vx.Log(1e-6).mean();
+                stats[1] = vx.Log(1e-6).std();
+                if (commands[i].parameters.count("stat_filename"))
+                    stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
+            }
+
 
             if (commands[i].command == "write_velocity_dist_all")
             {

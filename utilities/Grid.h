@@ -195,6 +195,7 @@ public:
 	void Assign_Linear_Velocity_Field(double V0, double V_slope);
 	CTimeSeriesSet get_Eulerian_vdist();
 	CBTC get_v_btc(int k);
+	CBTC get_v_dist_MODFlow(const string &filename);
 	CBTC get_kg_btc(int k);
 	void remap_K(int k);
 	CBTC get_v_btc(double x,int k=0);

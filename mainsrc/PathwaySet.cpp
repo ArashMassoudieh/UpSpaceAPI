@@ -261,6 +261,44 @@ CBTC CPathwaySet::get_BTC_points(double x, bool vel_inv_weighted)
 
 }
 
+bool CPathwaySet::AssignVelocities()
+{
+    show_in_window("Calculating velocities for trajectories");
+    for (int i=0; i<paths.size(); i++)
+    {
+        paths[i].positions[0].v[0] = (paths[i].positions[1].x-paths[i].positions[0].x)/(paths[i].positions[1].t-paths[i].positions[0].t);
+        paths[i].positions[0].v[1] = (paths[i].positions[1].y-paths[i].positions[0].y)/(paths[i].positions[1].t-paths[i].positions[0].t);
+
+        for (int j=1; j<paths[i].positions.size()-1; j++)
+        {
+            paths[i].positions[j].v[0] = (paths[i].positions[j+1].x-paths[i].positions[j-1].x)/(paths[i].positions[j+1].t-paths[i].positions[j-1].t);
+            paths[i].positions[j].v[1] = (paths[i].positions[j+1].y-paths[i].positions[j-1].y)/(paths[i].positions[j+1].t-paths[i].positions[j-1].t);
+
+            if (paths[i].positions[j].v[0]==0)
+            {
+                show_in_window("Velocity zero for path: " + numbertostring(i) + "@ position: " + numbertostring(j));
+            }
+        }
+
+        paths[i].positions[paths[i].positions.size()-1].v[0] = (paths[i].positions[paths[i].positions.size()-1].x-paths[i].positions[paths[i].positions.size()-2].x)/(paths[i].positions[paths[i].positions.size()-1].t-paths[i].positions[paths[i].positions.size()-2].t);
+        paths[i].positions[paths[i].positions.size()-1].v[1] = (paths[i].positions[paths[i].positions.size()-1].y-paths[i].positions[paths[i].positions.size()-2].y)/(paths[i].positions[paths[i].positions.size()-1].t-paths[i].positions[paths[i].positions.size()-2].t);
+        set_progress_value(double(i)/double(paths.size()) );
+    }
+    show_in_window("Calculating velocities for trajectories, done!");
+    return true;
+}
+
+void CPathwaySet::show_in_window(string s)
+{
+    #ifdef QT_version
+    qDebug()<<QString::fromStdString(s);
+    main_window->get_ui()->ShowOutput->append(QString::fromStdString(s));
+    QApplication::processEvents();
+    #else
+    cout<<s<<endl;
+    #endif // Qt_version
+}
+
 bool CPathwaySet::getfromMODflowfile(const string &filename)
 {
     ifstream file;
@@ -297,12 +335,6 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
                     P.z = s2[3];
                     P.v = CVector(2);
                     P.t = age;
-                    if (paths[i].size()>0)
-                    {
-                        P.v[0] = (P.x - paths[i].positions[paths[i].size()-1].x)/(P.t - paths[i].positions[paths[i].size()-1].t);
-                        P.v[1] = (P.y - paths[i].positions[paths[i].size()-1].y)/(P.t - paths[i].positions[paths[i].size()-1].t);
-
-                    }
 
                     P.weight = s2[5];
                     paths[(int)s2[0]-1].append(P);
@@ -320,6 +352,7 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
         rownum++;
 
     }
+    AssignVelocities();
     file.close();
     //cout<<"Reading Trajectories Done!"<<endl;
     return true;

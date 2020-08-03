@@ -1438,8 +1438,10 @@ bool CTimeSeries::isweighted()
 CTimeSeries CTimeSeries::getcummulative_direct(int number_of_bins)
 {
 	CTimeSeries X(number_of_bins+1);
+	double log_max_c = log(maxC());
+	double log_min_c = max(log(minC()),log(1e-12));
 	for (int j=0; j<number_of_bins+1; j++)
-        X.t[j] = exp(log(minC()) + j*(log(maxC())-max(log(minC()),1e-12)/(number_of_bins));
+        X.t[j] = exp(log_min_c + j*(log_max_c-log_min_c)/(number_of_bins));
 
 	for (int i = 0; i<n; i++)
         for (int j=number_of_bins; j>=0; j--)
