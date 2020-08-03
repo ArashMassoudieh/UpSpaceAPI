@@ -37,6 +37,9 @@ bool OneDGrid::Generate_omega_field(int n, double deltax, double correlation_ls)
     v = CVector(n);
     C = CVector(n);
     omega = CVector(n);
+    v = CVector(n);
+    u = CVector(n);
+    C = CVector(n);
     omega[0] = getnormalrand(0,1);
     double gamma = exp(-pow(delta_x,2.0)/pow(correlation_ls,2.0));
     for (int i=1; i<n; i++)
