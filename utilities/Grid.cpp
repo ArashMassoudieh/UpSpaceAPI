@@ -1801,6 +1801,27 @@ void CGrid::runcommands_qt()
                 writeasmatrixK(pathout+commands[i].parameters["filename"], 0);
             }
 
+            if (commands[i].command == "create_1d_grid")
+            {
+                show_in_window("Creating one-D grid...");
+                onedgrid.Generate_omega_field(atoi(commands[i].parameters["nx"].c_str()),atof(commands[i].parameters["dx"].c_str()),atof(commands[i].parameters["correlation_ls"].c_str()));
+                show_in_window("One-D grid created!");
+            }
+
+            if (commands[i].command == "write_1d_grid")
+            {
+                show_in_window("Writing one-D grid...");
+                onedgrid.write_omega_field(pathout + commands[i].parameters["filename"]);
+
+            }
+
+            if (commands[i].command == "write_omega_dist")
+            {
+                show_in_window("Writing one-D grid...");
+                onedgrid.getDist(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["filename"]);
+
+            }
+
             if (commands[i].command == "read_k_field")
             {
                     show_in_window("Reading K field...");

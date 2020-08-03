@@ -11,6 +11,7 @@
 #include "PathwaySet.h"
 #include "_command.h"
 #include "Copula.h"
+#include "OneDGrid.h"
 #ifdef Qt_version
 #include "qtextbrowser.h"
 #endif // Qt_version
@@ -270,6 +271,8 @@ public:
 	_Copula_Params copula_params;
     CCopula Copula;
     double mean(double u1, double u2);
+    OneDGrid onedgrid;
+
 #ifdef Qt_version
 
 
