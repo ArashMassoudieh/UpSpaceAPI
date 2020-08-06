@@ -1822,6 +1822,26 @@ void CGrid::runcommands_qt()
 
             }
 
+            if (commands[i].command == "assign_concentration_to_1d_grid")
+            {
+                show_in_window("Assigning concentration to 1d grid...");
+                if (commands[i].parameters.count("i")>0)
+                {
+                    onedgrid.AssignConcentration(atoi(commands[i].parameters["i"].c_str()),atof(commands[i].parameters["value"].c_str()));
+                }
+                else
+                    onedgrid.AssignConcentration(atof(commands[i].parameters["value"].c_str()));
+
+            }
+
+            if (commands[i].command == "write_c_dist_over_omega")
+            {
+                show_in_window("Writing C-dist...");
+                onedgrid.GetConcentrationDistributionOverOmega(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["filename"]);
+            }
+
+
+
             if (commands[i].command == "read_k_field")
             {
                     show_in_window("Reading K field...");

@@ -40,6 +40,7 @@ public:
     CTimeSeries(const CTimeSeries &C);
     CTimeSeries(string Filename);
     CTimeSeries& operator = (const CTimeSeries &C);
+    CTimeSeries& operator = (const double &val);
     void readfile(string);
     void writefile(string Filename);
     double maxC();

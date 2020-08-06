@@ -211,6 +211,16 @@ CTimeSeries& CTimeSeries::operator = (const CTimeSeries &CC)
 	return *this;
 }
 
+
+CTimeSeries& CTimeSeries::operator = (const double &val)
+{
+	for (int i=0; i<n; i++)
+    {
+        C[i]=val;
+    }
+	return *this;
+}
+
 CTimeSeries CTimeSeries::Log()
 {
     CTimeSeries _BTC;

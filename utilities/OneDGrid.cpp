@@ -86,10 +86,13 @@ CTimeSeries OneDGrid::GetConcentrationDistributionOverOmega(int nbins)
     CBTC omegadist = getDist(nbins);
     CBTC cdist = omegadist;
     cdist = 0;
+    CBTC wdist = cdist;
     double dp = omegadist.t[1]-omegadist.t[0];
     double p_start = omegadist.t[0] + dp/2;
     for (int i=0; i<C.num; i++)
-        cdist.C[int((C[i]-p_start)/dp)+1] += C[i]/omegadist.n/dp;
+    {   cdist.C[int((omega[i]-p_start)/dp)+1] += C[i];
+        wdist.C[int((omega[i]-p_start)/dp)+1] += 1;
+    }
 
-    return cdist;
+    return cdist/wdist.integrate();
 }
