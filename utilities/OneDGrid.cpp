@@ -69,3 +69,27 @@ CTimeSeries OneDGrid::getDist(int nbins)
     }
     return towrite.distribution(nbins);
 }
+
+void OneDGrid::AssignConcentration(int i, double val)
+{
+    C[i] = val;
+}
+
+void OneDGrid::AssignConcentration(double val)
+{
+    C = val;
+}
+
+
+CTimeSeries OneDGrid::GetConcentrationDistributionOverOmega(int nbins)
+{
+    CBTC omegadist = getDist(nbins);
+    CBTC cdist = omegadist;
+    cdist = 0;
+    double dp = omegadist.t[1]-omegadist.t[0];
+    double p_start = omegadist.t[0] + dp/2;
+    for (int i=0; i<C.num; i++)
+        cdist.C[int((C[i]-p_start)/dp)+1] += C[i]/omegadist.n/dp;
+
+    return cdist;
+}

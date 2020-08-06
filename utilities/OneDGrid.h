@@ -21,6 +21,10 @@ class OneDGrid
         CTimeSeries getDist(int nbins);
         void SetInitialCondition_Basedon_Omega(double omega_start, double omega_end);
         void SetInitialCondition_Basedon_U(double omega_start, double omega_end);
+        void AssignConcentration(int i, double val);
+        CTimeSeries GetConcentrationDistributionOverOmega(int nbins);
+        void AssignConcentration(double val);
+
     protected:
 
     private:
