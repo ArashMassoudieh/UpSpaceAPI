@@ -389,8 +389,8 @@
 					<Add library="/usr/lib/x86_64-linux-gnu/libsuperlu.so" />
 				</Linker>
 				<Environment>
-					<Variable name="VTK" value="/home/arash/Projects/vtk" />
-					<Variable name="VTK_build" value="/home/arash/Projects/vtk-build" />
+					<Variable name="VTK" value="/home/arash/Projects/VTK" />
+					<Variable name="VTK_build" value="/home/arash/Projects/VTK-build" />
 				</Environment>
 			</Target>
 			<Target title="Release_flex">
@@ -512,8 +512,8 @@
 					<Add library="/usr/lib/x86_64-linux-gnu/libsuperlu.so" />
 				</Linker>
 				<Environment>
-					<Variable name="VTK" value="/home/arash/Projects/vtk" />
-					<Variable name="VTK_build" value="/home/arash/Projects/vtk-build" />
+					<Variable name="VTK" value="/home/arash/Projects/VTK" />
+					<Variable name="VTK_build" value="/home/arash/Projects/VTK-build" />
 				</Environment>
 			</Target>
 			<Target title="Release_Han">
@@ -1295,6 +1295,8 @@
 		<Unit filename="utilities/Matrix_arma_sp.h" />
 		<Unit filename="utilities/NormalDist.cpp" />
 		<Unit filename="utilities/NormalDist.h" />
+		<Unit filename="utilities/OneDGrid.cpp" />
+		<Unit filename="utilities/OneDGrid.h" />
 		<Unit filename="utilities/QuickSort.cpp" />
 		<Unit filename="utilities/QuickSort.h" />
 		<Unit filename="utilities/StringOP.cpp" />
