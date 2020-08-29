@@ -48,10 +48,10 @@ public:
 
 int opertr(char a);
 bool isnumber(char S);
-vector<string> getline(ifstream&, char del1=' '); 
+vector<string> getline(ifstream&, char del1=' ');
 vector<vector<string> > getline_op(ifstream&,char del1);
 vector<vector<string> > getline_op(ifstream&,vector<char> del1);
-vector<string> split(const string &s, char del); 
+vector<string> split(const string &s, char del);
 vector<string> split(const string &s, const vector<char> &del);
 vector<string> split_curly_semicolon(string s);
 vector<vector<string> > getline_op_eqplus(ifstream&);
@@ -71,7 +71,7 @@ double Heavyside(double x);
 double Pos(double x);
 double pipe_poly(double x);
 double mon(double x, double y);
-vector<int> look_up(string s, char del); 
+vector<int> look_up(string s, char del);
 //string numbertostring(double x);
 string numbertostring(int x);
 string numbertostring(vector<int> x);
@@ -79,5 +79,6 @@ string numbertostring(vector<double> x);
 string numbertostring(double x);
 bool isintegernumber(string S);
 int quan(string S);
+void set_progress_value(double s);
 //template<class _Ty> _Ty min(_Ty _X, _Ty _Y);
 //template<class _Ty> _Ty max(_Ty _X, _Ty _Y);

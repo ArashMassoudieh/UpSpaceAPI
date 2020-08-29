@@ -23,7 +23,7 @@ public:
 	vector<string> names;
 	bool unif;
 	void writetofile(string outputfile, bool writeColumnHeaders = false);
-	void writetofile(string outputfile, int writeinterval);
+	void writetofile(string outputfile, int writeinterval, bool onlyonetimecolumn=false);
 	vector<double> interpolate(double t);
 	vector<double> interpolate(double t, int fnvars);
 	void getfromfile(string filename, bool varytime);
@@ -65,6 +65,7 @@ public:
 	double get_correlation();
 	CTimeSeries GetGradientDistribution(double dx, int nbins=40);
     CTimeSeriesSet getcummulative();
+    CTimeSeriesSet Transpose(const double &dt, const string &column_name);
 
 	bool file_not_found=false;
 	CBTC &operator[](int index);
@@ -74,6 +75,7 @@ public:
 	int indexOf(const string& name) const;
 	void pushBackName(string name);
 	void append(CBTC &BTC, string name = "");
+	void append(const CBTC &BTC, string name = "");
 	CTimeSeriesSet sort(int burnOut = 0);
 	CTimeSeriesSet detivative();
 	~CTimeSeriesSet(void);

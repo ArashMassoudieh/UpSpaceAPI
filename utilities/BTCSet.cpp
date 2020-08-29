@@ -172,25 +172,37 @@ void CTimeSeriesSet::writetofile(string outputfile, bool writeColumnNameHeaders)
 
 }
 
-void CTimeSeriesSet::writetofile(string outputfile, int outputwriteinterval)
+void CTimeSeriesSet::writetofile(string outputfile, int outputwriteinterval, bool onlyonetimecolumn)
 {
 	FILE *Fil;
 	Fil = fopen(outputfile.c_str() , "w");
 
 #ifndef GNUplot
+        if (onlyonetimecolumn)
+                fprintf(Fil , "t, ");
         for (int i=0; i<int(names.size()); i++)
-		fprintf(Fil , "t, %s, ", names[i].c_str());
+        {   if (onlyonetimecolumn)
+                fprintf(Fil , "%s, ", names[i].c_str());
+            else
+                fprintf(Fil , "t, %s, ", names[i].c_str());
+        }
 	fprintf(Fil, "\n");
 	for (int j=0; j<maxnumpoints(); j++)
 	{
+		if (onlyonetimecolumn)
+            fprintf(Fil, "%lf, ", BTC[0].t[j]);
 		for (int i=0; i<nvars; i++)
 		{
 			if (j%outputwriteinterval==0)
 			{	if (j<BTC[i].n)
-					fprintf(Fil, "%lf, %le,", BTC[i].t[j], BTC[i].C[j]);
+					if (onlyonetimecolumn)
+                        fprintf(Fil, "%lf, ", BTC[i].C[j]);
+					else
+                        fprintf(Fil, "%lf, %le,", BTC[i].t[j], BTC[i].C[j]);
 				else
-					fprintf(Fil, ", ,");
-                        }
+					if (!onlyonetimecolumn)
+                        fprintf(Fil, ", ,");
+            }
 
 		}
 		if (j%outputwriteinterval==0)
@@ -1050,6 +1062,17 @@ void CTimeSeriesSet::append(CBTC &_BTC, string name)
 }
 
 
+void CTimeSeriesSet::append(const CBTC &_BTC, string name)
+{
+
+	BTC.push_back(_BTC);
+	pushBackName(name);
+	nvars = BTC.size();
+	if (name != "")
+        BTC[nvars-1].name = name;
+}
+
+
 void CTimeSeriesSet::setname(int index, string name)
 {
 	while (names.size() < BTC.size())
@@ -1254,5 +1277,26 @@ CTimeSeriesSet CTimeSeriesSet::getcummulative()
     }
     return out;
 }
+
+
+CTimeSeriesSet CTimeSeriesSet::Transpose(const double &dt, const string &column_name)
+{
+    if (nvars == 0) return CTimeSeries();
+    CTimeSeriesSet transposed(BTC[0].n);
+    for (int i=0; i<nvars; i++)
+    {
+        for (int j=0; j<BTC[i].n; j++)
+        {
+            transposed.BTC[j].append(dt*i,BTC[i].C[j]);
+        }
+    }
+    for (int i=0; i<transposed.nvars; i++)
+        transposed.setname(i, numbertostring(BTC[0].t[i]));
+
+    return transposed;
+
+}
+
+
 
 

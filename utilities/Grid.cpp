@@ -1808,6 +1808,13 @@ void CGrid::runcommands_qt()
                 show_in_window("One-D grid created!");
             }
 
+            if (commands[i].command == "create_1d_grid_u")
+            {
+                show_in_window("Creating one-D grid u...");
+                onedgrid.Generate_u_field(atoi(commands[i].parameters["nx"].c_str()));
+                show_in_window("One-D grid created!");
+            }
+
             if (commands[i].command == "write_1d_grid")
             {
                 show_in_window("Writing one-D grid...");
@@ -1822,6 +1829,14 @@ void CGrid::runcommands_qt()
 
             }
 
+            if (commands[i].command == "write_u_dist_1d")
+            {
+                show_in_window("Writing u distribution on a one-D grid...");
+                onedgrid.getDistU(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["filename"]);
+
+            }
+
+
             if (commands[i].command == "assign_concentration_to_1d_grid")
             {
                 show_in_window("Assigning concentration to 1d grid...");
@@ -1834,10 +1849,62 @@ void CGrid::runcommands_qt()
 
             }
 
+            if (commands[i].command == "assign_concentration_based_on_rank")
+            {
+                show_in_window("Assigning concentration based on rank");
+                    onedgrid.AssignConcentration_based_on_u(atof(commands[i].parameters["u_min"].c_str()),atof(commands[i].parameters["u_max"].c_str()),atof(commands[i].parameters["value"].c_str()));
+
+            }
+
+            if (commands[i].command == "assign_concentration_to_u_grid")
+            {
+                show_in_window("Assigning concentration to u grid...");
+                onedgrid.Initialize_U(atoi(commands[i].parameters["i"].c_str()),atof(commands[i].parameters["value"].c_str()));
+            }
+
             if (commands[i].command == "write_c_dist_over_omega")
             {
                 show_in_window("Writing C-dist...");
                 onedgrid.GetConcentrationDistributionOverOmega(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["filename"]);
+            }
+
+            if (commands[i].command == "solve_1d")
+            {
+                show_in_window("Solving over x ...");
+                onedgrid.Solve(atof(commands[i].parameters["dt"].c_str()),atof(commands[i].parameters["t_end"].c_str()),atof(commands[i].parameters["diffusion"].c_str()),atoi(commands[i].parameters["nbins"].c_str()));
+                if (commands[i].parameters.count("filename_cx")>0)
+                    onedgrid.ANSCX.writetofile(pathout + commands[i].parameters["filename_cx"],1,true);
+
+                if (commands[i].parameters.count("filename_c_omega")>0)
+                    onedgrid.ANSCW.Transpose(atof(commands[i].parameters["dt"].c_str()),"X").writetofile(pathout + commands[i].parameters["filename_c_omega"],1,true);
+
+                if (commands[i].parameters.count("filename_c_u")>0)
+                    onedgrid.ANSCU.Transpose(atof(commands[i].parameters["dt"].c_str()),"X").writetofile(pathout + commands[i].parameters["filename_c_u"],1,true);
+
+                if (commands[i].parameters.count("filename_u_dev")>0)
+                    onedgrid.u_dev.writefile(pathout + commands[i].parameters["filename_u_dev"]);
+
+
+                show_in_window("Solving over x, done!");
+            }
+
+            if (commands[i].command == "solve_1d_u")
+            {
+                show_in_window("Solving over u ...");
+                onedgrid.Solve_U(atof(commands[i].parameters["dt"].c_str()),atof(commands[i].parameters["t_end"].c_str()),atof(commands[i].parameters["diffusion"].c_str()),atof(commands[i].parameters["correlation"].c_str()));
+                if (commands[i].parameters.count("filename_c_u")>0)
+                    onedgrid.ANSCU.writetofile(pathout + commands[i].parameters["filename_c_u"],1,true);
+
+                 if (commands[i].parameters.count("filename_u_dev")>0)
+                    onedgrid.u_dev.writefile(pathout + commands[i].parameters["filename_u_dev"]);
+                //if (commands[i].parameters.count("filename_c_omega")>0)
+                //    onedgrid.ANSCW.Transpose(atof(commands[i].parameters["dt"].c_str()),"X").writetofile(pathout + commands[i].parameters["filename_c_omega"],1,true);
+
+                //if (commands[i].parameters.count("filename_c_u")>0)
+                //    onedgrid.ANSCU.Transpose(atof(commands[i].parameters["dt"].c_str()),"X").writetofile(pathout + commands[i].parameters["filename_c_u"],1,true);
+
+
+                show_in_window("Solving over u, done!");
             }
 
 

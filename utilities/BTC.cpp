@@ -401,7 +401,7 @@ double diff(CTimeSeries &BTC_p, CTimeSeries &BTC_d)
         sum += pow(BTC_d.C[i] - a,2);
     }
 
-    return sum;
+    return sum/double(BTC_p.n);
 }
 
 double diff_abs(CTimeSeries &BTC_p, CTimeSeries &BTC_d)
