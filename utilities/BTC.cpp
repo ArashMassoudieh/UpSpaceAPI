@@ -67,9 +67,13 @@ CTimeSeries CTimeSeries::rank()
 
 	return out;
 }
-CTimeSeries CTimeSeries::rank_bd(int nintervals)
+CTimeSeries CTimeSeries::rank_bd(int nintervals, bool _log)
 {
-	CTimeSeries X = getcummulative_direct(nintervals).XLog(1e-12);
+	CTimeSeries X;
+	if (_log)
+        X = getcummulative_direct(nintervals,_log).XLog(1e-12);
+    else
+        X = getcummulative_direct(nintervals,_log);
     X.structured = true;
 
 	CTimeSeries out;
@@ -77,12 +81,18 @@ CTimeSeries CTimeSeries::rank_bd(int nintervals)
 	if (weight.size())
             for (int i = 0; i < n; i++)
             {
-                out.append(double(i), X.interpol(log(C[i])),weight[i]);
+                if (_log)
+                    out.append(double(i), X.interpol(log(C[i])),weight[i]);
+                else
+                    out.append(double(i), X.interpol(C[i]),weight[i]);
             }
         else
             for (int i = 0; i < n; i++)
             {
-                out.append(double(i), X.interpol(log(C[i])),1);
+                if (_log)
+                    out.append(double(i), X.interpol(log(C[i])),1);
+                else
+                    out.append(double(i), X.interpol(C[i]),1);
             }
 	return out;
 }
@@ -1023,7 +1033,13 @@ double CTimeSeries::slope(double tt)
    return (C[n - 1] - C[n - 2]) / (t[n - 1] - t[n - 2]);
 }
 
-
+double CTimeSeries::sum()
+{
+    double s = 0;
+    for (int i=0; i<n; i++)
+        s+=C[i];
+    return s;
+}
 
 double CTimeSeries::percentile(double x)
 {
@@ -1445,14 +1461,28 @@ bool CTimeSeries::isweighted()
         return false;
 }
 
-CTimeSeries CTimeSeries::getcummulative_direct(int number_of_bins)
+CTimeSeries CTimeSeries::getcummulative_direct(int number_of_bins, bool _log)
 {
 	CTimeSeries X(number_of_bins+1);
-	double log_max_c = log(maxC());
-	double log_min_c = max(log(minC()),log(1e-12));
+	double log_max_c;
+	double log_min_c;
+	if (_log)
+	{
+        log_max_c = log(maxC());
+        log_min_c = max(log(minC()),log(1e-12));
+	}
+	else
+    {
+        log_max_c = maxC();
+        log_min_c = minC();
+	}
 	for (int j=0; j<number_of_bins+1; j++)
-        X.t[j] = exp(log_min_c + j*(log_max_c-log_min_c)/(number_of_bins));
-
+    {
+        if (_log)
+            X.t[j] = exp(log_min_c + j*(log_max_c-log_min_c)/(number_of_bins));
+        else
+            X.t[j] = log_min_c + j*(log_max_c-log_min_c)/(number_of_bins);
+    }
 	for (int i = 0; i<n; i++)
         for (int j=number_of_bins; j>=0; j--)
         {

@@ -601,6 +601,124 @@ vtkSmartPointer<vtkPolyData> CGrid::traj_vtk_pdt_vtp(int trajno, double z_factor
 }
 
 
+vtkSmartPointer<vtkPolyData> CGrid::traj_vtk_pdt_vtp_3d(int trajno, bool _color)
+{
+	// Create a vtkPoints object and store the points in it
+	vtkSmartPointer<vtkPoints> points =
+		vtkSmartPointer<vtkPoints>::New();
+
+	vtkSmartPointer<vtkFloatArray> values =
+		vtkSmartPointer<vtkFloatArray>::New();
+
+	values->SetNumberOfComponents(1);
+	values->SetName("vx");
+
+	vtkSmartPointer<vtkFloatArray> vy =
+		vtkSmartPointer<vtkFloatArray>::New();
+
+	vy->SetNumberOfComponents(1);
+	vy->SetName("vy");
+
+	vtkSmartPointer<vtkFloatArray> vz =
+		vtkSmartPointer<vtkFloatArray>::New();
+
+	vz->SetNumberOfComponents(1);
+	vz->SetName("vz");
+
+
+	vtkSmartPointer<vtkFloatArray> tm =
+		vtkSmartPointer<vtkFloatArray>::New();
+
+	tm->SetNumberOfComponents(1);
+	tm->SetName("arrival time");
+
+	for (int i = 0; i<Traj.paths[trajno].positions.size(); i++)
+	{
+
+        double t[1] = { float(Traj.paths[trajno].positions[i].v[0]) };
+        double _vy[1] = { float(Traj.paths[trajno].positions[i].v[1]) };
+        double _vz[1] = { float(Traj.paths[trajno].positions[i].v[2]) };
+
+        double _at[1] = { float(Traj.paths[trajno].positions[i].t) };
+        double p[3] = { Traj.paths[trajno].positions[i].x, Traj.paths[trajno].positions[i].y, Traj.paths[trajno].positions[i].z };
+        points->InsertNextPoint(p);
+        values->InsertNextTuple(t);
+        vy->InsertNextTuple(_vy);
+        vz->InsertNextTuple(_vz);
+        tm->InsertNextTuple(_at);
+	}
+	vtkSmartPointer<vtkPolyLine> polyLine =
+		vtkSmartPointer<vtkPolyLine>::New();
+
+	polyLine->GetPointIds()->SetNumberOfIds(Traj.paths[trajno].positions.size());
+	for (unsigned int i = 0; i < Traj.paths[trajno].positions.size(); i++)
+	{
+		polyLine->GetPointIds()->SetId(i, i);
+	}
+
+	// Create a cell array to store the lines in and add the lines to it
+	vtkSmartPointer<vtkCellArray> cells =
+		vtkSmartPointer<vtkCellArray>::New();
+	cells->InsertNextCell(polyLine);
+
+	// Create a polydata to store everything in
+	vtkSmartPointer<vtkPolyData> polyData =
+		vtkSmartPointer<vtkPolyData>::New();
+
+	// Add the points to the dataset
+	polyData->SetPoints(points);
+
+	// Add the lines to the dataset
+	polyData->SetLines(cells);
+
+	// Find min and max z
+	double minz = min_v_x;
+	double maxz = max_v_x;
+
+	// Create the color map
+	vtkSmartPointer<vtkLookupTable> colorLookupTable =
+		vtkSmartPointer<vtkLookupTable>::New();
+	colorLookupTable->SetTableRange(minz, maxz);
+	colorLookupTable->Build();
+
+	if (_color)
+	{
+		// Generate the colors for each point based on the color map
+		vtkSmartPointer<vtkUnsignedCharArray> colors_2 =
+			vtkSmartPointer<vtkUnsignedCharArray>::New();
+		colors_2->SetNumberOfComponents(3);
+		colors_2->SetName("Colors");
+
+		for (int i = 0; i < polyData->GetNumberOfPoints(); i++)
+		{
+			double p[3];
+			polyData->GetPoint(i, p);
+
+			double dcolor[3];
+			colorLookupTable->GetColor(p[2], dcolor);
+
+			unsigned char color[3];
+			for (unsigned int j = 0; j < 3; j++)
+			{
+				color[j] = static_cast<unsigned char>(255.0 * dcolor[j]);
+			}
+
+			colors_2->InsertNextTupleValue(color);
+		}
+
+
+	}
+
+	polyData->GetPointData()->SetScalars(values);
+	polyData->GetPointData()->AddArray(vy);
+	polyData->GetPointData()->AddArray(vz);
+	polyData->GetPointData()->AddArray(tm);
+	// Visualization
+
+	return polyData;
+}
+
+
 vector<vtkSmartPointer<vtkActor>> CGrid::trajs_vtk_pdt(double z_factor, double offset)
 {
 	vector<vtkSmartPointer<vtkActor>> outactors;
@@ -617,6 +735,52 @@ void CGrid::trajs_vtk_pdt_to_vtp(string filename, double z_factor, double offset
 	set_progress_value(0);
 	for (int i = 0; i < Traj.paths.size(); i+=interval)
 	{	outputmappers.push_back(traj_vtk_pdt_vtp(i, z_factor, offset, _log, _color));
+        set_progress_value((double)i/(double)Traj.n());
+	}
+
+	vtkSmartPointer<vtkAppendPolyData> appendFilter =
+		vtkSmartPointer<vtkAppendPolyData>::New();
+#if VTK_MAJOR_VERSION <= 5
+	appendFilter->AddInputConnection(input1->GetProducerPort());
+	appendFilter->AddInputConnection(input2->GetProducerPort());
+#else
+	for (int i=0; i<outputmappers.size(); i++)
+		appendFilter->AddInputData(outputmappers[i]);
+#endif
+	appendFilter->Update();
+
+
+
+	// Visualization
+	vtkSmartPointer<vtkPolyDataMapper> mapper =
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+#if VTK_MAJOR_VERSION <= 5
+	mapper->SetInputConnection(polydata->GetProducerPort());
+#else
+	mapper->SetInputConnection(appendFilter->GetOutputPort());
+	//mapper->SetInputData(polydata_1);
+#endif
+
+	#ifdef QT_version
+	main_window->get_ui()->ShowOutput->append("Writing vtp file... ");
+	#endif // QT_version
+	vtkSmartPointer<vtkXMLPolyDataWriter> writer =
+		vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+	writer->SetFileName(filename.c_str());
+	writer->SetInputData(mapper->GetInput());
+	// This is set so we can see the data in a text editor.
+	writer->SetDataModeToAscii();
+	writer->Write();
+
+}
+
+void CGrid::trajs_vtk_pdt_to_vtp_3d(string filename, bool _color, int interval)
+{
+	vector<vtkSmartPointer<vtkPolyData>> outputmappers;
+	if (max_v_x == 0) max_v_x = 1;
+	set_progress_value(0);
+	for (int i = 0; i < Traj.paths.size(); i+=interval)
+	{	outputmappers.push_back(traj_vtk_pdt_vtp_3d(i, _color));
         set_progress_value((double)i/(double)Traj.n());
 	}
 

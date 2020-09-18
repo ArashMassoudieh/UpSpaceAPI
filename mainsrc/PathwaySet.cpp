@@ -358,6 +358,105 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
     return true;
 }
 
+
+bool CPathwaySet::getfromShermanfile(const string &filename)
+{
+    ifstream file;
+    file.open (filename, std::fstream::in);
+    if (!file.good()) return false;
+    int rownum = 0;
+    double age=0;
+    int maxparticlecount=0;
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()>4)
+            maxparticlecount = max(maxparticlecount,int(s1[0]));
+
+    }
+    show_in_window("maximum number of trajectories:" + numbertostring(maxparticlecount));
+    paths.resize(maxparticlecount);
+    file.close();
+    file.open (filename, std::fstream::in);
+
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()>5)
+        {
+            set_progress_value(s1[1]);
+            //cout <<s1[0]<<","<<s1[1]<<","<<s1[2]<<","<<s1[3]<<","<<s1[4]<< endl;
+            CPosition P;
+            P.x = s1[2];
+            P.y = s1[3];
+            P.z = s1[4];
+            P.v = CVector(2);
+            P.t = s1[1];
+
+            if (int(s1[0])>0 && int(s1[0])<=maxparticlecount)
+                paths[(int)s1[0]-1].append(P);
+            //cout <<"Done!"<<endl;
+        }
+
+    }
+    show_in_window("Reading trajectories done!");
+    AssignVelocities();
+    file.close();
+    //cout<<"Reading Trajectories Done!"<<endl;
+    return true;
+}
+
+bool CPathwaySet::getfromShermanfile_v(const string &filename)
+{
+    ifstream file;
+    file.open (filename, std::fstream::in);
+    if (!file.good()) return false;
+    int rownum = 0;
+    double age=0;
+    int maxparticlecount=0;
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()>4)
+            maxparticlecount = max(maxparticlecount,int(s1[0]));
+
+    }
+    show_in_window("maximum number of trajectories:" + numbertostring(maxparticlecount));
+    paths.resize(maxparticlecount);
+    file.close();
+    file.open (filename, std::fstream::in);
+
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()>5)
+        {
+            set_progress_value(s1[1]);
+            //cout <<s1[0]<<","<<s1[1]<<","<<s1[2]<<","<<s1[3]<<","<<s1[4]<< endl;
+            CPosition P;
+            P.x = s1[2];
+            P.y = s1[3];
+            P.z = s1[4];
+            P.v = CVector(3);
+            P.v[0] = s1[6];
+            P.v[1] = s1[7];
+            P.v[2] = s1[8];
+            P.t = s1[1];
+
+            if (int(s1[0])>0 && int(s1[0])<=maxparticlecount)
+                paths[(int)s1[0]-1].append(P);
+            //cout <<"Done!"<<endl;
+        }
+
+    }
+    show_in_window("Reading trajectories done!");
+    //AssignVelocities();
+    file.close();
+    //cout<<"Reading Trajectories Done!"<<endl;
+    return true;
+}
+
+
 void CPathwaySet::set_progress_value(double s)
 {
 #ifdef QT_version

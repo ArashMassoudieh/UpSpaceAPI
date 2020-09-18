@@ -708,6 +708,16 @@ template<class _Ty> _Ty max(_Ty _X, _Ty _Y)
      return ss.str();
   }
 
+  string numbertostring ( bool x )
+  {
+     ostringstream ss;
+     if (x)
+        ss << "true";
+     else
+        ss << "false";
+     return ss.str();
+  }
+
 string numbertostring(double x)
 {
 	char buf[48];

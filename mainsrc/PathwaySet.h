@@ -14,6 +14,8 @@ public:
     CPathwaySet &operator=(const CPathwaySet &P);
     ~CPathwaySet();
     bool getfromMODflowfile(const string &filename);
+    bool getfromShermanfile(const string &filename);
+    bool getfromShermanfile_v(const string &filename);
     vector<CPathway> paths;
     void write(string filename);
     void append(const CPathway& P, double weight=1);

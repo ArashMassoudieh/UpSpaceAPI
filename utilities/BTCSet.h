@@ -66,7 +66,12 @@ public:
 	CTimeSeries GetGradientDistribution(double dx, int nbins=40);
     CTimeSeriesSet getcummulative();
     CTimeSeriesSet Transpose(const double &dt, const string &column_name);
-
+    //Frank Copula
+    double FrankCopulaLogLikelihood(const double &alpha);
+    double FrankCopulaLogLikelihood_deriv(const double &alpha);
+    double FrankCopulaLogLikelihood_deriv_derive(const double &alpha);
+    double Estimate_Frank_Alpha(double initial_guess=2, double error_tolerance=1e-6);
+	//End Frank Copula
 	bool file_not_found=false;
 	CBTC &operator[](int index);
 	CBTC &operator[](string BTCName);

@@ -1230,7 +1230,7 @@ TDMap CTimeSeriesSet::get2DMap(int number_of_bins, double low_lim, double up_lim
     {
         int i= int((BTC[0].C[k]-low_lim)/(up_lim-low_lim)*number_of_bins);
         int j= int((BTC[1].C[k]-low_lim)/(up_lim-low_lim)*number_of_bins);
-        if (i>=0 && i<number_of_bins && j>0 && j<number_of_bins)
+        if (i>=0 && i<number_of_bins && j>=0 && j<number_of_bins)
         {
             unsigned int i1 = i;
             unsigned int j1 = j;
@@ -1295,6 +1295,55 @@ CTimeSeriesSet CTimeSeriesSet::Transpose(const double &dt, const string &column_
 
     return transposed;
 
+}
+
+double CTimeSeriesSet::FrankCopulaLogLikelihood(const double &alpha)
+{
+    double sum=0;
+    double n = BTC[0].n;
+    sum += n*(log(alpha)+2*alpha)+n*log(1-exp(-alpha))-alpha*(BTC[0].sum()+BTC[1].sum());
+    for (int i=0; i<BTC[0].n; i++)
+    {
+        sum+= -2*log(exp(-alpha*(BTC[0].C[i]-1))+exp(-alpha*(BTC[1].C[i]-1))-exp(-alpha*(BTC[0].C[i]+BTC[1].C[i]-1))-1);
+    }
+    return sum/n;
+
+}
+
+double CTimeSeriesSet::FrankCopulaLogLikelihood_deriv(const double &alpha)
+{
+    double sum=0;
+    double n = BTC[0].n;
+    sum += (1.0/alpha+2.0)+ exp(-alpha)/(1-exp(-alpha))-(BTC[0].sum()+BTC[1].sum())/n;
+    for (int i=0; i<BTC[0].n; i++)
+    {
+        double numerator = -(BTC[0].C[i]-1)*exp(-alpha*(BTC[0].C[i]-1))-(BTC[1].C[i]-1)*exp(-alpha*(BTC[1].C[i]-1))+(BTC[0].C[i]+BTC[1].C[i]-1)*exp(-alpha*(BTC[0].C[i]+BTC[1].C[i]-1));
+        double denumerator = exp(-alpha*(BTC[0].C[i]-1))+exp(-alpha*(BTC[1].C[i]-1))-exp(-alpha*(BTC[0].C[i]+BTC[1].C[i]-1))-1;
+        sum+= -2.0/n*numerator/denumerator;
+    }
+
+    double numerical_derivative = (FrankCopulaLogLikelihood(alpha*1.000001)-FrankCopulaLogLikelihood(alpha*1))/(alpha*0.000001);
+    return sum;
+}
+
+double CTimeSeriesSet::FrankCopulaLogLikelihood_deriv_derive(const double &alpha)
+{
+    double epsilon = 1e-6;
+    return (FrankCopulaLogLikelihood_deriv(alpha+epsilon) - FrankCopulaLogLikelihood_deriv(alpha))/epsilon;
+}
+
+double CTimeSeriesSet::Estimate_Frank_Alpha(double initial_guess, double error_tolerance)
+{
+    double err = 10000;
+    double alpha = initial_guess;
+    while (err>error_tolerance)
+    {
+        err = FrankCopulaLogLikelihood_deriv(alpha);
+        double err_prime = FrankCopulaLogLikelihood_deriv_derive(alpha);
+        alpha -= err/err_prime;
+
+    }
+    return alpha;
 }
 
 

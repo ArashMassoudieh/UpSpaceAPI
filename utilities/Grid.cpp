@@ -218,7 +218,7 @@ void CGrid::assign_K_gauss()
 bool CGrid::getfromfile(string filename, int _nx, int _ny)
 {
 
-        bool file_not_found;
+    bool file_not_found;
 	GP.nx = _nx;
 	GP.ny = _ny;
 	p.resize(_nx);
@@ -1476,6 +1476,24 @@ CBTC CGrid::get_v_dist_MODFlow(const string &filename)
 
 }
 
+CBTC CGrid::get_v_dist_frac(const string &filename)
+{
+    ifstream file;
+    file.open (filename, std::fstream::in);
+    if (!file.good()) return false;
+    CBTC out;
+    int rownum=0;
+    getline(file);
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()>=5)
+            out.append(rownum,s1[6]);
+        rownum++;
+    }
+    return out;
+}
+
 CBTC CGrid::get_v_mag_btc()
 {
 	CBTC out;
@@ -2150,6 +2168,18 @@ void CGrid::runcommands_qt()
                     stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
             }
 
+             if (commands[i].command == "write_velocity_dist_frac")
+            {
+                show_in_window("Reading spatial velocity...");
+                CBTC vx = get_v_dist_frac(commands[i].parameters["v_filename"]);
+                vx.distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["filename"]);
+                CVector stats(2);
+                stats[0] = vx.Log(1e-6).mean();
+                stats[1] = vx.Log(1e-6).std();
+                if (commands[i].parameters.count("stat_filename"))
+                    stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
+            }
+
 
             if (commands[i].command == "write_velocity_dist_all")
             {
@@ -2388,6 +2418,18 @@ void CGrid::runcommands_qt()
                 trajs_vtk_pdt_to_vtp(pathout+commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atof(commands[i].parameters["offset"].c_str()), atof(commands[i].parameters["log"].c_str()), atof(commands[i].parameters["color"].c_str()),interval);
             }
 
+            if (commands[i].command == "save_trajs_into_vtp_3d")
+            {
+                show_in_window("Writing trajectories into vtp... ");
+                if (commands[i].parameters.count("filename") == 0) commands[i].parameters["filename"] == "paths.vtp";
+                int interval = 1;
+                if (commands[i].parameters.count("interval") == 0)
+                    interval = 1;
+                else
+                    interval = atoi(commands[i].parameters["interval"].c_str());
+                trajs_vtk_pdt_to_vtp_3d(pathout+commands[i].parameters["filename"], atof(commands[i].parameters["color"].c_str()),interval);
+            }
+
             if (commands[i].command == "initialize_marginal_v_dist")
             {
                 show_in_window("initializing " +commands[i].parameters["dist"] + " distribution ..." );
@@ -2534,16 +2576,33 @@ void CGrid::runcommands_qt()
                 {
                     show_in_window("Writing ranks");
                     CBTCSet ranks(atoi(commands[i].parameters["nsequence"].c_str()));
+                    bool _log = true;
+                    if (commands[i].parameters.count("negative") > 0)
+                        if (atoi(commands[i].parameters["negative"].c_str())==1)
+                            _log = false;
+                    show_in_window("negative = " + numbertostring(_log));
                     for (int ii=0; ii<atoi(commands[i].parameters["nsequence"].c_str()); ii++)
                     {
                         cout<<pairs.BTC[ii].n<<endl;
-                        pairs.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["ranks_filename"]+"_"+numbertostring(ii));
+                        pairs.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),_log).writefile(pathout+commands[i].parameters["ranks_filename"]+"_"+numbertostring(ii));
                         cout<<pairs.BTC[ii].n<<endl;
                         ranks.BTC[ii] = pairs.BTC[ii].rank_bd(atoi(commands[i].parameters["nbins"].c_str()));
                         cout<<ranks.BTC[ii].n<<endl;
                         ranks.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["ranks_filename"]+"_u"+numbertostring(ii));
                     }
                     ranks.writetofile(pathout+commands[i].parameters["ranks_filename"]);
+
+                    if (commands[i].parameters.count("frank_copula")>0)
+                        {
+
+                                show_in_window("Extracting Frank Copula Parameters");
+                                CVector Likelihoods(2);
+                                Likelihoods[0] = ranks.FrankCopulaLogLikelihood(2);
+                                Likelihoods[1] = ranks.FrankCopulaLogLikelihood_deriv(2);
+                                double alpha = ranks.Estimate_Frank_Alpha();
+                                extracted_OU_parameters.append("alpha",atof(commands[i].parameters["delta_t"].c_str()), alpha);
+                                extracted_OU_parameters.append("correlation",atof(commands[i].parameters["delta_t"].c_str()), ranks.get_correlation());
+                        }
 
                     if (commands[i].parameters.count("u_gnu_file"))
                     {
@@ -2585,9 +2644,10 @@ void CGrid::runcommands_qt()
                     normals.writetofile(pathout + commands[i].parameters["normal_filename"]);
                     if (commands[i].parameters.count("OU_parameters_filename") > 0)
                     {
-                        show_in_window("Calculating OU params");
+                        if (commands[i].parameters.count("frank_copula")==0)
+                        {    show_in_window("Calculating OU params");
 
-                        {
+
                             double corr = normals.get_correlation();
                             double standard_deviation = (normals.BTC[0]-normals.BTC[1]).moment(2);
 
@@ -2600,7 +2660,9 @@ void CGrid::runcommands_qt()
                             X[2] = standard_deviation;
                             show_in_window("Writing OU params");
                             X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+
                         }
+
 
                     }
                 }
@@ -2610,6 +2672,28 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("Reading trajectories from file '" + commands[i].parameters["filename"] + "'");
                 if (!Traj.getfromMODflowfile(commands[i].parameters["filename"]))
+                {
+                    show_in_window("Reading trajectories failed");
+                }
+                else
+                    show_in_window("Reading trajectories completed");
+            }
+
+            if (commands[i].command == "readtrajsfromfracfile")
+            {
+                show_in_window("Reading trajectories from file '" + commands[i].parameters["filename"] + "'");
+                if (!Traj.getfromShermanfile(commands[i].parameters["filename"]))
+                {
+                    show_in_window("Reading trajectories failed");
+                }
+                else
+                    show_in_window("Reading trajectories completed");
+            }
+
+            if (commands[i].command == "readtrajsfromfracfile_v")
+            {
+                show_in_window("Reading trajectories from file '" + commands[i].parameters["filename"] + "'");
+                if (!Traj.getfromShermanfile_v(commands[i].parameters["filename"]))
                 {
                     show_in_window("Reading trajectories failed");
                 }
@@ -2692,18 +2776,26 @@ void CGrid::runcommands_qt()
                     TDMap GNU_out = pairs.get2DMap(atoi(commands[i].parameters["nbins"].c_str()));
                     GNU_out.writetofile_GNU(pathout + commands[i].parameters["v_gnu_file"],"", "v", "v'", "p(v,v')", true);
                 }
+
+                bool _log = true;
+
+
                 if (commands[i].parameters.count("ranks_filename") > 0)
                 {
                     show_in_window("Writing ranks");
                     CBTCSet ranks(atoi(commands[i].parameters["nsequence"].c_str()));
+                      if (commands[i].parameters.count("negative") > 0)
+                        if (atoi(commands[i].parameters["negative"].c_str())==1)
+                            _log = false;
+                    show_in_window("negative = " + numbertostring(_log));
                     for (int ii=0; ii<atoi(commands[i].parameters["nsequence"].c_str()); ii++)
                     {
                         cout<<pairs.BTC[ii].n<<endl;
-                        pairs.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["ranks_filename"]+"_"+numbertostring(ii));
+                        pairs.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),_log).writefile(pathout+commands[i].parameters["ranks_filename"]+"_"+numbertostring(ii));
                         cout<<pairs.BTC[ii].n<<endl;
-                        ranks.BTC[ii] = pairs.BTC[ii].rank_bd(atoi(commands[i].parameters["nbins"].c_str()));
+                        ranks.BTC[ii] = pairs.BTC[ii].rank_bd(atoi(commands[i].parameters["nbins"].c_str()),_log);
                         cout<<ranks.BTC[ii].n<<endl;
-                        ranks.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["ranks_filename"]+"_u"+numbertostring(ii));
+                        ranks.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),_log).writefile(pathout+commands[i].parameters["ranks_filename"]+"_u"+numbertostring(ii));
                     }
                     ranks.writetofile(pathout+commands[i].parameters["ranks_filename"]);
 

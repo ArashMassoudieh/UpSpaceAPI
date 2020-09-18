@@ -65,6 +65,7 @@ public:
     double average();
     double average(double t);
     double slope(double tt);
+    double sum();
     CTimeSeries distribution(int n_bins = 40, double smoothing_span=0, int limit=0);
     void append(double x);
     void append(double tt, double xx, double weight=1);
@@ -87,7 +88,7 @@ public:
     double AutoCor1(int i=0);
     bool file_not_found = false;
     CTimeSeries getcummulative();
-    CTimeSeries getcummulative_direct(int number_of_bins);
+    CTimeSeries getcummulative_direct(int number_of_bins, bool _log=true);
     bool isweighted();
     CTimeSeries Exp();
     CTimeSeries fabs();
@@ -102,7 +103,7 @@ public:
     bool error = false;
     double rank(int i);
     CTimeSeries rank();
-    CTimeSeries rank_bd(int nintervals = 100);
+    CTimeSeries rank_bd(int nintervals = 100, bool _log=true);
     CTimeSeries map_to_standard_normal(int nintervals);
     CTimeSeries uniform_cummulative(int nintervals=100);
     CTimeSeries unlog();
