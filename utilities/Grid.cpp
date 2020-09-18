@@ -2591,7 +2591,7 @@ void CGrid::runcommands_qt()
                         ranks.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout+commands[i].parameters["ranks_filename"]+"_u"+numbertostring(ii));
                     }
                     ranks.writetofile(pathout+commands[i].parameters["ranks_filename"]);
-
+                    double alpha;
                     if (commands[i].parameters.count("frank_copula")>0)
                         {
 
@@ -2599,7 +2599,7 @@ void CGrid::runcommands_qt()
                                 CVector Likelihoods(2);
                                 Likelihoods[0] = ranks.FrankCopulaLogLikelihood(2);
                                 Likelihoods[1] = ranks.FrankCopulaLogLikelihood_deriv(2);
-                                double alpha = ranks.Estimate_Frank_Alpha();
+                                alpha = ranks.Estimate_Frank_Alpha();
                                 extracted_OU_parameters.append("alpha",atof(commands[i].parameters["delta_t"].c_str()), alpha);
                                 extracted_OU_parameters.append("correlation",atof(commands[i].parameters["delta_t"].c_str()), ranks.get_correlation());
                         }
@@ -2613,6 +2613,15 @@ void CGrid::runcommands_qt()
                     {
                         TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                         GNU_out.writetofile(pathout + commands[i].parameters["map_file"]);
+
+                        if (commands[i].parameters.count("theoretical_copula_filename")>0)
+                        {
+                            show_in_window("writing theoretical Frank copula density");
+                            CCopula FrankCopula;
+                            FrankCopula.Frank_copula_alpha = alpha;
+                            GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&FrankCopula);
+
+                        }
                     }
 
 

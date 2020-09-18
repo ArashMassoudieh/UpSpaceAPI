@@ -45,4 +45,10 @@ double CCopula::get_random_at(const double &u1)
     return gsl_cdf_gaussian_P(w2,1);
 }
 
+double CCopula::evaluate_frank_copula_density(const double &u1, const double &u2)
+{
+    double A = (1-exp(-Frank_copula_alpha*u1))*(1-exp(-Frank_copula_alpha*u2))/(1-exp(-Frank_copula_alpha));
+    double out = Frank_copula_alpha/(1-exp(-Frank_copula_alpha))/pow(1.0-A,2);
+    return out;
+}
 

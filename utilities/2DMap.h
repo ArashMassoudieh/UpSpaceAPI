@@ -2,6 +2,7 @@
 #define DMAP_H
 #include <vector>
 #include <string>
+#include "Copula.h"
 
 using namespace std;
 
@@ -29,6 +30,7 @@ class TDMap
         vector<double> marginal_y();
         void writetofile(string filename);
         void writetofile_GNU(string filename,string pngfilename="", string xlabel="", string ylabel="", string title="",bool logscale=false);
+        void writetheoreticalcopulatofile(string filename, CCopula *copula);
     protected:
 
     private:
