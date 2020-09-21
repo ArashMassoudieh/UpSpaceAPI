@@ -1,6 +1,7 @@
 #include "Copula.h"
 #include "NormalDist.h"
 #include "gsl/gsl_randist.h"
+#include "StringOP.h"
 
 CCopula::CCopula()
 {
@@ -16,16 +17,22 @@ CCopula::~CCopula()
 double CCopula::evaluate11(double u1, double u2)
 {
 	double a1;
-	if (copula == "gaussian")
+	if (tolower(copula) == "gaussian")
 	{
 		CVector Y0(2);
 		Y0[0] = stdnormal_inv(u1);
 		Y0[1] = stdnormal_inv(u2);
 		a1 = 1/sqrt(1 - pow(correlation,2))*exp(-0.5*dotproduct((M_inv*Y0), Y0));
 	}
+	if (tolower(copula)== "frank")
+	{
+        a1 = evaluate_frank_copula_density(u1,u2);
+
+	}
 	return a1;
 
 }
+
 
 void CCopula::SetCorrelation(const double &r)
 {
@@ -47,8 +54,11 @@ double CCopula::get_random_at(const double &u1)
 
 double CCopula::evaluate_frank_copula_density(const double &u1, const double &u2)
 {
-    double A = (1-exp(-Frank_copula_alpha*u1))*(1-exp(-Frank_copula_alpha*u2))/(1-exp(-Frank_copula_alpha));
-    double out = Frank_copula_alpha/(1-exp(-Frank_copula_alpha))/pow(1.0-A,2);
-    return out;
+    double oneminusalpha = (-double(1.0)+exp(-Frank_copula_alpha*(u1-1))+exp(-Frank_copula_alpha*(u2-1))-exp(-Frank_copula_alpha*(u1+u2-1)))/(1-exp(-Frank_copula_alpha));
+
+    if (oneminusalpha==0)
+        cout<<"stop";
+    double lnout = log(Frank_copula_alpha)-log(1-exp(-Frank_copula_alpha))-Frank_copula_alpha*(u1+u2-2)-2.0*log(oneminusalpha);
+    return exp(lnout);
 }
 

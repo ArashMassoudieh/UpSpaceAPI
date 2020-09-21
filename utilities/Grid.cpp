@@ -2444,9 +2444,27 @@ void CGrid::runcommands_qt()
                 show_in_window("initializing copula..." );
                 Copula.copula = commands[i].parameters["copula"];
                 for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
-                        Copula.parameters.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
-                Copula.SetCorrelation(Copula.parameters[0]);
+                    Copula.parameters.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
+                if (tolower(Copula.copula)=="gaussian")
+                    Copula.SetCorrelation(Copula.parameters[0]);
+                if (tolower(Copula.copula)=="frank")
+                    Copula.Frank_copula_alpha = Copula.parameters[0];
+
                 Copula.SetDiffusionParams(atof(commands[i].parameters["diffusion"].c_str()),atof(commands[i].parameters["corr_ls"].c_str()),atof(commands[i].parameters["diffusion_corr_ls"].c_str()));
+
+            }
+
+            if (commands[i].command == "set_copula_diffusion_params")
+            {
+                show_in_window("initializing diffusion copula..." );
+                Copula_diffusion.copula = commands[i].parameters["copula"];
+                for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
+                    Copula_diffusion.parameters.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
+                if (tolower(Copula_diffusion.copula)=="gaussian")
+                    Copula_diffusion.SetCorrelation(Copula_diffusion.parameters[0]);
+                if (tolower(Copula_diffusion.copula)=="frank")
+                    Copula_diffusion.Frank_copula_alpha = Copula_diffusion.parameters[0];
+
             }
 
 
@@ -2618,6 +2636,7 @@ void CGrid::runcommands_qt()
                         {
                             show_in_window("writing theoretical Frank copula density");
                             CCopula FrankCopula;
+                            FrankCopula.copula = "frank";
                             FrankCopula.Frank_copula_alpha = alpha;
                             GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&FrankCopula);
 
@@ -3377,6 +3396,41 @@ void CGrid::create_k_mat_copula()
             }
 #endif
 }
+
+
+void CGrid::create_k_mat_copula_only_dispersion()
+{
+    copula_params.K = CMatrix(GP.ny);
+    for (int i = 0; i < GP.ny; i++)
+    for (int j = 0; j < GP.ny; j++)
+        if (i != j)
+        {
+            double u1 = double(i)*GP.dy + GP.dy / 2;
+            double u2 = double(j)*GP.dy + GP.dy / 2;
+            copula_params.K[i][j] = Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u2),dist.inverseCDF(u1)));
+            copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u1),dist.inverseCDF(u2)));
+
+        }
+
+}
+
+
+void CGrid::create_k_mat_copula_only_diffusion()
+{
+    copula_params.K = CMatrix(GP.ny);
+    for (int i = 0; i < GP.ny; i++)
+    for (int j = 0; j < GP.ny; j++)
+        if (i != j)
+        {
+            double u1 = double(i)*GP.dy + GP.dy / 2;
+            double u2 = double(j)*GP.dy + GP.dy / 2;
+            copula_params.K[i][j] = Copula_diffusion.evaluate11(u1, u2);
+            copula_params.K[i][i] -= Copula_diffusion.evaluate11(u1, u2);
+
+        }
+
+}
+
 
 void CGrid::create_f_inv_u()
 {

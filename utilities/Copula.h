@@ -14,6 +14,7 @@ public:
 	string copula;
 	vector<double> parameters;
 	double evaluate11(double u1, double u2);
+	double evaluate(const double &u1, const double &u2);
 	double evaluate_frank_copula_density(const double &u1, const double &u2);
 	CCopula();
 	~CCopula();

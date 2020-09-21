@@ -185,16 +185,17 @@ void TDMap::writetheoreticalcopulatofile(string filename, CCopula *copula)
     double x,y;
     for (unsigned int i=0; i<val.size(); i++)
     {
-        x = (x_bin[i] + x_bin[i+1])/2;
+
         file << "," << (x_bin[i] + x_bin[i+1])/2;
     }
     file << endl;
     for (unsigned int j=0; j<val[0].size(); j++)
     {
         file << (y_bin[j] + y_bin[j+1])/2 << ",";
-        y = (y_bin[j] + y_bin[j+1])/2;
+        y = (y_bin[j] + y_bin[j+1])/2.0;
         for (unsigned int i=0; i<val.size(); i++)
         {
+            x = (x_bin[i] + x_bin[i+1])/2.0;
             if (tolower(copula->copula) == "frank" )
                 file << copula->evaluate_frank_copula_density(x,y) << ",";
             if (tolower(copula->copula) == "gaussian" )
