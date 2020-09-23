@@ -122,7 +122,10 @@ struct _OU_params
 struct _Copula_Params
 {
     double epsilon;
+    double tau;
     CMatrix K;
+    CMatrix K_diff;
+    CMatrix K_disp;
     CMatrix_arma_sp Inv_M;
     double diffusion;
     string mean_method;
@@ -241,10 +244,13 @@ public:
 	void create_k_mat_copula_only_dispersion();
     void create_k_mat_copula_only_diffusion();
 	void create_inv_K_Copula(double dt, double Diffusion_coeff=0);
+	void create_inv_K_Copula_diffusion(double dt, double Diffusion_coefficient=0);
 	CVector_arma create_RHS_OU(double dt, double decay_coeff, double decay_order);
 	CVector_arma create_RHS_Copula(double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
+	CVector_arma create_RHS_Copula_diffusion(double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
 	void solve_transport_OU(double t_end, double decay_coeff=0, double decay_order=0);
 	void solve_transport_Copula(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
+	void solve_transport_Copula_diffusion(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
 	double time_weight;
 	double min_v_x = 0;
 	double max_v_x=0;
