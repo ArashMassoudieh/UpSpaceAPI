@@ -197,7 +197,7 @@ void TDMap::writetheoreticalcopulatofile(string filename, CCopula *copula)
         {
             x = (x_bin[i] + x_bin[i+1])/2.0;
             if (tolower(copula->copula) == "frank" )
-                file << copula->evaluate_frank_copula_density(x,y) << ",";
+                file << copula->evaluate11(x,y) << ",";
             if (tolower(copula->copula) == "gaussian" )
                 file << copula->evaluate11(x,y) << ",";
 
