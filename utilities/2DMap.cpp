@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include "StringOP.h"
+#include "MapAsTimeSeriesSet.h"
+#include "BTC.h"
 
 TDMap::TDMap()
 {
@@ -126,7 +128,6 @@ vector<double> TDMap::marginal_y()
     return out;
 }
 
-
 void TDMap::normalize()
 {
     double s = sum();
@@ -151,6 +152,43 @@ void TDMap::normalize_y()
     for (unsigned int i=0; i<val.size(); i++)
         for (unsigned int j=0; val[i].size(); j++)
             val[i][j] = val[i][j]/s[j];
+}
+
+MapAsTimeSeriesSet TDMap::getcumulative(string dir)
+{
+    MapAsTimeSeriesSet out;
+    double dy = (up_lim_y-low_lim_y)/val.size();
+    if (dir=="x")
+    {
+        for (int j=0; j<val.size(); j++)
+        {
+            double dx = (up_lim_x-low_lim_x)/val[j].size();
+            CTimeSeries X;
+            X.append(0,0);
+            for (int i=0; i<val[j].size(); i++)
+            {
+                X.append(dx*i,val[j][i]*dx+X.C[X.n-1]);
+            }
+            X = X/X.C[X.n-1];
+            out.append(X,dy*j+dy/2);
+        }
+    }
+    if (dir=="sym")
+    {
+        for (int j=0; j<val.size(); j++)
+        {
+            double dx = (up_lim_x-low_lim_x)/val[j].size();
+            CTimeSeries X;
+            X.append(0,0);
+            for (int i=0; i<val[j].size(); i++)
+            {
+                X.append(dx*i,0.5*(val[j][i]+val[i][j])*dx+X.C[X.n-1]);
+            }
+            X = X/X.C[X.n-1];
+            out.append(X,dy*j+dy/2);
+        }
+    }
+    return out;
 }
 
 double TDMap::get_val(unsigned int i, unsigned int j)

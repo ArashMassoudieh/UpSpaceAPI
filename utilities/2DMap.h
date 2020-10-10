@@ -4,6 +4,8 @@
 #include <string>
 #include "Copula.h"
 
+class MapAsTimeSeriesSet;
+
 using namespace std;
 
 class TDMap
@@ -31,6 +33,7 @@ class TDMap
         void writetofile(string filename);
         void writetofile_GNU(string filename,string pngfilename="", string xlabel="", string ylabel="", string title="",bool logscale=false);
         void writetheoreticalcopulatofile(string filename, CCopula *copula);
+        MapAsTimeSeriesSet getcumulative(string dir);
     protected:
 
     private:

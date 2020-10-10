@@ -11,6 +11,7 @@
 #include "gsl/gsl_cdf.h"
 #include "gsl/gsl_randist.h"
 #include <math.h>
+#include "MapAsTimeSeriesSet.h"
 
 #include <sys/resource.h>
 
@@ -2658,6 +2659,11 @@ void CGrid::runcommands_qt()
                         TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                         GNU_out.writetofile(pathout + commands[i].parameters["map_file"]);
 
+                        if (commands[i].parameters.count("marginal_x_file_name")>0)
+                        {
+                            GNU_out.getcumulative("sym").writetofile(pathout+commands[i].parameters["marginal_x_file_name"]);
+                        }
+
                         if (commands[i].parameters.count("theoretical_copula_filename")>0)
                         {
                             if (commands[i].parameters.count("frank_copula")>0)
@@ -2705,7 +2711,7 @@ void CGrid::runcommands_qt()
                         bool frank_copula = false;
                             if (commands[i].parameters.count("frank_copula")>0)
                                 if (commands[i].parameters["frank_copula"]=="1")
-                                    frank_copula == true;
+                                    frank_copula = true;
                         if (!frank_copula)
                         {    show_in_window("Calculating OU params");
 
@@ -2722,15 +2728,16 @@ void CGrid::runcommands_qt()
                             X[2] = standard_deviation;
                             show_in_window("Writing OU params");
                             X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
-
-                            if (!frank_copula)
-                            {
-                                TDMap GNU_out(atoi(commands[i].parameters["nbins"].c_str()),0,1);
-                                show_in_window("writing theoretical Gaussian copula density");
-                                CCopula GaussianCopula;
-                                GaussianCopula.copula = "gaussian";
-                                GaussianCopula.SetCorrelation(-log(corr));
-                                GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&GaussianCopula);
+                            if (commands[i].parameters.count("theoretical_copula_filename")>0)
+                            {   if (!frank_copula)
+                                {
+                                    TDMap GNU_out(atoi(commands[i].parameters["nbins"].c_str()),0,1);
+                                    show_in_window("writing theoretical Gaussian copula density");
+                                    CCopula GaussianCopula;
+                                    GaussianCopula.copula = "gaussian";
+                                    GaussianCopula.SetCorrelation(-log(corr));
+                                    GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&GaussianCopula);
+                                }
                             }
 
                         }
@@ -2799,19 +2806,19 @@ void CGrid::runcommands_qt()
                 }
 
                 cout<<"Magnitude = "<<magnitude<<endl;
-
+                double dx;
                 if (random_sampling)
                     {
                         if (!time_based)
                         {
-                            double dx;
+
                             dx = atof(commands[i].parameters["delta_x"].c_str());
                             pairs = get_correlation_based_on_random_samples(atoi(commands[i].parameters["n"].c_str()),dx,atof(commands[i].parameters["increment"].c_str()),magnitude);
                         }
                         else
                         {
                             double dt;
-                            dt = atof(commands[i].parameters["delta_t"].c_str());
+                            dx = dt = atof(commands[i].parameters["delta_t"].c_str());
                             pairs = get_correlation_based_on_random_samples_dt(atoi(commands[i].parameters["n"].c_str()),dt,atof(commands[i].parameters["increment"].c_str()));
                         }
 
@@ -2870,7 +2877,19 @@ void CGrid::runcommands_qt()
                         ranks.BTC[ii].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),_log).writefile(pathout+commands[i].parameters["ranks_filename"]+"_u"+numbertostring(ii));
                     }
                     ranks.writetofile(pathout+commands[i].parameters["ranks_filename"]);
+                    double alpha;
+                    if (commands[i].parameters.count("frank_copula")>0)
+                        {
 
+                            if (commands[i].parameters["frank_copula"]=="1")
+                            {
+                                show_in_window("Extracting Frank Copula Parameters");
+                                CVector Likelihoods(2);
+                                alpha = ranks.Estimate_Frank_Alpha();
+                                extracted_OU_parameters.append("alpha",dx, alpha);
+                                extracted_OU_parameters.append("correlation",atof(commands[i].parameters["delta_t"].c_str()), ranks.get_correlation());
+                            }
+                        }
                     if (commands[i].parameters.count("u_gnu_file"))
                     {
                         TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
@@ -2880,6 +2899,21 @@ void CGrid::runcommands_qt()
                     {
                         TDMap GNU_out = ranks.get2DMap(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                         GNU_out.writetofile(pathout + commands[i].parameters["map_file"]);
+
+                        if (commands[i].parameters.count("theoretical_copula_filename")>0)
+                        {
+                            if (commands[i].parameters.count("frank_copula")>0)
+                            {
+                                if (commands[i].parameters["frank_copula"]=="1")
+                                {
+                                    show_in_window("writing theoretical Frank copula density");
+                                    CCopula FrankCopula;
+                                    FrankCopula.copula = "frank";
+                                    FrankCopula.Frank_copula_alpha = alpha;
+                                    GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&FrankCopula);
+                                }
+                            }
+                        }
                     }
 
 
@@ -2910,34 +2944,55 @@ void CGrid::runcommands_qt()
 
 
                     normals.writetofile(pathout + commands[i].parameters["normal_filename"]);
+                    bool frank_copula = false;
+                        if (commands[i].parameters.count("frank_copula")>0)
+                        {    if (atoi(commands[i].parameters["frank_copula"].c_str())==1)
+                                frank_copula = true;
+                        }
                     if (commands[i].parameters.count("OU_parameters_filename") > 0)
                     {
-                        show_in_window("Calculating OU params");
-
-                        if (!time_based)
+                        if (!frank_copula)
                         {
-                            CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_x"].c_str()));
+                            show_in_window("Calculating OU params");
 
-                            extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_x"].c_str()), X[0]);
-                            extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_x"].c_str()), X[1]);
-                            double corr = normals.get_correlation();
-                            extracted_OU_parameters.append("Ro", atof(commands[i].parameters["delta_x"].c_str()), corr);
-                            if (atoi(commands[i].parameters["nsequence"].c_str())>2)
-                                extracted_OU_parameters.append("p3", atoi(commands[i].parameters["increment"].c_str()), X[2]);
+                            if (!time_based)
+                            {
 
-                            show_in_window("Writing OU params");
-                            X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+                                show_in_window("Writing OU parameters...");
+                                CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_x"].c_str()));
+
+                                extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_x"].c_str()), X[0]);
+                                extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_x"].c_str()), X[1]);
+                                double corr = normals.get_correlation();
+                                extracted_OU_parameters.append("Ro", atof(commands[i].parameters["delta_x"].c_str()), corr);
+                                if (atoi(commands[i].parameters["nsequence"].c_str())>2)
+                                    extracted_OU_parameters.append("p3", atoi(commands[i].parameters["increment"].c_str()), X[2]);
+
+                                show_in_window("Writing OU params");
+                                X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+
+                            if (commands[i].parameters.count("theoretical_copula_filename")>0)
+                                {   if (!frank_copula)
+                                    {
+                                        TDMap GNU_out(atoi(commands[i].parameters["nbins"].c_str()),0,1);
+                                        show_in_window("writing theoretical Gaussian copula density");
+                                        CCopula GaussianCopula;
+                                        GaussianCopula.copula = "gaussian";
+                                        GaussianCopula.SetCorrelation(-log(corr));
+                                        GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&GaussianCopula);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_t"].c_str()));
+                                extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_t"].c_str()), X[0]);
+                                extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_t"].c_str()), X[1]);
+
+                                show_in_window("Writing OU params");
+                                X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
+                            }
                         }
-                        else
-                        {
-                            CVector X = normals.get_kappa_gamma(atof(commands[i].parameters["delta_t"].c_str()));
-                            extracted_OU_parameters.append("Gamma", atof(commands[i].parameters["delta_t"].c_str()), X[0]);
-                            extracted_OU_parameters.append("Kappa", atof(commands[i].parameters["delta_t"].c_str()), X[1]);
-
-                            show_in_window("Writing OU params");
-                            X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
-                        }
-
                     }
                 }
             }

@@ -16,6 +16,7 @@
 					<Add option="-g" />
 					<Add option="-DArash" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add library="$(VTK_build)/lib/libvtkalglib-8.1.so" />
@@ -148,6 +149,7 @@
 					<Add option="-O2" />
 					<Add option="-DArash" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -282,6 +284,7 @@
 					<Add option="-std=c++0x" />
 					<Add option="-DArash" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add library="$(VTK_build)/lib/libvtkChartsCore-9.0.so" />
@@ -405,6 +408,7 @@
 					<Add option="-O2" />
 					<Add option="-DArash" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -529,6 +533,7 @@
 					<Add option="-O2" />
 					<Add option="-DArash" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -657,6 +662,7 @@
 					<Add option="-g" />
 					<Add option="-DArash" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add library="$(VTK_build)/lib/libvtkChartsCore-9.0.so" />
@@ -798,6 +804,7 @@
 					<Add option="-O2" />
 					<Add option="-DArash" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -940,6 +947,7 @@
 					<Add option="-std=c++0x" />
 					<Add option="-g" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add library="../../../usr/lib/x86_64-linux-gnu/libsuperlu.so" />
@@ -1078,6 +1086,7 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="include" />
+					<Add directory="mainsrc" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -1274,6 +1283,8 @@
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgslcblas.so" />
 		</Linker>
 		<Unit filename="include/OneDGrid.h" />
+		<Unit filename="mainsrc/MapAsTimeSeriesSet.cpp" />
+		<Unit filename="mainsrc/MapAsTimeSeriesSet.h" />
 		<Unit filename="mainsrc/Pathway.cpp" />
 		<Unit filename="mainsrc/Pathway.h" />
 		<Unit filename="mainsrc/PathwaySet.cpp" />
@@ -1285,7 +1296,6 @@
 		<Unit filename="mainsrc/_command.h" />
 		<Unit filename="mainsrc/main.cpp" />
 		<Unit filename="mainsrc/vtk.h" />
-		<Unit filename="src/OneDGrid.cpp" />
 		<Unit filename="utilities/2DMap.cpp" />
 		<Unit filename="utilities/2DMap.h" />
 		<Unit filename="utilities/BTC.cpp" />

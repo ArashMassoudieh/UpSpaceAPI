@@ -69,6 +69,7 @@ public:
     //Frank Copula
     double FrankCopulaLogLikelihood(const double &alpha);
     double FrankCopulaLogLikelihood_deriv(const double &alpha);
+
     double FrankCopulaLogLikelihood_deriv_derive(const double &alpha);
     double Estimate_Frank_Alpha(double initial_guess=2, double error_tolerance=1e-6);
 	//End Frank Copula
@@ -98,3 +99,4 @@ CTimeSeriesSet merge(vector<CTimeSeriesSet> &A);
 CVector sum_interpolate(vector<CTimeSeriesSet> &BTC, double t);
 double sum_interpolate(vector<CTimeSeriesSet> &BTC, double t, string name);
 int max_n_vars(vector<CTimeSeriesSet> &BTC);
+double addup(const vector<double> x);

@@ -1326,6 +1326,14 @@ double CTimeSeriesSet::FrankCopulaLogLikelihood_deriv(const double &alpha)
     return sum;
 }
 
+double addup(const vector<double> x)
+{
+    double sum=0;
+    for (int i=0; i<x.size(); i++)
+        sum+=x[i];
+
+}
+
 double CTimeSeriesSet::FrankCopulaLogLikelihood_deriv_derive(const double &alpha)
 {
     double epsilon = 1e-6;
@@ -1336,6 +1344,7 @@ double CTimeSeriesSet::Estimate_Frank_Alpha(double initial_guess, double error_t
 {
     double err = 10000;
     double alpha = initial_guess;
+
     while (err>error_tolerance)
     {
         err = FrankCopulaLogLikelihood_deriv(alpha);

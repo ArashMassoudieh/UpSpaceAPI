@@ -54,11 +54,14 @@ double CCopula::get_random_at(const double &u1)
 
 double CCopula::evaluate_frank_copula_density(const double &u1, const double &u2)
 {
+    double sum = 0;
     double oneminusalpha = (-double(1.0)+exp(-Frank_copula_alpha*(u1-1))+exp(-Frank_copula_alpha*(u2-1))-exp(-Frank_copula_alpha*(u1+u2-1)))/(1-exp(-Frank_copula_alpha));
 
     if (oneminusalpha==0)
         cout<<"stop";
     double lnout = log(Frank_copula_alpha)-log(1-exp(-Frank_copula_alpha))-Frank_copula_alpha*(u1+u2-2)-2.0*log(oneminusalpha);
     return exp(lnout);
+
+
 }
 
