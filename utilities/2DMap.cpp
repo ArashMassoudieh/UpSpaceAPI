@@ -182,7 +182,7 @@ MapAsTimeSeriesSet TDMap::getcumulative(string dir)
             X.append(0,0);
             for (int i=0; i<val[j].size(); i++)
             {
-                X.append(dx*i,0.5*(val[j][i]+val[i][j])*dx+X.C[X.n-1]);
+                X.append(dx*i+dx,0.5*(val[j][i]+val[i][j])*dx+X.C[X.n-1]);
             }
             X = X/X.C[X.n-1];
             out.append(X,dy*j+dy/2);
