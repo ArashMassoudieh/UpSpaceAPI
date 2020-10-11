@@ -175,10 +175,22 @@ MapAsTimeSeriesSet TDMap::getcumulative(string dir)
     }
     if (dir=="sym")
     {
+        double dx = (up_lim_x-low_lim_x)/val[0].size();
+        CTimeSeries X0;
+        X0.structured=true;
+        X0.append(0,0);
+        for (int i=0; i<val[0].size(); i++)
+        {
+            X0.append(-dx*i-dx,0.5*(val[i][0]+val[0][i])*dx+X0.C[X0.n-1]);
+        }
+        X0 = X0/X0.C[X0.n-1];
+        out.append(X0,-dy/2);
+
         for (int j=0; j<val.size(); j++)
         {
-            double dx = (up_lim_x-low_lim_x)/val[j].size();
+
             CTimeSeries X;
+            X.structured=true;
             X.append(0,0);
             for (int i=0; i<val[j].size(); i++)
             {
@@ -187,7 +199,19 @@ MapAsTimeSeriesSet TDMap::getcumulative(string dir)
             X = X/X.C[X.n-1];
             out.append(X,dy*j+dy/2);
         }
+        CTimeSeries Xn;
+        Xn.structured=true;
+        Xn.append(0,0);
+        for (int i=0; i<val[val.size()-1].size(); i++)
+        {
+            Xn.append(up_lim_x + dx*i + dx/2,0.5*(val[val.size()-1][i]+val[i][val.size()-1])*dx+Xn.C[Xn.n-1]);
+        }
+        Xn = Xn/Xn.C[Xn.n-1];
+        out.append(Xn,up_lim_y+dy/2);
+
     }
+
+
     return out;
 }
 
