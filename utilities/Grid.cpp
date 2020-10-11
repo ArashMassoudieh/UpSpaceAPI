@@ -2471,6 +2471,12 @@ void CGrid::runcommands_qt()
                     Copula.SetCorrelation(Copula.parameters[0]);
                 if (tolower(Copula.copula)=="frank")
                     Copula.Frank_copula_alpha = Copula.parameters[0];
+                if (tolower(Copula.copula)=="experimental")
+                {   TDMap copulamap;
+                    copulamap.readfromfile(pathout + commands[i].parameters["experimental_copula_filename"]);
+                    Copula.SetCopulaMap(copulamap);
+                }
+
 
                 Copula.SetDiffusionParams(atof(commands[i].parameters["diffusion"].c_str()),atof(commands[i].parameters["corr_ls"].c_str()),atof(commands[i].parameters["diffusion_corr_ls"].c_str()));
 
@@ -2486,6 +2492,13 @@ void CGrid::runcommands_qt()
                     Copula_diffusion.SetCorrelation(Copula_diffusion.parameters[0]);
                 if (tolower(Copula_diffusion.copula)=="frank")
                     Copula_diffusion.Frank_copula_alpha = Copula_diffusion.parameters[0];
+                if (tolower(Copula.copula)=="experimental")
+                {
+                    TDMap copulamap;
+                    copulamap.readfromfile(pathout + commands[i].parameters["experimental_copula_filename"]);
+                    Copula.SetCopulaMap(copulamap);
+                }
+
 
             }
 
@@ -2634,10 +2647,10 @@ void CGrid::runcommands_qt()
                     }
                     ranks.writetofile(pathout+commands[i].parameters["ranks_filename"]);
                     double alpha;
-                    if (commands[i].parameters.count("frank_copula")>0)
+                    if (commands[i].parameters.count("copula_type")>0)
                         {
 
-                            if (commands[i].parameters["frank_copula"]=="1")
+                            if (commands[i].parameters["copula_type"]=="frank")
                             {
                                 show_in_window("Extracting Frank Copula Parameters");
                                 CVector Likelihoods(2);
@@ -2666,15 +2679,23 @@ void CGrid::runcommands_qt()
 
                         if (commands[i].parameters.count("theoretical_copula_filename")>0)
                         {
-                            if (commands[i].parameters.count("frank_copula")>0)
+                            if (commands[i].parameters.count("copula_type")>0)
                             {
-                                if (commands[i].parameters["frank_copula"]=="1")
+                                if (commands[i].parameters["copula_type"]=="frank")
                                 {
                                     show_in_window("writing theoretical Frank copula density");
                                     CCopula FrankCopula;
                                     FrankCopula.copula = "frank";
                                     FrankCopula.Frank_copula_alpha = alpha;
                                     GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&FrankCopula);
+                                }
+                                if (commands[i].parameters["copula_type"]=="experimental")
+                                {
+                                    show_in_window("writing theoretical Experimental copula density");
+                                    CCopula ExperimentalCopula;
+                                    ExperimentalCopula.copula = "experimental";
+                                    ExperimentalCopula.SetCopulaMap(GNU_out);
+                                    GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&ExperimentalCopula);
                                 }
                             }
                         }
@@ -2708,11 +2729,11 @@ void CGrid::runcommands_qt()
                     normals.writetofile(pathout + commands[i].parameters["normal_filename"]);
                     if (commands[i].parameters.count("OU_parameters_filename") > 0)
                     {
-                        bool frank_copula = false;
-                            if (commands[i].parameters.count("frank_copula")>0)
-                                if (commands[i].parameters["frank_copula"]=="1")
-                                    frank_copula = true;
-                        if (!frank_copula)
+                        bool gaussian_copula = false;
+                            if (commands[i].parameters.count("copula_type")>0)
+                                if (commands[i].parameters["copula_type"]!="gaussian")
+                                    gaussian_copula = false;
+                        if (gaussian_copula)
                         {    show_in_window("Calculating OU params");
 
 
@@ -2729,7 +2750,7 @@ void CGrid::runcommands_qt()
                             show_in_window("Writing OU params");
                             X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
                             if (commands[i].parameters.count("theoretical_copula_filename")>0)
-                            {   if (!frank_copula)
+                            {   if (gaussian_copula)
                                 {
                                     TDMap GNU_out(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                                     show_in_window("writing theoretical Gaussian copula density");
@@ -2878,10 +2899,10 @@ void CGrid::runcommands_qt()
                     }
                     ranks.writetofile(pathout+commands[i].parameters["ranks_filename"]);
                     double alpha;
-                    if (commands[i].parameters.count("frank_copula")>0)
+                    if (commands[i].parameters.count("copula_type")>0)
                         {
 
-                            if (commands[i].parameters["frank_copula"]=="1")
+                            if (commands[i].parameters["copula_type"]=="frank")
                             {
                                 show_in_window("Extracting Frank Copula Parameters");
                                 CVector Likelihoods(2);
@@ -2902,15 +2923,23 @@ void CGrid::runcommands_qt()
 
                         if (commands[i].parameters.count("theoretical_copula_filename")>0)
                         {
-                            if (commands[i].parameters.count("frank_copula")>0)
+                            if (commands[i].parameters.count("copula_type")>0)
                             {
-                                if (commands[i].parameters["frank_copula"]=="1")
+                                if (commands[i].parameters["copula_type"]=="frank")
                                 {
                                     show_in_window("writing theoretical Frank copula density");
                                     CCopula FrankCopula;
                                     FrankCopula.copula = "frank";
                                     FrankCopula.Frank_copula_alpha = alpha;
                                     GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&FrankCopula);
+                                }
+                                if (commands[i].parameters["copula_type"]=="experimental")
+                                {
+                                    show_in_window("writing theoretical experimental copula density");
+                                    CCopula ExperimentalCopula;
+                                    ExperimentalCopula.copula = "experimental";
+                                    ExperimentalCopula.SetCopulaMap(GNU_out);
+                                    GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&ExperimentalCopula);
                                 }
                             }
                         }
@@ -2944,14 +2973,14 @@ void CGrid::runcommands_qt()
 
 
                     normals.writetofile(pathout + commands[i].parameters["normal_filename"]);
-                    bool frank_copula = false;
-                        if (commands[i].parameters.count("frank_copula")>0)
-                        {    if (atoi(commands[i].parameters["frank_copula"].c_str())==1)
-                                frank_copula = true;
+                    bool gaussian_copula = true;
+                        if (commands[i].parameters.count("copula_type")>0)
+                        {    if (commands[i].parameters["copula_type"]!="gaussian")
+                                gaussian_copula = false;
                         }
                     if (commands[i].parameters.count("OU_parameters_filename") > 0)
                     {
-                        if (!frank_copula)
+                        if (gaussian_copula)
                         {
                             show_in_window("Calculating OU params");
 
@@ -2972,7 +3001,7 @@ void CGrid::runcommands_qt()
                                 X.writetofile(pathout + commands[i].parameters["OU_parameters_filename"]);
 
                             if (commands[i].parameters.count("theoretical_copula_filename")>0)
-                                {   if (!frank_copula)
+                                {   if (gaussian_copula)
                                     {
                                         TDMap GNU_out(atoi(commands[i].parameters["nbins"].c_str()),0,1);
                                         show_in_window("writing theoretical Gaussian copula density");

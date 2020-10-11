@@ -29,6 +29,10 @@ double CCopula::evaluate11(double u1, double u2)
         a1 = evaluate_frank_copula_density(u1,u2);
 
 	}
+	if (tolower(copula)== "experimental")
+	{
+        a1 = copulamap.interpolate(u1,u2);
+	}
 	return a1;
 
 }

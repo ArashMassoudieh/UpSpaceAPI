@@ -4,6 +4,7 @@
 #include "StringOP.h"
 #include "MapAsTimeSeriesSet.h"
 #include "BTC.h"
+#include "Copula.h"
 
 TDMap::TDMap()
 {
@@ -30,6 +31,10 @@ TDMap::TDMap(const TDMap& other)
     val = other.val;
     x_bin = other.x_bin;
     y_bin = other.y_bin;
+    up_lim_x = other.up_lim_x;
+    low_lim_x = other.low_lim_x;
+    up_lim_y = other.up_lim_y;
+    low_lim_y = other.low_lim_y;
 }
 
 TDMap& TDMap::operator=(const TDMap& rhs)
@@ -38,6 +43,10 @@ TDMap& TDMap::operator=(const TDMap& rhs)
     val = rhs.val;
     x_bin = rhs.x_bin;
     y_bin = rhs.y_bin;
+    up_lim_x = rhs.up_lim_x;
+    low_lim_x = rhs.low_lim_x;
+    up_lim_y = rhs.up_lim_y;
+    low_lim_y = rhs.low_lim_y;
     return *this;
 }
 
@@ -217,6 +226,27 @@ void TDMap::writetofile(string filename)
     file.close();
 }
 
+bool TDMap::readfromfile(const string &filename)
+{
+    ifstream file(filename);
+    if (!file.good())
+        {
+            cout << "The program was not able to open " << filename << endl;
+            return false;
+        }
+    vector<double> x = ATOF(getline(file));
+    reset(x.size()-1,x.size()-1,0,1,0,1);
+    for (int i=0; i<x.size()-1; i++)
+    {
+        vector<double> v = ATOF(getline(file));
+        for (int j=0; j<x.size()-1; j++)
+        {
+            val[i][j] = v[j+1];
+        }
+    }
+    return true;
+}
+
 void TDMap::writetheoreticalcopulatofile(string filename, CCopula *copula)
 {
     ofstream file(filename);
@@ -234,11 +264,7 @@ void TDMap::writetheoreticalcopulatofile(string filename, CCopula *copula)
         for (unsigned int i=0; i<val.size(); i++)
         {
             x = (x_bin[i] + x_bin[i+1])/2.0;
-            if (tolower(copula->copula) == "frank" )
-                file << copula->evaluate11(x,y) << ",";
-            if (tolower(copula->copula) == "gaussian" )
-                file << copula->evaluate11(x,y) << ",";
-
+            file << copula->evaluate11(x,y) << ",";
         }
         file << endl;
     }
@@ -289,4 +315,18 @@ void TDMap::writetofile_GNU(string filename, string pngfilename, string xlabel, 
     file<<"replot"<<endl;
     file<<"set term x11"<<endl;
     file.close();
+}
+
+double TDMap::interpolate(double x, double y)
+{
+    double dx = (up_lim_x-low_lim_x)/val[0].size();
+    double dy = (up_lim_y-low_lim_y)/val.size();
+    int i_1 = max(int( (x - low_lim_x - dx/2)/dx),0);
+    int i_2 = min(i_1+1,int(val[0].size()-1));
+    int j_1 = max(int( (y - low_lim_y - dy/2)/dy),0);
+    int j_2 = min(j_1+1,int(val.size()-1));
+    double interpol1 = 0.5*(val[j_1][i_1]+val[i_1][j_1]) + 0.5*(val[j_1][i_2]-val[j_1][i_1]+val[i_2][j_1]-val[i_1][j_1])/dx*(x-i_1*dx-dx/2);
+    double interpol2 = 0.5*(val[j_2][i_1]+val[i_1][j_2]) + 0.5*(val[j_2][i_2]-val[j_2][i_1]+val[i_2][j_2]-val[i_1][j_2])/dx*(x-i_1*dx-dx/2);
+    double interpol = interpol1 + (interpol2-interpol1)/dy*(y-j_1*dy-dy/2);
+    return interpol;
 }

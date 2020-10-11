@@ -6,7 +6,7 @@
 #include "Matrix.h"
 #include "gsl/gsl_cdf.h"
 #include "gsl/gsl_rng.h"
-
+#include "2DMap.h"
 
 class CCopula
 {
@@ -27,10 +27,12 @@ public:
     double diffusion_correlation_ls;
     double diffusion_coeff;
     double Frank_copula_alpha=1;
+    void SetCopulaMap(TDMap &cmap) {copula = "experimental"; copulamap = cmap; }
 private:
     gsl_rng *rng_ptr;
     CMatrix M_inv;
     double correlation;
+    TDMap copulamap;
 
 
 };
