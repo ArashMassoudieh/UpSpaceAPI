@@ -354,3 +354,20 @@ double TDMap::interpolate(double x, double y)
     double interpol = interpol1 + (interpol2-interpol1)/dy*(y-j_1*dy-dy/2);
     return interpol;
 }
+
+TDMap operator + (TDMap &m1, TDMap &m2)
+{
+    TDMap out(m1);
+    if (m1.nx()!=m2.nx() || m1.ny()!=m2.ny())
+    {
+        cout<<"The sizes of the maps must be equal!"<<endl;
+        return out;
+    }
+    else
+    {
+        for (int i=0; i<m1.nx(); i++)
+            for (int j=0; j<m1.ny(); j++)
+                out.set_val(i,j,m1.get_val(i,j)+m2.get_val(i,j));
+    }
+    return out;
+}

@@ -37,6 +37,13 @@ class TDMap
         MapAsTimeSeriesSet getcumulative(string dir);
         double interpolate(double x, double y);
         bool readfromfile(const string &filename);
+        int nx() {return int(val.size());}
+        int ny() {
+            if (val.size()==0)
+                return 0;
+            else
+                return val[0].size();
+        }
     protected:
 
     private:
@@ -48,6 +55,8 @@ class TDMap
         double low_lim_y;
         double up_lim_y;
 
+
 };
 
+TDMap operator + (TDMap &m1, TDMap &m2);
 #endif // 2DMAP_H
