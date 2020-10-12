@@ -258,11 +258,11 @@ bool TDMap::readfromfile(const string &filename)
             cout << "The program was not able to open " << filename << endl;
             return false;
         }
-    vector<double> x = ATOF(getline(file));
+    vector<double> x = ATOF(getline(file,','));
     reset(x.size()-1,x.size()-1,0,1,0,1);
     for (int i=0; i<x.size()-1; i++)
     {
-        vector<double> v = ATOF(getline(file));
+        vector<double> v = ATOF(getline(file,','));
         for (int j=0; j<x.size()-1; j++)
         {
             val[i][j] = v[j+1];
@@ -369,5 +369,27 @@ TDMap operator + (TDMap &m1, TDMap &m2)
             for (int j=0; j<m1.ny(); j++)
                 out.set_val(i,j,m1.get_val(i,j)+m2.get_val(i,j));
     }
+    return out;
+}
+
+TDMap operator * (TDMap &m1, double d)
+{
+    TDMap out(m1);
+
+    for (int i=0; i<m1.nx(); i++)
+        for (int j=0; j<m1.ny(); j++)
+            out.set_val(i,j,m1.get_val(i,j)*d);
+
+    return out;
+}
+
+TDMap operator / (TDMap &m1, double d)
+{
+    TDMap out(m1);
+
+    for (int i=0; i<m1.nx(); i++)
+        for (int j=0; j<m1.ny(); j++)
+            out.set_val(i,j,m1.get_val(i,j)/d);
+
     return out;
 }

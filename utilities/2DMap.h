@@ -59,4 +59,6 @@ class TDMap
 };
 
 TDMap operator + (TDMap &m1, TDMap &m2);
+TDMap operator * (TDMap &m1, double d);
+TDMap operator / (TDMap &m1, double d);
 #endif // 2DMAP_H

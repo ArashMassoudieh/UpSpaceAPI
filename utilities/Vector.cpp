@@ -7,7 +7,7 @@
 #include "Matrix.h"
 #include <cfloat>
 #include "Vector_arma.h"
-
+#include "StringOP.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -36,6 +36,24 @@ CVector::CVector(const double x, int n)
 	vec.resize(num);
 	for (int i=0; i<num; i++) vec[i] = x;
 }
+
+CVector::CVector(const string &filename)
+{
+    ifstream file(filename);
+
+    if (file.good())
+    {
+    vector<double> s = ATOF(getline(file));
+        if (s.size() > 1)
+        {
+            append(s[0]);
+            append(s[1]);
+        }
+    }
+
+}
+
+
 
 CVector::CVector(const double x_min, const double x_max, int n)
 {
