@@ -4,6 +4,7 @@
 #include<string>
 #include "Vector.h"
 #include "Matrix.h"
+#include "BTC.h"
 
 using namespace std;
 
@@ -21,13 +22,15 @@ public:
 	int n;
 	vector<double> s;
 	vector<double> e;
+	CTimeSeries inverse_cumulative;
+	CTimeSeries density;
 	CDistribution(int nn);
 	CDistribution(const CDistribution &C);
 	CDistribution operator = (const CDistribution &C);
 	int GetRand();
 	double inverseCDF(double u, bool flux_weight=false);
 	double map_normal_to(double z);
-
+    bool readfromfile(const string &filename);
 };
 
 //double erf(double x);

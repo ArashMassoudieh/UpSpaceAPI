@@ -23,6 +23,7 @@ CDistribution::CDistribution(string _name)
 	if (name == "exp") params.resize(1);
 	if (name == "invgaussian") params.resize(2);
 	if (name == "gamma") params.resize(2);
+
 }
 
 double CDistribution::evaluate(double x)
@@ -39,6 +40,8 @@ double CDistribution::evaluate(double x)
 		return sqrt(params[1] / (2 * pi*pow(x, 3)))*exp(-params[1] * pow(x - params[0], 2) / (2 * params[0] * params[0] * x));
 	if (name == "gamma")
 		return 0;
+    if (name == "nonparameteric")
+        return density.getcummulative().interpol(x);
 
 }
 
@@ -137,7 +140,8 @@ CDistribution::CDistribution(const CDistribution &C)
 		e[i] = C.e[i];
 		s[i] = C.s[i];
 	}
-
+    inverse_cumulative = C.inverse_cumulative;
+    density = C.density;
 
 }
 
@@ -152,7 +156,8 @@ CDistribution CDistribution::operator = (const CDistribution &C)
 		e[i] = C.e[i];
 		s[i] = C.s[i];
 	}
-
+    inverse_cumulative = C.inverse_cumulative;
+    density = C.density;
 	return *this;
 
 }
@@ -197,6 +202,10 @@ double CDistribution::inverseCDF(double u,bool flux_w)
 	{
 		return pow(2 * u, 1 / (params[0] - 1))*params[1];
 	}
+	if (tolower(name) == "nonparameteric")
+	{
+        return inverse_cumulative.interpol(u);
+	}
 	return 0;
 
 }
@@ -226,4 +235,16 @@ double CDistribution::evaluate_CDF(double x, bool flux_w)
 	}
 }
 
+bool CDistribution::readfromfile(const string &filename)
+{
+    if (!density.readfile(filename))
+    {
+        cout<< "File [" << filename << "] was not found!"<<endl;
+        return false;
+    }
+    CBTC cumulative = density.getcummulative();
+    cumulative = cumulative/cumulative.C[cumulative.n-1];
+    inverse_cumulative = cumulative.inverse_cumulative_uniform();
+    return true;
+}
 

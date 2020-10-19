@@ -629,14 +629,14 @@ double diff(CTimeSeries BTC_p, CTimeSeries BTC_d, CTimeSeries Q)
     return sum;
 }
 
-void CTimeSeries::readfile(string Filename)
+bool CTimeSeries::readfile(string Filename)
 {
     ifstream file(Filename.c_str());
     vector<string> s;
     if (file.good() == false)
     {
         file_not_found = true;
-        return;
+        return false;
     }
 
     if (file.good())
@@ -656,6 +656,7 @@ void CTimeSeries::readfile(string Filename)
             }
     }
     file.close();
+    return true;
 
 }
 
@@ -1152,6 +1153,22 @@ CTimeSeries CTimeSeries::make_uniform(double increment)
 
 			}
 		}
+	}
+
+	out.structured = true;
+
+	return out;
+
+}
+
+CTimeSeries CTimeSeries::make_uniform(int numincrements)
+{
+	structured = false;
+	CTimeSeries out;
+	double dt = (t[n-1]-t[0])/numincrements;
+	for (int i=0; i<numincrements+1; i++)
+	{
+        out.append(t[0]+i*dt,interpol(t[0]+i*dt));
 	}
 	out.structured = true;
 
@@ -1788,4 +1805,16 @@ CBTC CBTC::normalize_by_max()
     }
     return out;
 }
+
+CBTC CBTC::inverse_cumulative_uniform(int ninitervals)
+{
+    CBTC out;
+    out.t = C;
+    out.C = t;
+    out.n = n;
+
+    return out.make_uniform(ninitervals);
+
+}
+
 

@@ -259,11 +259,11 @@ bool TDMap::readfromfile(const string &filename)
             return false;
         }
     vector<double> x = ATOF(getline(file,','));
-    reset(x.size()-1,x.size()-1,0,1,0,1);
-    for (int i=0; i<x.size()-1; i++)
+    reset(x.size(),x.size(),0,1,0,1);
+    for (int i=0; i<x.size(); i++)
     {
         vector<double> v = ATOF(getline(file,','));
-        for (int j=0; j<x.size()-1; j++)
+        for (int j=0; j<x.size(); j++)
         {
             val[i][j] = v[j+1];
         }
@@ -291,6 +291,23 @@ void TDMap::writetheoreticalcopulatofile(string filename, CCopula *copula)
             file << copula->evaluate11(x,y) << ",";
         }
         file << endl;
+    }
+    file.close();
+}
+
+void TDMap::writetheoreticalcopulatofile_points(string filename, CCopula *copula)
+{
+    ofstream file(filename);
+    double x,y;
+
+    for (unsigned int j=0; j<val[0].size(); j++)
+    {
+        y = (y_bin[j] + y_bin[j+1])/2.0;
+        for (unsigned int i=0; i<val.size(); i++)
+        {
+            x = (x_bin[i] + x_bin[i+1])/2.0;
+            file << x << "," << y << "," << copula->evaluate11(x,y) << endl;
+        }
     }
     file.close();
 }

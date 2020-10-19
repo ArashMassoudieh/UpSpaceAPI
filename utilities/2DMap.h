@@ -34,6 +34,7 @@ class TDMap
         void writetofile(string filename);
         void writetofile_GNU(string filename,string pngfilename="", string xlabel="", string ylabel="", string title="",bool logscale=false);
         void writetheoreticalcopulatofile(string filename, CCopula *copula);
+        void writetheoreticalcopulatofile_points(string filename, CCopula *copula);
         MapAsTimeSeriesSet getcumulative(string dir);
         double interpolate(double x, double y);
         bool readfromfile(const string &filename);

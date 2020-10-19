@@ -221,7 +221,7 @@ public:
 	CBTC inv_K_dist;
 	string marginal_K_dist_type;
 	CBTC get_K_CDF(double x0, double x1, double log_inc);
-	CBTC get_V_PDF(double x0, double x1, double log_inc);
+	CBTC get_V_PDF(double x0, double x1, double log_inc, bool _log=true);
 	CBTC get_margina_traj_v_dist(double vmin, double vmax, double nbins, string val);
 	double interpolate_K(double x, double y);
 	vector<double> interpolate_V(double x, double y);

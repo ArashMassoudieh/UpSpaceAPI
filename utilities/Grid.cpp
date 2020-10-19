@@ -1655,14 +1655,23 @@ CBTC CGrid::get_K_CDF(double x0, double x1, double log_inc)
 	return out;
 }
 
-CBTC CGrid::get_V_PDF(double x0, double x1, double log_inc)
+CBTC CGrid::get_V_PDF(double x0, double x1, double log_inc, bool _log)
 {
 	CBTC out;
-	for (double logx = log(x0); logx <= log(x1); logx += log_inc )
-	{
-		double x = exp(logx);
-		out.append(x, dist.evaluate(x));
-	}
+	if (_log)
+    {   for (double logx = log(x0); logx <= log(x1); logx += log_inc )
+        {
+            double x = exp(logx);
+            out.append(x, dist.evaluate(x));
+        }
+    }
+    else
+    {
+        for (double x = x0; x <= x1; x += log_inc )
+        {
+            out.append(x, dist.evaluate(x));
+        }
+    }
 
 	return out;
 }
@@ -2340,7 +2349,10 @@ void CGrid::runcommands_qt()
                 show_in_window("Write marginal velocity dist ...");
 
                 //cout << "Write marginal hydraulic conductivity ..." << endl;
-                CBTC K = get_V_PDF(atof(commands[i].parameters["x0"].c_str()), atof(commands[i].parameters["x1"].c_str()), atof(commands[i].parameters["log_inc"].c_str()));
+                double x0 = atof(commands[i].parameters["x0"].c_str());
+                bool _log = true;
+                if (x0 < 0) _log = false;
+                CBTC K = get_V_PDF(atof(commands[i].parameters["x0"].c_str()), atof(commands[i].parameters["x1"].c_str()), atof(commands[i].parameters["log_inc"].c_str()),_log);
                 K.writefile(pathout+commands[i].parameters["filename"]);
             }
 
@@ -2456,8 +2468,15 @@ void CGrid::runcommands_qt()
             {
                 show_in_window("initializing " +commands[i].parameters["dist"] + " distribution ..." );
                 dist.name = commands[i].parameters["dist"];
-                for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
+                if (dist.name=="nonparameteric")
+                {
+                    show_in_window("reading distribution");
+                    dist.readfromfile(pathout + commands[i].parameters["filename"]);
+                }
+                else
+                {   for (int j = 0; j < split(commands[i].parameters["params"],',').size(); j++)
                         dist.params.push_back(atof(split(commands[i].parameters["params"],',')[j].c_str()));
+                }
 
             }
 
@@ -2492,11 +2511,11 @@ void CGrid::runcommands_qt()
                     Copula_diffusion.SetCorrelation(Copula_diffusion.parameters[0]);
                 if (tolower(Copula_diffusion.copula)=="frank")
                     Copula_diffusion.Frank_copula_alpha = Copula_diffusion.parameters[0];
-                if (tolower(Copula.copula)=="experimental")
+                if (tolower(Copula_diffusion.copula)=="experimental")
                 {
                     TDMap copulamap;
                     copulamap.readfromfile(pathout + commands[i].parameters["experimental_copula_filename"]);
-                    Copula.SetCopulaMap(copulamap);
+                    Copula_diffusion.SetCopulaMap(copulamap);
                 }
 
 
@@ -2696,6 +2715,10 @@ void CGrid::runcommands_qt()
                                     ExperimentalCopula.copula = "experimental";
                                     ExperimentalCopula.SetCopulaMap(GNU_out);
                                     GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&ExperimentalCopula);
+                                    if (commands[i].parameters.count("as_array_filename")>0)
+                                    {
+                                        GNU_out.writetheoreticalcopulatofile_points(pathout + commands[i].parameters["as_array_filename"],&ExperimentalCopula);
+                                    }
                                 }
                             }
                         }
@@ -2940,6 +2963,10 @@ void CGrid::runcommands_qt()
                                     ExperimentalCopula.copula = "experimental";
                                     ExperimentalCopula.SetCopulaMap(GNU_out);
                                     GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&ExperimentalCopula);
+                                    if (commands[i].parameters.count("as_array_filename")>0)
+                                    {
+                                        GNU_out.writetheoreticalcopulatofile_points(pathout + commands[i].parameters["as_array_filename"],&ExperimentalCopula);
+                                    }
                                 }
                             }
                         }
@@ -3466,8 +3493,15 @@ void CGrid::create_inv_K_Copula(double dt, double Diffusion_coefficient)
         for (int j = 0; j < GP.ny; j++)
         {
             M.matr(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt;
-            M.matr(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
-            M.matr(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
+            if (OU.FinvU[j]>=0)
+            {   M.matr(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
+                M.matr(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
+            }
+            else
+            {
+                M.matr(j + GP.ny*i,j + GP.ny*i) += -time_weight*OU.FinvU[j] / GP.dx;
+                M.matr(j + GP.ny*i,j + GP.ny*(i + 1)) += time_weight*OU.FinvU[j] / GP.dx;
+            }
             M.matr(j + GP.ny*i,j + GP.ny*i) += 2*time_weight*Diffusion_coefficient/pow(GP.dx,2);
             M.matr(j + GP.ny*i,j + GP.ny*(i-1)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
             M.matr(j + GP.ny*i,j + GP.ny*min(i+1,GP.nx)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
@@ -3480,16 +3514,32 @@ void CGrid::create_inv_K_Copula(double dt, double Diffusion_coefficient)
     int i = 0;
     for (int j = 0; j < GP.ny; j++)
     {
-        M.matr(j + GP.ny*i,j + GP.ny*i) = 0.5;
-        M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = 0.5;
+        if (OU.FinvU[j]>=0)
+        {   M.matr(j + GP.ny*i,j + GP.ny*i) = 0.5;
+            M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = 0.5;
+        }
+        else
+        {
+            M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
+            M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = -1;
+        }
+
     }
 
     i = GP.nx + 1;
     for (int j = 0; j < GP.ny; j++)
     {
-        M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
-        M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+        if (OU.FinvU[j]>=0)
+        {   M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
+            M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+        }
+        else
+        {
+            M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
+            M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+        }
     }
+
 
     //Changed from inverse
     copula_params.Inv_M = M;
@@ -3506,8 +3556,15 @@ void CGrid::create_inv_K_Copula_diffusion(double dt, double Diffusion_coefficien
         for (int j = 0; j < GP.ny; j++)
         {
             M.matr(j + GP.ny*i,j + GP.ny*i) = 1.0 / dt;
-            M.matr(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
-            M.matr(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
+            if (OU.FinvU[j]>=0)
+            {   M.matr(j + GP.ny*i,j + GP.ny*i) += time_weight*OU.FinvU[j] / GP.dx;
+                M.matr(j + GP.ny*i,j + GP.ny*(i - 1)) += -time_weight*OU.FinvU[j] / GP.dx;
+            }
+            else
+            {
+                M.matr(j + GP.ny*i,j + GP.ny*i) += -time_weight*OU.FinvU[j] / GP.dx;
+                M.matr(j + GP.ny*i,j + GP.ny*(i + 1)) += time_weight*OU.FinvU[j] / GP.dx;
+            }
             M.matr(j + GP.ny*i,j + GP.ny*i) += 2*time_weight*Diffusion_coefficient/pow(GP.dx,2);
             M.matr(j + GP.ny*i,j + GP.ny*(i-1)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
             M.matr(j + GP.ny*i,j + GP.ny*min(i+1,GP.nx)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
@@ -3520,15 +3577,30 @@ void CGrid::create_inv_K_Copula_diffusion(double dt, double Diffusion_coefficien
     int i = 0;
     for (int j = 0; j < GP.ny; j++)
     {
-        M.matr(j + GP.ny*i,j + GP.ny*i) = 0.5;
-        M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = 0.5;
+        if (OU.FinvU[j]>=0)
+        {   M.matr(j + GP.ny*i,j + GP.ny*i) = 0.5;
+            M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = 0.5;
+        }
+        else
+        {
+            M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
+            M.matr(j + GP.ny*i,j + GP.ny*(i+1)) = -1;
+        }
+
     }
 
     i = GP.nx + 1;
     for (int j = 0; j < GP.ny; j++)
     {
-        M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
-        M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+        if (OU.FinvU[j]>=0)
+        {   M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
+            M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+        }
+        else
+        {
+            M.matr(j + GP.ny*i,j + GP.ny*i) = 1;
+            M.matr(j + GP.ny*i,j + GP.ny*(i-1)) = -1;
+        }
     }
 
     //Changed from inverse
@@ -3560,8 +3632,8 @@ void CGrid::create_k_mat_copula()
             {
                 double u1 = double(i)*GP.dy + GP.dy / 2;
                 double u2 = double(j)*GP.dy + GP.dy / 2;
-                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u2),dist.inverseCDF(u1)) + 2.0*Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
-                copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u1),dist.inverseCDF(u2)) + 2.0*Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
+                copula_params.K[i][j] = Copula.evaluate11(u1, u2)*(fabs(mean(dist.inverseCDF(u2),dist.inverseCDF(u1))) + 2.0*Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
+                copula_params.K[i][i] -= Copula.evaluate11(u1, u2)*(fabs(mean(dist.inverseCDF(u1),dist.inverseCDF(u2))) + 2.0*Copula.correlation_ls*Copula.diffusion_coeff/pow(Copula.diffusion_correlation_ls,2));
 
             }
 #endif
@@ -3577,8 +3649,8 @@ void CGrid::create_k_mat_copula_only_dispersion()
         {
             double u1 = double(i)*GP.dy + GP.dy / 2;
             double u2 = double(j)*GP.dy + GP.dy / 2;
-            copula_params.K_disp[i][j] = Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u2),dist.inverseCDF(u1)));
-            copula_params.K_disp[i][i] -= Copula.evaluate11(u1, u2)*(mean(dist.inverseCDF(u1),dist.inverseCDF(u2)));
+            copula_params.K_disp[i][j] = Copula.evaluate11(u1, u2)*(fabs(mean(dist.inverseCDF(u2),dist.inverseCDF(u1))));
+            copula_params.K_disp[i][i] -= Copula.evaluate11(u1, u2)*(fabs(mean(dist.inverseCDF(u1),dist.inverseCDF(u2))));
 
         }
 
@@ -3632,8 +3704,16 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
         for (int j = 0; j < GP.ny; j++)
         {
             RHS[j + GP.ny*i]+= C[i][j] / dt - decay_coeff*pow(C[i][j],decay_order);
-            RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
-            RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+            if (OU.FinvU[j]>0)
+            {
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+            }
+            else
+            {
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i + 1][j];
+            }
             RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i - 1][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[min(i + 1,GP.nx)][j];
@@ -3646,7 +3726,13 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
     int i = 0;
     #ifdef symetrical
     for (int j = 0; j < GP.ny; j++)
-        RHS[j + GP.ny*i] = 1;
+    {
+        if (OU.FinvU[j]>0)
+            RHS[j + GP.ny*i] = 1;
+        else
+            RHS[j + GP.ny*i] = 0;
+
+    }
     #else
     double sum = 1;
     for (int j = 0; j < GP.ny; j++)
@@ -3657,7 +3743,11 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
 
     i = GP.nx + 1;
     for (int j = 0; j < GP.ny; j++)
-        RHS[j + GP.ny*i] = 0;
+    {   if (OU.FinvU[j]>0)
+            RHS[j + GP.ny*i] = 0;
+        else
+            RHS[j + GP.ny*i] = 0;
+    }
 
     return RHS;
 }
@@ -3672,8 +3762,16 @@ CVector_arma CGrid::create_RHS_Copula_diffusion(double dt, double diffusion_coef
         for (int j = 0; j < GP.ny; j++)
         {
             RHS[j + GP.ny*i]+= C[i][j] / dt - decay_coeff*pow(C[i][j],decay_order);
-            RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
-            RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+            if (OU.FinvU[j]>0)
+            {
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+            }
+            else
+            {
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i + 1][j];
+            }
             RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i - 1][j];
             RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[min(i + 1,GP.nx)][j];
@@ -3684,20 +3782,22 @@ CVector_arma CGrid::create_RHS_Copula_diffusion(double dt, double diffusion_coef
         }
     }
     int i = 0;
-    #ifdef symetrical
     for (int j = 0; j < GP.ny; j++)
-        RHS[j + GP.ny*i] = 1;
-    #else
-    double sum = 1;
-    for (int j = 0; j < GP.ny; j++)
-        sum += OU.FinvU[j]*GP.dy;
-    for (int j = 0; j < GP.ny; j++)
-        RHS[j + GP.ny*i] = 1.0/OU.FinvU[j]*sum;
-    #endif
+    {
+        if (OU.FinvU[j]>0)
+            RHS[j + GP.ny*i] = 1;
+        else
+            RHS[j + GP.ny*i] = 0;
+
+    }
 
     i = GP.nx + 1;
     for (int j = 0; j < GP.ny; j++)
-        RHS[j + GP.ny*i] = 0;
+    {   if (OU.FinvU[j]>0)
+            RHS[j + GP.ny*i] = 0;
+        else
+            RHS[j + GP.ny*i] = 1;
+    }
 
     return RHS;
 }

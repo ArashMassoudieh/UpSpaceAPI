@@ -41,7 +41,7 @@ public:
     CTimeSeries(string Filename);
     CTimeSeries& operator = (const CTimeSeries &C);
     CTimeSeries& operator = (const double &val);
-    void readfile(string);
+    bool readfile(string);
     void writefile(string Filename);
     double maxC();
     double minC();
@@ -73,6 +73,7 @@ public:
     CTimeSeries& operator+=(CTimeSeries &v);
     CTimeSeries& operator%=(CTimeSeries &v);
     CTimeSeries make_uniform(double increment);
+    CTimeSeries make_uniform(int numincrements);
     CTimeSeries extract(double t1, double t2);
     vector<double> trend();
     double mean_t();
@@ -115,7 +116,7 @@ public:
     bool weighted = false;
     double autocorrelation();
     CBTC normalize_by_max();
-
+    CBTC inverse_cumulative_uniform(int ninitervals=100);
 
 };
 
