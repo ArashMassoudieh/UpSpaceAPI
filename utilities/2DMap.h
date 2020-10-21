@@ -32,6 +32,7 @@ class TDMap
         vector<double> marginal_x();
         vector<double> marginal_y();
         void writetofile(string filename);
+        void writetofile_as_points(string filename);
         void writetofile_GNU(string filename,string pngfilename="", string xlabel="", string ylabel="", string title="",bool logscale=false);
         void writetheoreticalcopulatofile(string filename, CCopula *copula);
         void writetheoreticalcopulatofile_points(string filename, CCopula *copula);

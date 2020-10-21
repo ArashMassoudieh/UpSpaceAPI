@@ -250,6 +250,18 @@ void TDMap::writetofile(string filename)
     file.close();
 }
 
+void TDMap::writetofile_as_points(string filename)
+{
+    ofstream file(filename);
+
+    for (unsigned int j=0; j<val[0].size(); j++)
+    {
+        for (unsigned int i=0; i<val.size(); i++)
+            file << (x_bin[i] + x_bin[i+1])/2 <<"," << (y_bin[j] + y_bin[j+1])/2 << "," << val[i][j] << endl;
+    }
+    file.close();
+}
+
 bool TDMap::readfromfile(const string &filename)
 {
     ifstream file(filename);
