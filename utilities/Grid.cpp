@@ -1495,6 +1495,31 @@ CBTC CGrid::get_v_dist_frac(const string &filename)
     return out;
 }
 
+CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const double &x_max)
+{
+    ifstream file;
+    file.open (filename, std::fstream::in);
+    if (!file.good()) return false;
+    CBTCSet out(2);
+    out.setname(0,"time");
+    out.setname(1,"v");
+    int rownum=0;
+    getline(file);
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()>=5)
+        {
+            if (s1[2]<x_max && s1[2]>=x_min)
+            {      out.BTC[0].append(s1[1],s1[1]);
+                   out.BTC[1].append(s1[1],s1[6]);
+            }
+        }
+        rownum++;
+    }
+    return out;
+}
+
 CBTC CGrid::get_v_mag_btc()
 {
 	CBTC out;
@@ -2199,7 +2224,7 @@ void CGrid::runcommands_qt()
                     stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
             }
 
-             if (commands[i].command == "write_velocity_dist_frac")
+            if (commands[i].command == "write_velocity_dist_frac")
             {
                 show_in_window("Reading spatial velocity...");
                 CBTC vx = get_v_dist_frac(commands[i].parameters["v_filename"]);
@@ -2209,6 +2234,38 @@ void CGrid::runcommands_qt()
                 stats[1] = vx.Log(1e-6).std();
                 if (commands[i].parameters.count("stat_filename"))
                     stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
+            }
+
+            if (commands[i].command == "get_btc_frac")
+            {
+                show_in_window("getting btc at " + commands[i].parameters["x_min"] + "-" + commands[i].parameters["x_max"]);
+                CBTCSet btc = get_BTC_frac(commands[i].parameters["filename"],atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+                if (commands[i].parameters.count("raw_data_filename")>0)
+                {
+                    show_in_window("writing raw data...");
+                    btc.writetofile(pathout + commands[i].parameters["raw_data_filename"]);
+                }
+
+                if (commands[i].parameters.count("btc_filename")>0)
+                {
+                    show_in_window("writing btc ...");
+                    btc.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+                }
+
+                if (commands[i].parameters.count("v_filename")>0)
+                {
+                    show_in_window("writing v_dist ...");
+                    btc.BTC[1].distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["v_filename"]);
+                }
+
+                if (commands[i].parameters.count("stat_filename"))
+                {
+                    show_in_window("writing correlation");
+                    CVector stats(1);
+                    stats[0] = R(btc.BTC[1],1.0/btc.BTC[0],0);
+                    stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
+                }
+
             }
 
 

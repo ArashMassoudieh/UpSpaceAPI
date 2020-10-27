@@ -201,6 +201,7 @@ public:
 	CBTC get_v_btc(int k);
 	CBTC get_v_dist_MODFlow(const string &filename);
 	CBTC get_v_dist_frac(const string &filename);
+	CBTCSet get_BTC_frac(const string &filename, const double &x_min, const double &x_max);
 	CBTC get_kg_btc(int k);
 	void remap_K(int k);
 	CBTC get_v_btc(double x,int k=0);

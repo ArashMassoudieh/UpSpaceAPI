@@ -826,6 +826,18 @@ CTimeSeries operator/(CTimeSeries BTC1, double x)
 
 }
 
+CTimeSeries operator/(double x, CTimeSeries BTC1)
+{
+    CTimeSeries S;
+    for (int i=0; i<BTC1.n; i++)
+    {
+        if (BTC1.C[i]!=0)
+        S.append(BTC1.t[i],x/BTC1.C[i]);
+    }
+    return S;
+
+}
+
 CTimeSeries operator-(CTimeSeries BTC1, CTimeSeries BTC2)
 {
     CTimeSeries S = BTC1;
@@ -836,7 +848,7 @@ CTimeSeries operator-(CTimeSeries BTC1, CTimeSeries BTC2)
 }
 
 
-CTimeSeries operator*(CTimeSeries &BTC1, CTimeSeries &BTC2)
+CTimeSeries operator*(CTimeSeries BTC1, CTimeSeries BTC2)
 {
     CTimeSeries S = BTC1;
     for (int i=0; i<BTC1.n; i++)
