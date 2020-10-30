@@ -2249,8 +2249,22 @@ void CGrid::runcommands_qt()
                 if (commands[i].parameters.count("btc_filename")>0)
                 {
                     show_in_window("writing btc ...");
-                    btc.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+                    if (commands[i].parameters["log"]=="1")
+                        btc.BTC[0].distribution_log(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+                    else
+                        btc.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+
+                    if (commands[i].parameters.count("cdf_filename")>0)
+                    {
+                        show_in_window("writing btc ...");
+                        if (commands[i].parameters["log"]=="1")
+                            btc.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),true).writefile(pathout + commands[i].parameters["cdf_filename"]);
+                        else
+                            btc.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),false).writefile(pathout + commands[i].parameters["cdf_filename"]);
+                    }
                 }
+
+
 
                 if (commands[i].parameters.count("v_filename")>0)
                 {

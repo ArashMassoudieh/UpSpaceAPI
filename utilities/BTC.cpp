@@ -1757,7 +1757,7 @@ CTimeSeries CTimeSeries::distribution_log(int n_bins, double smooting_span, int 
 	double p_end = max(C1)*1.001;
 	double dp = abs(p_end - p_start) / n_bins;
 	if (dp == 0) return out;
-	out.t[0] = p_start - dp / 2;
+	out.t[0] = exp(p_start - dp / 2);
 	out.C[0] = 0;
 	for (int i = 0; i<n_bins + 1; i++)
 	{
