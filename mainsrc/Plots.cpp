@@ -1189,17 +1189,17 @@ void CGrid::write_K_solution_to_vtp(string filename, double z_factor, bool _log)
 }
 
 
-void CGrid::write_C_to_vtp(string filename, double z_factor, bool _log, vector<double> t)
+void CGrid::write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, vector<double> t)
 {
 	for (int i = 0; i < t.size(); i++)
 	{
 		string filename_1 = split(filename, '.')[0] + "_" + numbertostring(i) +"." + split(filename, '.')[1];
-		write_C_to_vtp(filename_1, z_factor, _log, t[i]);
+		write_C_to_vtp(species_counter, filename_1, z_factor, _log, t[i]);
 		set_progress_value(double(i)/double(t.size()));
 	}
 }
 
-void CGrid::write_C_to_vtp(string filename, double z_factor, bool _log, double t)
+void CGrid::write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, double t)
 {
 	vtkSmartPointer<vtkPoints> points_3 =
 		vtkSmartPointer<vtkPoints>::New();
@@ -1223,7 +1223,7 @@ void CGrid::write_C_to_vtp(string filename, double z_factor, bool _log, double t
 		{
 			xx = x*GP.dx;
 			yy = y*GP.dy;
-			zz = p[x][y].C[int(t/dt)];
+			zz = p[x][y].C[int(t/dt)][species_counter];
 			if (!_log)
 			{
 				float CC[1] = { float(zz) };
@@ -1351,7 +1351,7 @@ void CGrid::clear()
 	vx = CMatrix();
 	vy = CMatrix();
 	H = CMatrix();
-	C = CMatrix();
+	C.clear();
 	Kv.matr.clear();
 	KD.matr.clear();
 	Kt.matr.clear();

@@ -13,6 +13,7 @@
 #include <math.h>
 #include "MapAsTimeSeriesSet.h"
 
+
 #include <sys/resource.h>
 
 #ifdef Arash
@@ -1985,7 +1986,7 @@ void CGrid::runcommands_qt()
             {
                     show_in_window("Solving transport ...");
                     time_weight = atof(commands[i].parameters["weight"].c_str());
-                    leftboundary_C = atof(commands[i].parameters["l_boundary"].c_str());
+                    leftboundary_C = ATOF(split(commands[i].parameters["l_boundary"],','));
                     D = atof(commands[i].parameters["diffusion"].c_str());
                     dt = atof(commands[i].parameters["dt"].c_str());
                     double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
@@ -2065,7 +2066,8 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "solve_transport_laplace")
             {
                 show_in_window("Solving transport (laplace)...");
-                leftboundary_C = 1;
+                for (int ii=0; ii<numberofspecies; ii++)
+                    leftboundary_C[ii] = 1;
                 D = atof(commands[i].parameters["diffusion"].c_str());
 
                 solve_transport_laplace(atof(commands[i].parameters["s"].c_str()));
@@ -2460,6 +2462,13 @@ void CGrid::runcommands_qt()
 
             if (commands[i].command == "save_concentration_into_vtp")
             {
+                int species_counter;
+                if (numberofspecies==1)
+                    species_counter = 1;
+                else if (commands[i].parameters.count("species")==0)
+                    species_counter = 1;
+                else
+                    species_counter = atoi(commands[i].parameters["species"].c_str());
                 double concentration_interval = -1;
                 show_in_window("Saving Concentration (VTK)...");
                 if (commands[i].parameters.count("interval") > 0)
@@ -2472,7 +2481,7 @@ void CGrid::runcommands_qt()
                         intervals.push_back(i*dt);
                 }
                 if (commands[i].parameters.count("filename") == 0) commands[i].parameters["filename"] == "surface.vtp";
-                write_C_to_vtp(pathout + commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atoi(commands[i].parameters["log"].c_str()), intervals);
+                write_C_to_vtp(species_counter, pathout + commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atoi(commands[i].parameters["log"].c_str()), intervals);
             }
 
             if (commands[i].command == "show")
@@ -3144,7 +3153,8 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "clear_all")
             {
                 show_in_window("Clearing variables ... ");
-                C.matr.clear();
+                for (int i=0; i<C.size(); i++)
+                    C[i].matr.clear();
                 H.matr.clear();
                 KD.matr.clear();
                 Kt.matr.clear();
@@ -3159,6 +3169,14 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "write")
             {
                     show_in_window(commands[i].parameters["content"]);
+            }
+            if (commands[i].command == "read_3d_grid_data")
+            {
+                threedgrid.ReadFromModFlowFile(commands[i].parameters["filename"]);
+            }
+            if (commands[i].command == "write_3d_grid_to_vts")
+            {
+                threedgrid.create_vts(pathout + commands[i].parameters["filename"], atoi(commands[i].parameters["x_limit"].c_str()), atoi(commands[i].parameters["y_limit"].c_str()), atoi(commands[i].parameters["z_limit"].c_str()),atoi(commands[i].parameters["x_interval"].c_str()), atoi(commands[i].parameters["y_interval"].c_str()), atoi(commands[i].parameters["z_interval"].c_str()));
             }
 
 	}
@@ -3285,7 +3303,7 @@ void CGrid::set_K_transport(double dt, double D, double weight)
 
 }
 
-CVector_arma CGrid::create_RHS_transport(double dt, double weight,double D, double decay_coefficient, double decay_order)
+CVector_arma CGrid::create_RHS_transport(int species_counter, double dt, double weight,double D, double decay_coefficient, double decay_order)
 {
 	CVector_arma RHS((GP.nx + 1)*(GP.ny + 1));
 	for (int i = 1; i < GP.nx; i++)
@@ -3293,23 +3311,23 @@ CVector_arma CGrid::create_RHS_transport(double dt, double weight,double D, doub
 		for (int j = 1; j < GP.ny; j++)
 		{
 			double rhs = 0;
-			rhs += (1-weight)*pos(vx[i - 1][j - 1]) / (GP.dx)*C[i-1][j];
-			rhs += -(1-weight)*(neg(vx[i - 1][j - 1]) / GP.dx + pos(vx[i][j-1]) / GP.dx)*C[i][j];
-			rhs += (1-weight)*neg(vx[i][j - 1]) / (GP.dx)*C[i+1][j];
+			rhs += (1-weight)*pos(vx[i - 1][j - 1]) / (GP.dx)*C[species_counter][i-1][j];
+			rhs += -(1-weight)*(neg(vx[i - 1][j - 1]) / GP.dx + pos(vx[i][j-1]) / GP.dx)*C[species_counter][i][j];
+			rhs += (1-weight)*neg(vx[i][j - 1]) / (GP.dx)*C[species_counter][i+1][j];
 
-			rhs += (1-weight)*pos(vy[i - 1][j - 1]) / GP.dy*C[i][j-1];
-			rhs += -(1 - weight)*(neg(vy[i - 1][j - 1]) / GP.dy + pos(vy[i - 1][j]) / GP.dy)*C[i][j];
-			rhs += (1-weight)*neg(vy[i - 1][j]) / GP.dy*C[i][j+1];
+			rhs += (1-weight)*pos(vy[i - 1][j - 1]) / GP.dy*C[species_counter][i][j-1];
+			rhs += -(1 - weight)*(neg(vy[i - 1][j - 1]) / GP.dy + pos(vy[i - 1][j]) / GP.dy)*C[species_counter][i][j];
+			rhs += (1-weight)*neg(vy[i - 1][j]) / GP.dy*C[species_counter][i][j+1];
 
-			rhs += (1-weight)*D / (GP.dx*GP.dx)*C[i-1][j];
-			rhs += -2 * (1-weight)*D / (GP.dx*GP.dx)*C[i][j];
-			rhs += (1-weight)*D / (GP.dx*GP.dx)*C[i + 1][j];
+			rhs += (1-weight)*D / (GP.dx*GP.dx)*C[species_counter][i-1][j];
+			rhs += -2 * (1-weight)*D / (GP.dx*GP.dx)*C[species_counter][i][j];
+			rhs += (1-weight)*D / (GP.dx*GP.dx)*C[species_counter][i + 1][j];
 
-			rhs += (1-weight)*D / (GP.dy*GP.dy)*C[i][j-1];
-			rhs += -2 * (1-weight)*D / (GP.dy*GP.dy)*C[i][j];
-			rhs += (1-weight)*D / (GP.dy*GP.dy)*C[i][j+1];
+			rhs += (1-weight)*D / (GP.dy*GP.dy)*C[species_counter][i][j-1];
+			rhs += -2 * (1-weight)*D / (GP.dy*GP.dy)*C[species_counter][i][j];
+			rhs += (1-weight)*D / (GP.dy*GP.dy)*C[species_counter][i][j+1];
 
-			rhs += 1.0 / dt*C[i][j] - decay_coefficient*pow(C[i][j], decay_order);
+			rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*pow(C[species_counter][i][j], decay_order);
 			RHS[get_cell_no(i, j)] = rhs;
 		}
 		// top boundary
@@ -3326,7 +3344,7 @@ CVector_arma CGrid::create_RHS_transport(double dt, double weight,double D, doub
 	//left boundary
 	int i = 0;
 	for (int j = 0; j < GP.ny + 1; j++)
-		RHS[get_cell_no(i, j)] = 2*leftboundary_C;
+		RHS[get_cell_no(i, j)] = 2*leftboundary_C[species_counter];
 
 
 	//right boundary
@@ -3338,7 +3356,7 @@ CVector_arma CGrid::create_RHS_transport(double dt, double weight,double D, doub
 
 }
 
-CVector_arma CGrid::create_RHS_transport_laplace(double weight, double D, double s)
+CVector_arma CGrid::create_RHS_transport_laplace(int species_counter, double weight, double D, double s)
 {
 	CVector_arma RHS((GP.nx + 1)*(GP.ny + 1));
 	for (int i = 1; i < GP.nx; i++)
@@ -3357,7 +3375,7 @@ CVector_arma CGrid::create_RHS_transport_laplace(double weight, double D, double
 	//left boundary
 	int i = 0;
 	for (int j = 0; j < GP.ny + 1; j++)
-		RHS[get_cell_no(i, j)] = 2 * leftboundary_C;
+		RHS[get_cell_no(i, j)] = 2 * leftboundary_C[species_counter];
 
 
 	//right boundary
@@ -3372,7 +3390,11 @@ CVector_arma CGrid::create_RHS_transport_laplace(double weight, double D, double
 void CGrid::solve_transport(double t_end, double decay_coeff, double decay_order)
 {
 	set_K_transport(dt, D, time_weight);
-	C = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
+	C.resize(numberofspecies);
+	for (int i=0; i<numberofspecies; i++)
+	{
+        C[i] = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
+    }
 	CMatrix_arma_sp K = KD + Kt + Kv;
 	//Kt.writetofile(pathout + "Kt_matrix.txt");
 	//KD.writetofile(pathout + "KD_matrix.txt");
@@ -3381,19 +3403,20 @@ void CGrid::solve_transport(double t_end, double decay_coeff, double decay_order
 	set_progress_value(0);
         for (double t = 0; t < t_end; t += dt)
         {
-            CVector_arma RHS = create_RHS_transport(dt, time_weight, D, decay_coeff, decay_order);
-            CVector_arma S = solve_ar(K, RHS);
+            for (int species_counter=0; species_counter<numberofspecies; species_counter++)
+            {   CVector_arma RHS = create_RHS_transport(species_counter, dt, time_weight, D, decay_coeff, decay_order);
+                CVector_arma S = solve_ar(K, RHS);
 
-            for (int i=0; i<GP.nx+1; i++)
-                for (int j=0; j<GP.ny+1; j++)
-                    C[i][j] = S[get_cell_no(i, j)];
+                for (int i=0; i<GP.nx+1; i++)
+                    for (int j=0; j<GP.ny+1; j++)
+                        C[species_counter][i][j] = S[get_cell_no(i, j)];
 
-            for (int i = 0; i < GP.nx; i++)
-                for (int j = 0; j < GP.ny; j++)
-                    p[i][j].C.push_back(0.25*(C[i][j] + C[i + 1][j] + C[i][j + 1] + C[i + 1][j + 1]));
+                for (int i = 0; i < GP.nx; i++)
+                    for (int j = 0; j < GP.ny; j++)
+                        p[i][j].C.push_back(0.25*(C[i][j] + C[i + 1][j] + C[i][j + 1] + C[i + 1][j + 1]));
 
-            set_progress_value(t / t_end);
-    //                tbrowse->append("t = " + QString::number(t));
+                set_progress_value(t / t_end);
+            }
 
         }
         cout<<endl;

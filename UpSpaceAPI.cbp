@@ -1283,6 +1283,7 @@
 			<Add library="../../../../../usr/lib/x86_64-linux-gnu/libgslcblas.so" />
 		</Linker>
 		<Unit filename="include/OneDGrid.h" />
+		<Unit filename="include/ThreeDGrid.h" />
 		<Unit filename="mainsrc/MapAsTimeSeriesSet.cpp" />
 		<Unit filename="mainsrc/MapAsTimeSeriesSet.h" />
 		<Unit filename="mainsrc/Pathway.cpp" />
@@ -1296,6 +1297,7 @@
 		<Unit filename="mainsrc/_command.h" />
 		<Unit filename="mainsrc/main.cpp" />
 		<Unit filename="mainsrc/vtk.h" />
+		<Unit filename="src/ThreeDGrid.cpp" />
 		<Unit filename="utilities/2DMap.cpp" />
 		<Unit filename="utilities/2DMap.h" />
 		<Unit filename="utilities/BTC.cpp" />

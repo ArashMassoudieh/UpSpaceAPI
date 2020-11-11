@@ -15,7 +15,8 @@
 #ifdef Qt_version
 #include "qtextbrowser.h"
 #endif // Qt_version
-
+#include "ThreeDGrid.h"
+#include "Concentrations.h"
 
 #define arma
 //#define Qt_version
@@ -43,7 +44,7 @@ struct prop
 	double Vfy;
 	double Vby;
 	bool k_det = false;
-	vector<double> C;
+	vector<Concentrations> C;
 };
 
 struct prop_cell
@@ -192,7 +193,7 @@ public:
 	int get_cell_no_OU(int i, int j);
 	double leftboundary_h, rightboundary_h;
 	double dt=1;
-	double leftboundary_C;
+	vector<double> leftboundary_C;
 	double D;
 	CMatrix solve();
 	vector<int> get_ij(int k);
@@ -234,8 +235,8 @@ public:
 	double max_vy();
 	double min_vy();
 	void set_K_transport(double dt, double D=0, double weight=0.5);
-	CVector_arma create_RHS_transport(double dt, double weight=0.5, double D=0, double decay_coefficient=0, double decay_order=1);
-	CVector_arma create_RHS_transport_laplace(double weight, double D, double s);
+	CVector_arma create_RHS_transport(int species_counter, double dt, double weight=0.5, double D=0, double decay_coefficient=0, double decay_order=1);
+	CVector_arma create_RHS_transport_laplace(int species_counter, double weight, double D, double s);
 	void solve_transport(double t_end, double decay_coefficient=0, double decay_order=1);
 	void solve_transport_laplace(double s);
 	void set_K_transport_laplace(double D, double s);
@@ -246,9 +247,9 @@ public:
     void create_k_mat_copula_only_diffusion();
 	void create_inv_K_Copula(double dt, double Diffusion_coeff=0);
 	void create_inv_K_Copula_diffusion(double dt, double Diffusion_coefficient=0);
-	CVector_arma create_RHS_OU(double dt, double decay_coeff, double decay_order);
-	CVector_arma create_RHS_Copula(double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
-	CVector_arma create_RHS_Copula_diffusion(double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
+	CVector_arma create_RHS_OU(int species_counter, double dt, double decay_coeff, double decay_order);
+	CVector_arma create_RHS_Copula(int species_counter, double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
+	CVector_arma create_RHS_Copula_diffusion(int species_counter, double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
 	void solve_transport_OU(double t_end, double decay_coeff=0, double decay_order=0);
 	void solve_transport_Copula(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
 	void solve_transport_Copula_diffusion(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
@@ -257,8 +258,8 @@ public:
 	double max_v_x=0;
 	void create_inverse_K_OU(double dt);
 	void write_K_solution_to_vtp(string filename, double z_factor, bool _log);
-	void write_C_to_vtp(string filename, double z_factor, bool _log, vector<double> t);
-	void write_C_to_vtp(string filename, double z_factor, bool _log, double t);
+	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, vector<double> t);
+	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, double t);
 	void clear();
 	void showthings(vector<vtkSmartPointer<vtkActor>> actors, string filename = "");
 	void write_K_field_to_vtp(string filename="surface.vtp", double z_factor=0.5, bool _log = false);
@@ -285,7 +286,8 @@ public:
     CCopula Copula_diffusion;
     double mean(double u1, double u2);
     OneDGrid onedgrid;
-
+    ThreeDGrid threedgrid;
+    int numberofspecies = 1;
 #ifdef Qt_version
 
 
@@ -301,7 +303,7 @@ public:
 	CMatrix_arma_sp Kv;
 	CMatrix_arma_sp KD;
 	CMatrix_arma_sp Kt;
-	CMatrix C;
+	vector<CMatrix> C;
 	_OU_params OU;
         void renormalize_k();
         void show_in_window(string s);
