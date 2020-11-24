@@ -268,20 +268,24 @@ bool CPathwaySet::AssignVelocities()
     {
         paths[i].positions[0].v[0] = (paths[i].positions[1].x-paths[i].positions[0].x)/(paths[i].positions[1].t-paths[i].positions[0].t);
         paths[i].positions[0].v[1] = (paths[i].positions[1].y-paths[i].positions[0].y)/(paths[i].positions[1].t-paths[i].positions[0].t);
+        paths[i].positions[0].v[2] = (paths[i].positions[1].z-paths[i].positions[0].z)/(paths[i].positions[1].t-paths[i].positions[0].t);
 
         for (int j=1; j<paths[i].positions.size()-1; j++)
         {
             paths[i].positions[j].v[0] = (paths[i].positions[j+1].x-paths[i].positions[j-1].x)/(paths[i].positions[j+1].t-paths[i].positions[j-1].t);
             paths[i].positions[j].v[1] = (paths[i].positions[j+1].y-paths[i].positions[j-1].y)/(paths[i].positions[j+1].t-paths[i].positions[j-1].t);
+            paths[i].positions[j].v[2] = (paths[i].positions[j+1].z-paths[i].positions[j-1].z)/(paths[i].positions[j+1].t-paths[i].positions[j-1].t);
 
             if (paths[i].positions[j].v[0]==0)
             {
                 show_in_window("Velocity zero for path: " + numbertostring(i) + "@ position: " + numbertostring(j));
+                paths[i].positions[j].v[0] = 1e-6;
             }
         }
 
         paths[i].positions[paths[i].positions.size()-1].v[0] = (paths[i].positions[paths[i].positions.size()-1].x-paths[i].positions[paths[i].positions.size()-2].x)/(paths[i].positions[paths[i].positions.size()-1].t-paths[i].positions[paths[i].positions.size()-2].t);
         paths[i].positions[paths[i].positions.size()-1].v[1] = (paths[i].positions[paths[i].positions.size()-1].y-paths[i].positions[paths[i].positions.size()-2].y)/(paths[i].positions[paths[i].positions.size()-1].t-paths[i].positions[paths[i].positions.size()-2].t);
+        paths[i].positions[paths[i].positions.size()-1].v[2] = (paths[i].positions[paths[i].positions.size()-1].z-paths[i].positions[paths[i].positions.size()-2].z)/(paths[i].positions[paths[i].positions.size()-1].t-paths[i].positions[paths[i].positions.size()-2].t);
         set_progress_value(double(i)/double(paths.size()) );
     }
     show_in_window("Calculating velocities for trajectories, done!");
@@ -390,7 +394,7 @@ bool CPathwaySet::getfromShermanfile(const string &filename)
             P.x = s1[2];
             P.y = s1[3];
             P.z = s1[4];
-            P.v = CVector(2);
+            P.v = CVector(3);
             P.t = s1[1];
 
             if (int(s1[0])>0 && int(s1[0])<=maxparticlecount)

@@ -778,6 +778,7 @@ void CGrid::trajs_vtk_pdt_to_vtp_3d(string filename, bool _color, int interval)
 {
 	vector<vtkSmartPointer<vtkPolyData>> outputmappers;
 	if (max_v_x == 0) max_v_x = 1;
+	cout<<"starting ..."<< endl;
 	set_progress_value(0);
 	for (int i = 0; i < Traj.paths.size(); i+=interval)
 	{	outputmappers.push_back(traj_vtk_pdt_vtp_3d(i, _color));

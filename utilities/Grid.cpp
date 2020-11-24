@@ -1501,7 +1501,7 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
     ifstream file;
     file.open (filename, std::fstream::in);
     if (!file.good()) return false;
-    CBTCSet out(2);
+    CBTCSet out(1);
     out.setname(0,"time");
     out.setname(1,"v");
     int rownum=0;
@@ -1513,7 +1513,7 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
         {
             if (s1[2]<x_max && s1[2]>=x_min)
             {      out.BTC[0].append(s1[1],s1[1]);
-                   out.BTC[1].append(s1[1],s1[6]);
+                   //out.BTC[1].append(s1[1],s1[1]);
             }
         }
         rownum++;
@@ -3041,6 +3041,18 @@ void CGrid::runcommands_qt()
                                     show_in_window("writing theoretical experimental copula density");
                                     CCopula ExperimentalCopula;
                                     ExperimentalCopula.copula = "experimental";
+                                    ExperimentalCopula.SetCopulaMap(GNU_out);
+                                    GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&ExperimentalCopula);
+                                    if (commands[i].parameters.count("as_array_filename")>0)
+                                    {
+                                        GNU_out.writetheoreticalcopulatofile_points(pathout + commands[i].parameters["as_array_filename"],&ExperimentalCopula);
+                                    }
+                                }
+                                if (commands[i].parameters["copula_type"]=="gaussian")
+                                {
+                                    show_in_window("writing theoretical experimental copula density");
+                                    CCopula ExperimentalCopula;
+                                    ExperimentalCopula.copula = "gaussian";
                                     ExperimentalCopula.SetCopulaMap(GNU_out);
                                     GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&ExperimentalCopula);
                                     if (commands[i].parameters.count("as_array_filename")>0)
