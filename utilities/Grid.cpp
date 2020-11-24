@@ -1502,7 +1502,7 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
     if (!file.good()) return false;
     CBTCSet out(1);
     out.setname(0,"time");
-    out.setname(1,"v");
+    //out.setname(1,"v");
     int rownum=0;
     getline(file);
     while (!file.eof())
@@ -1516,6 +1516,28 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
             }
         }
         rownum++;
+    }
+    return out;
+}
+
+CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max)
+{
+
+    CBTCSet out(2);
+    out.setname(0,"time");
+    out.setname(1,"v");
+
+
+    for (int i=0; i<pthwayset.paths.size(); i++)
+    {
+        for (int j=0; j<pthwayset.paths[i].size(); j++)
+        {
+            if (pthwayset.paths[i].positions[j].x<x_max && pthwayset.paths[i].positions[j].x>=x_min)
+                {      out.BTC[0].append(pthwayset.paths[i].positions[j].t,pthwayset.paths[i].positions[j].t);
+                       out.BTC[1].append(pthwayset.paths[i].positions[j].t,pthwayset.paths[i].positions[j].v[0]);
+                }
+        }
+
     }
     return out;
 }
@@ -2238,8 +2260,14 @@ void CGrid::runcommands_qt()
 
             if (commands[i].command == "get_btc_frac")
             {
+
                 show_in_window("getting btc at " + commands[i].parameters["x_min"] + "-" + commands[i].parameters["x_max"]);
-                CBTCSet btc = get_BTC_frac(commands[i].parameters["filename"],atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+                CBTCSet btc;
+                if (commands[i].parameters.count("filename")==1)
+                    btc = get_BTC_frac(commands[i].parameters["filename"],atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+                else
+                    btc = get_BTC_frac(Traj,atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+
                 if (commands[i].parameters.count("raw_data_filename")>0)
                 {
                     show_in_window("writing raw data...");
@@ -2266,6 +2294,7 @@ void CGrid::runcommands_qt()
 
 
 
+                if (commands[i].parameters.count("filename")==0)
                 if (commands[i].parameters.count("v_filename")>0)
                 {
                     show_in_window("writing v_dist ...");

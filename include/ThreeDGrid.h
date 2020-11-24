@@ -1,7 +1,10 @@
 #ifndef THREEDGRID_H
 #define THREEDGRID_H
 
-#include<vector>
+#include <vector>
+#include <string>
+
+using namespace std;
 
 class ThreeDGrid
 {
