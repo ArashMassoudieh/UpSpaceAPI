@@ -9,6 +9,7 @@ class Concentrations
 {
     public:
         Concentrations();
+        Concentrations(vector<double> vals) {values = vals; }
         virtual ~Concentrations();
         Concentrations(const Concentrations& other);
         Concentrations(const double& other);
