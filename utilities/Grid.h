@@ -252,8 +252,8 @@ public:
 	CVector_arma create_RHS_Copula(int species_counter, double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
 	CVector_arma create_RHS_Copula_diffusion(int species_counter, double dt, double diffusion=0, double decay_coeff=0, double decay_order=0);
 	void solve_transport_OU(double t_end, double decay_coeff=0, double decay_order=0);
-	void solve_transport_Copula(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
-	void solve_transport_Copula_diffusion(double t_end, double Diffusion_coeff=0, double decay_coeff=0, double decay_order=0);
+	void solve_transport_Copula(double t_end, double Diffusion_coeff=0, vector<double> decay_coefficient=vector<double>(1), vector<double> decay_order=vector<double>(1));
+	void solve_transport_Copula_diffusion(double t_end, double Diffusion_coeff=0, vector<double> decay_coefficient=vector<double>(1), vector<double> decay_order=vector<double>(1));
 	double time_weight;
 	double min_v_x = 0;
 	double max_v_x=0;

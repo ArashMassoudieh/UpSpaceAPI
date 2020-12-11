@@ -2063,9 +2063,23 @@ void CGrid::runcommands_qt()
                 show_in_window("Solving transport (Copula)...");
                 time_weight = atof(commands[i].parameters["weight"].c_str());
                 dt = atof(commands[i].parameters["dt"].c_str());
+                numberofspecies = 1;
+                if (commands[i].parameters.count("nspecies")>0)
+                {
+                    numberofspecies = atoi(commands[i].parameters["nspecies"].c_str());
+                }
+                time_weight = atof(commands[i].parameters["weight"].c_str());
+                leftboundary_C = ATOF(split(commands[i].parameters["l_boundary"],','));
                 double diffusion = atof(commands[i].parameters["diffusion"].c_str());
-                double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
-                double decay_order = atof(commands[i].parameters["decay_order"].c_str());
+                dt = atof(commands[i].parameters["dt"].c_str());
+
+                vector<double> decay_coeff(numberofspecies);
+                vector<double> decay_order(numberofspecies);
+                if (commands[i].parameters.count("decay_coeff")>0)
+                    decay_coeff = ATOF(split(commands[i].parameters["decay_coeff"],','));
+
+                if (commands[i].parameters.count("decay_order")>0)
+                    decay_order = ATOF(split(commands[i].parameters["decay_order"],','));
                 copula_params.epsilon = atof(commands[i].parameters["epsilon"].c_str());
                 copula_params.tau = atof(commands[i].parameters["tau"].c_str());
                 copula_params.diffusion = atof(commands[i].parameters["diffusion"].c_str());
@@ -2083,9 +2097,23 @@ void CGrid::runcommands_qt()
                 show_in_window("Solving transport (Copula)...");
                 time_weight = atof(commands[i].parameters["weight"].c_str());
                 dt = atof(commands[i].parameters["dt"].c_str());
+                numberofspecies = 1;
+                if (commands[i].parameters.count("nspecies")>0)
+                {
+                    numberofspecies = atoi(commands[i].parameters["nspecies"].c_str());
+                }
+                time_weight = atof(commands[i].parameters["weight"].c_str());
+                leftboundary_C = ATOF(split(commands[i].parameters["l_boundary"],','));
                 double diffusion = atof(commands[i].parameters["diffusion"].c_str());
-                double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
-                double decay_order = atof(commands[i].parameters["decay_order"].c_str());
+                dt = atof(commands[i].parameters["dt"].c_str());
+
+                vector<double> decay_coeff(numberofspecies);
+                vector<double> decay_order(numberofspecies);
+                if (commands[i].parameters.count("decay_coeff")>0)
+                    decay_coeff = ATOF(split(commands[i].parameters["decay_coeff"],','));
+
+                if (commands[i].parameters.count("decay_order")>0)
+                    decay_order = ATOF(split(commands[i].parameters["decay_order"],','));
                 copula_params.epsilon = atof(commands[i].parameters["epsilon"].c_str());
                 copula_params.tau = atof(commands[i].parameters["tau"].c_str());
                 copula_params.diffusion = atof(commands[i].parameters["diffusion"].c_str());
@@ -3386,7 +3414,19 @@ CVector_arma CGrid::create_RHS_transport(int species_counter, double dt, double 
 			rhs += -2 * (1-weight)*D / (GP.dy*GP.dy)*C[species_counter][i][j];
 			rhs += (1-weight)*D / (GP.dy*GP.dy)*C[species_counter][i][j+1];
 
-			rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*pow(C[species_counter][i][j], decay_order);
+			if (numberofspecies==1)
+                rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*pow(C[species_counter][i][j], decay_order);
+            else if (numberofspecies==2)
+                rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*C[0][i][j]*C[1][i][j];
+            else if (numberofspecies==3)
+            {
+                if (species_counter<2)
+                {
+                    rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*C[0][i][j]*C[1][i][j];
+                }
+                else
+                    rhs += 1.0 / dt*C[species_counter][i][j] + decay_coefficient*C[0][i][j]*C[1][i][j];
+            }
 			RHS[get_cell_no(i, j)] = rhs;
 		}
 		// top boundary
@@ -3867,7 +3907,20 @@ CVector_arma CGrid::create_RHS_Copula(int species_counter, double dt, double dif
     {
         for (int j = 0; j < GP.ny; j++)
         {
-            RHS[j + GP.ny*i]+= C[species_counter][i][j] / dt - decay_coeff*pow(C[species_counter][i][j],decay_order);
+            if (numberofspecies==1)
+                RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] - decay_coeff*pow(C[species_counter][i][j], decay_order);
+            else if (numberofspecies==2)
+                RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] - decay_coeff*C[0][i][j]*C[1][i][j];
+            else if (numberofspecies==3)
+            {
+                if (species_counter<2)
+                {
+                    RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] - decay_coeff*C[0][i][j]*C[1][i][j];
+                }
+                else
+                    RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] + decay_coeff*C[0][i][j]*C[1][i][j];
+            }
+
             if (OU.FinvU[j]>0)
             {
                 RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i][j];
@@ -3892,7 +3945,7 @@ CVector_arma CGrid::create_RHS_Copula(int species_counter, double dt, double dif
     for (int j = 0; j < GP.ny; j++)
     {
         if (OU.FinvU[j]>0)
-            RHS[j + GP.ny*i] = 1;
+            RHS[j + GP.ny*i] = leftboundary_C[species_counter];
         else
             RHS[j + GP.ny*i] = 0;
 
@@ -3925,7 +3978,20 @@ CVector_arma CGrid::create_RHS_Copula_diffusion(int species_counter, double dt, 
     {
         for (int j = 0; j < GP.ny; j++)
         {
-            RHS[j + GP.ny*i]+= C[species_counter][i][j] / dt - decay_coeff*pow(C[species_counter][i][j],decay_order);
+            if (numberofspecies==1)
+                RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] - decay_coeff*pow(C[species_counter][i][j], decay_order);
+            else if (numberofspecies==2)
+                RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] - decay_coeff*C[0][i][j]*C[1][i][j];
+            else if (numberofspecies==3)
+            {
+                if (species_counter<2)
+                {
+                    RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] - decay_coeff*C[0][i][j]*C[1][i][j];
+                }
+                else
+                    RHS[j + GP.ny*i] += 1.0 / dt*C[species_counter][i][j] + decay_coeff*C[0][i][j]*C[1][i][j];
+            }
+
             if (OU.FinvU[j]>0)
             {
                 RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i][j];
@@ -4103,7 +4169,7 @@ void CGrid::solve_transport_OU(double t_end, double decay_coeff, double decay_or
 
 }
 
-void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, double decay_coeff, double decay_order)
+void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, vector<double> decay_coeff, vector<double> decay_order)
 {
 	create_f_inv_u();
 	create_k_mat_copula();
@@ -4128,7 +4194,7 @@ void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, double 
 
         for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
         {
-            CVector_arma RHS = create_RHS_Copula(species_counter, dt, Diffusion_coeff, decay_coeff, decay_order);
+            CVector_arma RHS = create_RHS_Copula(species_counter, dt, Diffusion_coeff, decay_coeff[species_counter], decay_order[species_counter]);
             CVector_arma S = RHS/copula_params.Inv_M;
 
             for (int i = 0; i < GP.nx+2; i++)
@@ -4170,7 +4236,7 @@ void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, double 
 }
 
 
-void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coeff, double decay_coeff, double decay_order)
+void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coeff, vector<double> decay_coeff, vector<double> decay_order)
 {
 	create_f_inv_u();
 	create_k_mat_copula_only_dispersion();
@@ -4195,7 +4261,7 @@ void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coef
     {
         for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
         {
-            CVector_arma RHS = create_RHS_Copula_diffusion(species_counter, dt, Diffusion_coeff, decay_coeff, decay_order);
+            CVector_arma RHS = create_RHS_Copula_diffusion(species_counter, dt, Diffusion_coeff, decay_coeff[species_counter], decay_order[species_counter]);
             CVector_arma S = RHS/copula_params.Inv_M;
 
             for (int i = 0; i < GP.nx+2; i++)
