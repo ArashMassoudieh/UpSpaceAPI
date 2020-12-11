@@ -12,6 +12,7 @@ class Concentrations
         virtual ~Concentrations();
         Concentrations(const Concentrations& other);
         Concentrations(const double& other);
+        Concentrations(vector<double> other) {values=other;}
         Concentrations& operator=(const Concentrations& other);
         Concentrations& operator=(const double& other);
         void resize(int n) {values.resize(n);}

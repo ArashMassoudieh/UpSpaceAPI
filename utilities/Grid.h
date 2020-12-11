@@ -203,6 +203,7 @@ public:
 	CBTC get_v_dist_MODFlow(const string &filename);
 	CBTC get_v_dist_frac(const string &filename);
 	CBTCSet get_BTC_frac(const string &filename, const double &x_min, const double &x_max);
+	CBTCSet get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max);
 	CBTC get_kg_btc(int k);
 	void remap_K(int k);
 	CBTC get_v_btc(double x,int k=0);
@@ -237,7 +238,7 @@ public:
 	void set_K_transport(double dt, double D=0, double weight=0.5);
 	CVector_arma create_RHS_transport(int species_counter, double dt, double weight=0.5, double D=0, double decay_coefficient=0, double decay_order=1);
 	CVector_arma create_RHS_transport_laplace(int species_counter, double weight, double D, double s);
-	void solve_transport(double t_end, double decay_coefficient=0, double decay_order=1);
+	void solve_transport(double t_end, vector<double> decay_coefficient=vector<double>(1), vector<double> decay_order=vector<double>(1));
 	void solve_transport_laplace(double s);
 	void set_K_transport_laplace(double D, double s);
 	void create_f_inv_u();
@@ -258,6 +259,8 @@ public:
 	double max_v_x=0;
 	void create_inverse_K_OU(double dt);
 	void write_K_solution_to_vtp(string filename, double z_factor, bool _log);
+	void write_C_to_vtp(string filename, double z_factor, bool _log, vector<double> t);
+	void write_C_to_vtp(string filename, double z_factor, bool _log, double t);
 	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, vector<double> t);
 	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, double t);
 	void clear();
@@ -275,10 +278,10 @@ public:
 	vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor;
     void show_K_field();
 	void show_K_field_vtk(double z_factor = 0.5);
-    CTimeSeries GetConcentrationBTCAtX(double x, const string &filename, const string &filename_d="");
-    CTimeSeries GetProfile(int timestep, double x_start, double x_end, double inerval, const string &filename);
+    CTimeSeries GetConcentrationBTCAtX(int species_counter, double x, const string &filename, const string &filename_d="");
+    CTimeSeries GetProfile(int species_id, int timestep, double x_start, double x_end, double inerval, const string &filename);
     CTimeSeries GetAllVelocities(const string &dir);
-    double GetConcentrationAtX(double x, int i);
+    double GetConcentrationAtX(int species_counter, double x, int i);
 	void screen_shot(string filename = "screen_shot.png");
 	void screenshot_test();
 	_Copula_Params copula_params;

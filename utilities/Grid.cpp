@@ -1501,9 +1501,9 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
     ifstream file;
     file.open (filename, std::fstream::in);
     if (!file.good()) return false;
-    CBTCSet out(2);
+    CBTCSet out(1);
     out.setname(0,"time");
-    out.setname(1,"v");
+    //out.setname(1,"v");
     int rownum=0;
     getline(file);
     while (!file.eof())
@@ -1513,10 +1513,32 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
         {
             if (s1[2]<x_max && s1[2]>=x_min)
             {      out.BTC[0].append(s1[1],s1[1]);
-                   out.BTC[1].append(s1[1],s1[6]);
+                   //out.BTC[1].append(s1[1],s1[1]);
             }
         }
         rownum++;
+    }
+    return out;
+}
+
+CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max)
+{
+
+    CBTCSet out(2);
+    out.setname(0,"time");
+    out.setname(1,"v");
+
+
+    for (int i=0; i<pthwayset.paths.size(); i++)
+    {
+        for (int j=0; j<pthwayset.paths[i].size(); j++)
+        {
+            if (pthwayset.paths[i].positions[j].x<x_max && pthwayset.paths[i].positions[j].x>=x_min)
+                {      out.BTC[0].append(pthwayset.paths[i].positions[j].t,pthwayset.paths[i].positions[j].t);
+                       out.BTC[1].append(pthwayset.paths[i].positions[j].t,pthwayset.paths[i].positions[j].v[0]);
+                }
+        }
+
     }
     return out;
 }
@@ -1985,12 +2007,23 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "solve_transport")
             {
                     show_in_window("Solving transport ...");
+                    numberofspecies = 1;
+                    if (commands[i].parameters.count("nspecies")>0)
+                    {
+                        numberofspecies = atoi(commands[i].parameters["nspecies"].c_str());
+                    }
                     time_weight = atof(commands[i].parameters["weight"].c_str());
                     leftboundary_C = ATOF(split(commands[i].parameters["l_boundary"],','));
                     D = atof(commands[i].parameters["diffusion"].c_str());
                     dt = atof(commands[i].parameters["dt"].c_str());
-                    double decay_coeff = atof(commands[i].parameters["decay_coeff"].c_str());
-                    double decay_order = atof(commands[i].parameters["decay_order"].c_str());
+
+                    vector<double> decay_coeff(numberofspecies);
+                    vector<double> decay_order(numberofspecies);
+                    if (commands[i].parameters.count("decay_coeff")>0)
+                        decay_coeff = ATOF(split(commands[i].parameters["decay_coeff"],','));
+
+                    if (commands[i].parameters.count("decay_order")>0)
+                        decay_order = ATOF(split(commands[i].parameters["decay_order"],','));
 
                     cout << "Solving transport ..." << endl;
                     solve_transport(atof(commands[i].parameters["t_end"].c_str()),decay_coeff,decay_order);
@@ -1998,8 +2031,11 @@ void CGrid::runcommands_qt()
 
             if (commands[i].command == "write_btc_from_concentration")
             {
+                int species_id=0;
+                if (commands[i].parameters.count("species")>0)
+                    species_id = atoi(commands[i].parameters["species"].c_str());
                 show_in_window("Writing Breakthrough curve at x = " + commands[i].parameters["x"] + "...");
-                GetConcentrationBTCAtX(atof(commands[i].parameters["x"].c_str()),commands[i].parameters["filename"],commands[i].parameters["filename_d"]);
+                GetConcentrationBTCAtX(species_id, atof(commands[i].parameters["x"].c_str()),commands[i].parameters["filename"],commands[i].parameters["filename_d"]);
 
             }
 
@@ -2156,13 +2192,16 @@ void CGrid::runcommands_qt()
                 double x_start = atof(commands[i].parameters["x_start"].c_str());
                 double x_end = atof(commands[i].parameters["x_end"].c_str());
                 double interval = atof(commands[i].parameters["interval"].c_str());
+                int species_id = 0;
+                if (commands[i].parameters.count("species")>0)
+                    species_id = atoi(commands[i].parameters["species"].c_str());
                 int timestep;
                 if (commands[i].parameters.count("at_time")==0)
                     timestep = p[0][0].C.size()-1;
                 else
                     timestep = min(int(p[0][0].C.size()-1),int(atof(commands[i].parameters["at_time"].c_str())/dt));
 
-                GetProfile(timestep, x_start, x_end, interval, filename);
+                GetProfile(species_id, timestep, x_start, x_end, interval, filename);
             }
 
             if (commands[i].command == "write_breakthrough_curves_all")
@@ -2240,8 +2279,14 @@ void CGrid::runcommands_qt()
 
             if (commands[i].command == "get_btc_frac")
             {
+
                 show_in_window("getting btc at " + commands[i].parameters["x_min"] + "-" + commands[i].parameters["x_max"]);
-                CBTCSet btc = get_BTC_frac(commands[i].parameters["filename"],atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+                CBTCSet btc;
+                if (commands[i].parameters.count("filename")==1)
+                    btc = get_BTC_frac(commands[i].parameters["filename"],atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+                else
+                    btc = get_BTC_frac(Traj,atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+
                 if (commands[i].parameters.count("raw_data_filename")>0)
                 {
                     show_in_window("writing raw data...");
@@ -2268,6 +2313,7 @@ void CGrid::runcommands_qt()
 
 
 
+                if (commands[i].parameters.count("filename")==0)
                 if (commands[i].parameters.count("v_filename")>0)
                 {
                     show_in_window("writing v_dist ...");
@@ -2481,7 +2527,8 @@ void CGrid::runcommands_qt()
                         intervals.push_back(i*dt);
                 }
                 if (commands[i].parameters.count("filename") == 0) commands[i].parameters["filename"] == "surface.vtp";
-                write_C_to_vtp(species_counter, pathout + commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atoi(commands[i].parameters["log"].c_str()), intervals);
+                write_C_to_vtp(pathout + commands[i].parameters["filename"], atof(commands[i].parameters["z_factor"].c_str()), atoi(commands[i].parameters["log"].c_str()), intervals);
+
             }
 
             if (commands[i].command == "show")
@@ -3048,6 +3095,18 @@ void CGrid::runcommands_qt()
                                         GNU_out.writetheoreticalcopulatofile_points(pathout + commands[i].parameters["as_array_filename"],&ExperimentalCopula);
                                     }
                                 }
+                                if (commands[i].parameters["copula_type"]=="gaussian")
+                                {
+                                    show_in_window("writing theoretical experimental copula density");
+                                    CCopula ExperimentalCopula;
+                                    ExperimentalCopula.copula = "gaussian";
+                                    ExperimentalCopula.SetCopulaMap(GNU_out);
+                                    GNU_out.writetheoreticalcopulatofile(pathout + commands[i].parameters["theoretical_copula_filename"],&ExperimentalCopula);
+                                    if (commands[i].parameters.count("as_array_filename")>0)
+                                    {
+                                        GNU_out.writetheoreticalcopulatofile_points(pathout + commands[i].parameters["as_array_filename"],&ExperimentalCopula);
+                                    }
+                                }
                             }
                         }
                     }
@@ -3387,13 +3446,13 @@ CVector_arma CGrid::create_RHS_transport_laplace(int species_counter, double wei
 
 }
 
-void CGrid::solve_transport(double t_end, double decay_coeff, double decay_order)
+void CGrid::solve_transport(double t_end, vector<double> decay_coeff, vector<double> decay_order)
 {
 	set_K_transport(dt, D, time_weight);
 	C.resize(numberofspecies);
-	for (int i=0; i<numberofspecies; i++)
+	for (int species_counter=0; species_counter<numberofspecies; species_counter++)
 	{
-        C[i] = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
+        C[species_counter] = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
     }
 	CMatrix_arma_sp K = KD + Kt + Kv;
 	//Kt.writetofile(pathout + "Kt_matrix.txt");
@@ -3404,19 +3463,24 @@ void CGrid::solve_transport(double t_end, double decay_coeff, double decay_order
         for (double t = 0; t < t_end; t += dt)
         {
             for (int species_counter=0; species_counter<numberofspecies; species_counter++)
-            {   CVector_arma RHS = create_RHS_transport(species_counter, dt, time_weight, D, decay_coeff, decay_order);
+            {   CVector_arma RHS = create_RHS_transport(species_counter, dt, time_weight, D, decay_coeff[species_counter], decay_order[species_counter]);
                 CVector_arma S = solve_ar(K, RHS);
 
                 for (int i=0; i<GP.nx+1; i++)
                     for (int j=0; j<GP.ny+1; j++)
                         C[species_counter][i][j] = S[get_cell_no(i, j)];
-
-                for (int i = 0; i < GP.nx; i++)
-                    for (int j = 0; j < GP.ny; j++)
-                        p[i][j].C.push_back(0.25*(C[i][j] + C[i + 1][j] + C[i][j + 1] + C[i + 1][j + 1]));
-
-                set_progress_value(t / t_end);
             }
+            for (int i = 0; i < GP.nx; i++)
+                for (int j = 0; j < GP.ny; j++)
+                {
+                    vector<double> cc;
+                    for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
+                        cc.push_back(C[species_counter][i+1][j]);
+
+                    p[i][j].C.push_back(cc);
+                }
+
+            set_progress_value(t / t_end);
 
         }
         cout<<endl;
@@ -3425,20 +3489,26 @@ void CGrid::solve_transport(double t_end, double decay_coeff, double decay_order
 void CGrid::solve_transport_laplace(double s)
 {
 	set_K_transport_laplace(D, s);
-	C = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
+	C.resize(numberofspecies);
+	for (int species_counter=0; species_counter<numberofspecies; species_counter++)
+	{
+        C[species_counter] = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
+    }
+
 	CMatrix_arma_sp K = KD + Kt + Kv;
+    for (int species_counter=0; species_counter<numberofspecies; species_counter++)
+    {
+        CVector_arma RHS = create_RHS_transport_laplace(species_counter, dt, time_weight, D);
+        CVector_arma S = solve_ar(K, RHS);
 
+        for (int i = 0; i<GP.nx + 1; i++)
+            for (int j = 0; j<GP.ny + 1; j++)
+                C[species_counter][i][j] = S[get_cell_no(i, j)];
 
-	CVector_arma RHS = create_RHS_transport_laplace(dt, time_weight, D);
-	CVector_arma S = solve_ar(K, RHS);
-
-	for (int i = 0; i<GP.nx + 1; i++)
-		for (int j = 0; j<GP.ny + 1; j++)
-			C[i][j] = S[get_cell_no(i, j)];
-
-	for (int i = 0; i < GP.nx; i++)
-		for (int j = 0; j < GP.ny; j++)
-			p[i][j].C.push_back(0.25*(C[i][j] + C[i + 1][j] + C[i][j + 1] + C[i + 1][j + 1]));
+        for (int i = 0; i < GP.nx; i++)
+            for (int j = 0; j < GP.ny; j++)
+                p[i][j].C.push_back(0.25*(C[species_counter][i][j] + C[species_counter][i + 1][j] + C[species_counter][i][j + 1] + C[species_counter][i + 1][j + 1]));
+    }
 
 
 }
@@ -3789,7 +3859,7 @@ void CGrid::create_ou_exchange()
 }
 
 
-CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double decay_coeff, double decay_order)
+CVector_arma CGrid::create_RHS_Copula(int species_counter, double dt, double diffusion_coeff, double decay_coeff, double decay_order)
 {
     CVector_arma RHS(GP.ny*(GP.nx+2));
 
@@ -3797,23 +3867,23 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
     {
         for (int j = 0; j < GP.ny; j++)
         {
-            RHS[j + GP.ny*i]+= C[i][j] / dt - decay_coeff*pow(C[i][j],decay_order);
+            RHS[j + GP.ny*i]+= C[species_counter][i][j] / dt - decay_coeff*pow(C[species_counter][i][j],decay_order);
             if (OU.FinvU[j]>0)
             {
-                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
-                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i][j];
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i - 1][j];
             }
             else
             {
-                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
-                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i + 1][j];
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i][j];
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i + 1][j];
             }
-            RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i][j];
-            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i - 1][j];
-            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[min(i + 1,GP.nx)][j];
+            RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[species_counter][i][j];
+            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[species_counter][i - 1][j];
+            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[species_counter][min(i + 1,GP.nx)][j];
 
             for (int k = 0; k < GP.ny; k++)
-                RHS[j + GP.ny*i] += (1 - time_weight)*copula_params.K[j][k] / copula_params.epsilon*GP.dy*C[i][k];
+                RHS[j + GP.ny*i] += (1 - time_weight)*copula_params.K[j][k] / copula_params.epsilon*GP.dy*C[species_counter][i][k];
 
         }
     }
@@ -3847,7 +3917,7 @@ CVector_arma CGrid::create_RHS_Copula(double dt, double diffusion_coeff, double 
 }
 
 
-CVector_arma CGrid::create_RHS_Copula_diffusion(double dt, double diffusion_coeff, double decay_coeff, double decay_order)
+CVector_arma CGrid::create_RHS_Copula_diffusion(int species_counter, double dt, double diffusion_coeff, double decay_coeff, double decay_order)
 {
     CVector_arma RHS(GP.ny*(GP.nx+2));
 
@@ -3855,23 +3925,23 @@ CVector_arma CGrid::create_RHS_Copula_diffusion(double dt, double diffusion_coef
     {
         for (int j = 0; j < GP.ny; j++)
         {
-            RHS[j + GP.ny*i]+= C[i][j] / dt - decay_coeff*pow(C[i][j],decay_order);
+            RHS[j + GP.ny*i]+= C[species_counter][i][j] / dt - decay_coeff*pow(C[species_counter][i][j],decay_order);
             if (OU.FinvU[j]>0)
             {
-                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
-                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i - 1][j];
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i][j];
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i - 1][j];
             }
             else
             {
-                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
-                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[i + 1][j];
+                RHS[j + GP.ny*i] += (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i][j];
+                RHS[j + GP.ny*i] -= (1 - time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i + 1][j];
             }
-            RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i][j];
-            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[i - 1][j];
-            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[min(i + 1,GP.nx)][j];
+            RHS[j + GP.ny*i] -= 2*(1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[species_counter][i][j];
+            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[species_counter][i - 1][j];
+            RHS[j + GP.ny*i] += (1 - time_weight)*diffusion_coeff / pow(GP.dx,2)*C[species_counter][min(i + 1,GP.nx)][j];
 
             for (int k = 0; k < GP.ny; k++)
-                RHS[j + GP.ny*i] += (1 - time_weight)*(copula_params.K_disp[j][k] / copula_params.epsilon + copula_params.K_diff[j][k] / copula_params.tau)*GP.dy*C[i][k];
+                RHS[j + GP.ny*i] += (1 - time_weight)*(copula_params.K_disp[j][k] / copula_params.epsilon + copula_params.K_diff[j][k] / copula_params.tau)*GP.dy*C[species_counter][i][k];
 
         }
     }
@@ -3898,7 +3968,7 @@ CVector_arma CGrid::create_RHS_Copula_diffusion(double dt, double diffusion_coef
 
 
 
-CVector_arma CGrid::create_RHS_OU(double dt, double decay_coeff, double decay_order)
+CVector_arma CGrid::create_RHS_OU(int species_counter, double dt, double decay_coeff, double decay_order)
 {
 	CVector_arma RHS(GP.ny*(GP.nx+2));
 
@@ -3907,9 +3977,9 @@ CVector_arma CGrid::create_RHS_OU(double dt, double decay_coeff, double decay_or
 		for (int j = 0; j < GP.ny; j++)
 		{
 			// Advection
-			RHS[get_cell_no_OU(i, j)] = 1.0 / dt*C[i][j] - decay_coeff*pow(C[i][j],decay_order);
-			RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.FinvU[j] / GP.dx*C[i][j];
-			RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.FinvU[j] / GP.dx*C[i-1][j];
+			RHS[get_cell_no_OU(i, j)] = 1.0 / dt*C[species_counter][i][j] - decay_coeff*pow(C[species_counter][i][j],decay_order);
+			RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i][j];
+			RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.FinvU[j] / GP.dx*C[species_counter][i-1][j];
 
 			/*if (i < GP.nx - 1)
 			{
@@ -3921,31 +3991,31 @@ CVector_arma CGrid::create_RHS_OU(double dt, double decay_coeff, double decay_or
 			//Diffusion
 			if (i < GP.nx - 1)
 			{
-				RHS[get_cell_no_OU(i, j)] -= 2 * (1-time_weight)*D / pow(GP.dx, 2)*C[i][j];
-				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*D / pow(GP.dx, 2)*C[i-1][j];
-				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*D / pow(GP.dx, 2)*C[i+1][j];
+				RHS[get_cell_no_OU(i, j)] -= 2 * (1-time_weight)*D / pow(GP.dx, 2)*C[species_counter][i][j];
+				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*D / pow(GP.dx, 2)*C[species_counter][i-1][j];
+				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*D / pow(GP.dx, 2)*C[species_counter][i+1][j];
 			}
 			else
 			{
-				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*D / pow(GP.dx, 2)*C[i][j];
-				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*D / pow(GP.dx, 2)*C[i-1][j];
+				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*D / pow(GP.dx, 2)*C[species_counter][i][j];
+				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*D / pow(GP.dx, 2)*C[species_counter][i-1][j];
 			}
 			//Exchange
 			if (j > 0 && j < GP.ny - 1)
 			{
-				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*(OU.Exchanges[j-1]+OU.Exchanges[j]) *C[i][j] / pow(GP.dy, 2);
-				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j-1]*C[i][j-1] / pow(GP.dy, 2);
-				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j]*C[i][j+1] / pow(GP.dy, 2);
+				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*(OU.Exchanges[j-1]+OU.Exchanges[j]) *C[species_counter][i][j] / pow(GP.dy, 2);
+				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j-1]*C[species_counter][i][j-1] / pow(GP.dy, 2);
+				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j]*C[species_counter][i][j+1] / pow(GP.dy, 2);
 			}
 			else if (j == 0)
 			{
-				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.Exchanges[j]*C[i][j] / pow(GP.dy, 2);
-				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j]*C[i][j + 1] / pow(GP.dy, 2);
+				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.Exchanges[j]*C[species_counter][i][j] / pow(GP.dy, 2);
+				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j]*C[species_counter][i][j + 1] / pow(GP.dy, 2);
 			}
 			else if (j == GP.ny - 1)
 			{
-				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.Exchanges[j-1]*C[i][j] / pow(GP.dy, 2);
-				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j-1]*C[i][j - 1] / pow(GP.dy, 2);
+				RHS[get_cell_no_OU(i, j)] += -(1-time_weight)*OU.Exchanges[j-1]*C[species_counter][i][j] / pow(GP.dy, 2);
+				RHS[get_cell_no_OU(i, j)] += (1-time_weight)*OU.Exchanges[j-1]*C[species_counter][i][j - 1] / pow(GP.dy, 2);
 			}
 		}
 
@@ -3971,7 +4041,9 @@ void CGrid::solve_transport_OU(double t_end, double decay_coeff, double decay_or
 	create_f_inv_u();
 	create_ou_exchange();
 	create_inverse_K_OU(dt);
-	C = CMatrix(GP.nx+2, GP.ny);
+	C.resize(numberofspecies);
+	for (int species_counter=0; species_counter<numberofspecies; species_counter++)
+        C[species_counter] = CMatrix(GP.nx+2, GP.ny);
 	OU.BTCs = CBTCSet(GP.nx+2);
 	OU.BTC_normal = CBTCSet(GP.nx + 2);
 	OU.BTCs_fw = CBTCSet(GP.nx + 2);
@@ -3986,29 +4058,40 @@ void CGrid::solve_transport_OU(double t_end, double decay_coeff, double decay_or
 	set_progress_value(0);
     for (double t = 0; t < t_end; t += dt)
     {
-        CVector_arma RHS = create_RHS_OU(dt,decay_coeff, decay_order);
-        CVector_arma S = OU.Inv_M*RHS;
-
-        for (int i = 0; i < GP.nx+2; i++)
+        for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
         {
-            double sum = 0;
-            double sum_fw = 0;
+            CVector_arma RHS = create_RHS_OU(species_counter, dt,decay_coeff, decay_order);
+            CVector_arma S = OU.Inv_M*RHS;
 
-            for (int j = 0; j < GP.ny; j++)
+            for (int i = 0; i < GP.nx+2; i++)
             {
-                C[i][j] = S[get_cell_no_OU(i, j)];
-                sum += C[i][j] * GP.dy;
-                sum_fw += C[i][j] * OU.FinvU[j]/OU.FinvU.sum();
+                double sum = 0;
+                double sum_fw = 0;
+
+                for (int j = 0; j < GP.ny; j++)
+                {
+                    C[species_counter][i][j] = S[get_cell_no_OU(i, j)];
+                    sum += C[species_counter][i][j] * GP.dy;
+                    sum_fw += C[species_counter][i][j] * OU.FinvU[j]/OU.FinvU.sum();
+                }
+                OU.BTCs.BTC[i].append(t+dt, sum);
+                OU.BTCs_fw.BTC[i].append(t + dt, sum_fw);
+                OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
+                OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
             }
-            OU.BTCs.BTC[i].append(t+dt, sum);
-            OU.BTCs_fw.BTC[i].append(t + dt, sum_fw);
-            OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
-            OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
+
+
         }
 
         for (int i = 0; i < GP.nx; i++)
             for (int j = 0; j < GP.ny; j++)
-                p[i][j].C.push_back(C[i+1][j]);
+            {
+                vector<double> cc;
+                for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
+                    cc.push_back(C[species_counter][i+1][j]);
+
+                p[i][j].C.push_back(cc);
+            }
         #if QT_version
                 set_progress_value(t / t_end);
         tbrowse->append("t = " + QString::number(t));
@@ -4025,7 +4108,9 @@ void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, double 
 	create_f_inv_u();
 	create_k_mat_copula();
 	create_inv_K_Copula(dt,Diffusion_coeff);
-	C = CMatrix(GP.nx+2, GP.ny);
+	C.resize(numberofspecies);
+	for (int species_counter=0; species_counter<numberofspecies; species_counter++)
+        C[species_counter] = CMatrix(GP.nx+2, GP.ny);
 	OU.BTCs = CBTCSet(GP.nx+2);
 	OU.BTC_normal = CBTCSet(GP.nx + 2);
 	OU.BTCs_fw = CBTCSet(GP.nx + 2);
@@ -4040,37 +4125,46 @@ void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, double 
 	set_progress_value(0);
     for (double t = 0; t < t_end; t += dt)
     {
-        CVector_arma RHS = create_RHS_Copula(dt, Diffusion_coeff, decay_coeff, decay_order);
-        CVector_arma S = RHS/copula_params.Inv_M;
 
-        for (int i = 0; i < GP.nx+2; i++)
+        for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
         {
-            double sum = 0;
-            double sum_fw = 0;
+            CVector_arma RHS = create_RHS_Copula(species_counter, dt, Diffusion_coeff, decay_coeff, decay_order);
+            CVector_arma S = RHS/copula_params.Inv_M;
 
-            for (int j = 0; j < GP.ny; j++)
+            for (int i = 0; i < GP.nx+2; i++)
             {
-                C[i][j] = S[get_cell_no_OU(i, j)];
-                sum += C[i][j] * GP.dy;
-                sum_fw += C[i][j] * OU.FinvU[j]/OU.FinvU.sum();
+                double sum = 0;
+                double sum_fw = 0;
+
+                for (int j = 0; j < GP.ny; j++)
+                {
+                    C[species_counter][i][j] = S[get_cell_no_OU(i, j)];
+                    sum += C[species_counter][i][j] * GP.dy;
+                    sum_fw += C[species_counter][i][j] * OU.FinvU[j]/OU.FinvU.sum();
+                }
+                OU.BTCs.BTC[i].append(t+dt, sum);
+                OU.BTCs_fw.BTC[i].append(t + dt, sum_fw);
+                OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
+                OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
             }
-            OU.BTCs.BTC[i].append(t+dt, sum);
-            OU.BTCs_fw.BTC[i].append(t + dt, sum_fw);
-            OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
-            OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
+
+            #if QT_version
+                    set_progress_value(t / t_end);
+            tbrowse->append("t = " + QString::number(t));
+            #else
+            cout<<"t = " <<t <<endl;
+            #endif // QT_version
+
         }
+         for (int i = 0; i < GP.nx; i++)
+                for (int j = 0; j < GP.ny; j++)
+                {
+                    vector<double> cc;
+                    for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
+                        cc.push_back(C[species_counter][i+1][j]);
 
-        for (int i = 0; i < GP.nx; i++)
-            for (int j = 0; j < GP.ny; j++)
-                p[i][j].C.push_back(C[i+1][j]);
-
-        #if QT_version
-                set_progress_value(t / t_end);
-        tbrowse->append("t = " + QString::number(t));
-        #else
-        cout<<"t = " <<t <<endl;
-        #endif // QT_version
-
+                    p[i][j].C.push_back(cc);
+                }
     }
 
 }
@@ -4082,7 +4176,9 @@ void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coef
 	create_k_mat_copula_only_dispersion();
 	create_k_mat_copula_only_diffusion();
 	create_inv_K_Copula_diffusion(dt,Diffusion_coeff);
-	C = CMatrix(GP.nx+2, GP.ny);
+	C.resize(numberofspecies);
+	for (int species_counter=0; species_counter<numberofspecies; species_counter++)
+        C[species_counter] = CMatrix(GP.nx+2, GP.ny);
 	OU.BTCs = CBTCSet(GP.nx+2);
 	OU.BTC_normal = CBTCSet(GP.nx + 2);
 	OU.BTCs_fw = CBTCSet(GP.nx + 2);
@@ -4097,39 +4193,46 @@ void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coef
 	set_progress_value(0);
     for (double t = 0; t < t_end; t += dt)
     {
-        CVector_arma RHS = create_RHS_Copula_diffusion(dt, Diffusion_coeff, decay_coeff, decay_order);
-        CVector_arma S = RHS/copula_params.Inv_M;
-
-        for (int i = 0; i < GP.nx+2; i++)
+        for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
         {
-            double sum = 0;
-            double sum_fw = 0;
+            CVector_arma RHS = create_RHS_Copula_diffusion(species_counter, dt, Diffusion_coeff, decay_coeff, decay_order);
+            CVector_arma S = RHS/copula_params.Inv_M;
 
-            for (int j = 0; j < GP.ny; j++)
+            for (int i = 0; i < GP.nx+2; i++)
             {
-                C[i][j] = S[get_cell_no_OU(i, j)];
-                sum += C[i][j] * GP.dy;
-                sum_fw += C[i][j] * OU.FinvU[j]/OU.FinvU.sum();
+                double sum = 0;
+                double sum_fw = 0;
+
+                for (int j = 0; j < GP.ny; j++)
+                {
+                    C[species_counter][i][j] = S[get_cell_no_OU(i, j)];
+                    sum += C[species_counter][i][j] * GP.dy;
+                    sum_fw += C[species_counter][i][j] * OU.FinvU[j]/OU.FinvU.sum();
+                }
+                OU.BTCs.BTC[i].append(t+dt, sum);
+                OU.BTCs_fw.BTC[i].append(t + dt, sum_fw);
+                OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
+                OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
+
+
+                #if QT_version
+                        set_progress_value(t / t_end);
+                tbrowse->append("t = " + QString::number(t));
+                #else
+                cout<<"t = " <<t <<endl;
+                #endif // QT_version
             }
-            OU.BTCs.BTC[i].append(t+dt, sum);
-            OU.BTCs_fw.BTC[i].append(t + dt, sum_fw);
-            OU.BTC_normal.BTC[i].append((t + dt)/((i-0.5)*GP.dx), sum);
-            OU.BTC_normal_fw.BTC[i].append((t + dt) / ((i - 0.5)*GP.dx), sum_fw);
+             for (int i = 0; i < GP.nx; i++)
+                for (int j = 0; j < GP.ny; j++)
+                {
+                    vector<double> cc;
+                    for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
+                        cc.push_back(C[species_counter][i+1][j]);
+
+                    p[i][j].C.push_back(cc);
+                }
         }
-
-        for (int i = 0; i < GP.nx; i++)
-            for (int j = 0; j < GP.ny; j++)
-                p[i][j].C.push_back(C[i+1][j]);
-
-        #if QT_version
-                set_progress_value(t / t_end);
-        tbrowse->append("t = " + QString::number(t));
-        #else
-        cout<<"t = " <<t <<endl;
-        #endif // QT_version
-
     }
-
 }
 
 
@@ -4182,12 +4285,12 @@ void CGrid::clear_contents()
 	}
 }
 
-CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename, const string &filename_d)
+CTimeSeries CGrid::GetConcentrationBTCAtX(int species_counter, double x, const string &filename, const string &filename_d)
 {
     CTimeSeries output;
     for (int tt=0; tt<p[0][0].C.size(); tt++)
     {
-        output.append(tt*dt,GetConcentrationAtX(x,tt));
+        output.append(tt*dt,GetConcentrationAtX(species_counter, x,tt));
     }
     output.writefile(pathout + filename);
     if (filename_d!="")
@@ -4195,12 +4298,12 @@ CTimeSeries CGrid::GetConcentrationBTCAtX(double x, const string &filename, cons
     return output;
 }
 
-double CGrid::GetConcentrationAtX(double x, int timestep)
+double CGrid::GetConcentrationAtX(int species_counter, double x, int timestep)
 {
     int i=x/GP.dx;
     double output = 0;
     for (int j=0; j<GP.ny; j++)
-        output += p[i][j].C[timestep]/GP.ny;
+        output += p[i][j].C[species_counter][timestep]/GP.ny;
 
     return output;
 }
@@ -4220,12 +4323,12 @@ double CGrid::mean(double u1, double u2)
     return 0.5*(u1+u2);
 }
 
-CTimeSeries CGrid::GetProfile(int timestep, double x_start, double x_end, double interval, const string &filename)
+CTimeSeries CGrid::GetProfile(int species_id, int timestep, double x_start, double x_end, double interval, const string &filename)
 {
     CBTC Profile;
     for (double x=x_start; x<=x_end; x+=interval)
     {
-        Profile.append(x,GetConcentrationAtX(x,timestep));
+        Profile.append(x,GetConcentrationAtX(species_id, x,timestep));
     }
     Profile.writefile(filename);
     return Profile;
