@@ -824,7 +824,6 @@ void CGrid::trajs_vtk_pdt_to_vtp_3d(string filename, bool _color, int interval)
 
 
 
-
 void CGrid::screen_shot(string filename)
 {
 	vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter =
@@ -1506,7 +1505,6 @@ void CGrid::write_C_to_vtp(string filename, double z_factor, bool _log, double t
 	writer->Write();
 
 }
-
 
 void CGrid::clear()
 {

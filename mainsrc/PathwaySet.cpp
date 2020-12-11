@@ -266,6 +266,7 @@ bool CPathwaySet::AssignVelocities()
     show_in_window("Calculating velocities for trajectories");
     for (int i=0; i<paths.size(); i++)
     {
+        set_progress_value((i*100)/paths.size());
         paths[i].positions[0].v[0] = (paths[i].positions[1].x-paths[i].positions[0].x)/(paths[i].positions[1].t-paths[i].positions[0].t);
         paths[i].positions[0].v[1] = (paths[i].positions[1].y-paths[i].positions[0].y)/(paths[i].positions[1].t-paths[i].positions[0].t);
         paths[i].positions[0].v[2] = (paths[i].positions[1].z-paths[i].positions[0].z)/(paths[i].positions[1].t-paths[i].positions[0].t);
@@ -337,7 +338,7 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
                     P.x = s2[1];
                     P.y = s2[2];
                     P.z = s2[3];
-                    P.v = CVector(2);
+                    P.v = CVector(3);
                     P.t = age;
 
                     P.weight = s2[5];

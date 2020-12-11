@@ -259,10 +259,10 @@ public:
 	double max_v_x=0;
 	void create_inverse_K_OU(double dt);
 	void write_K_solution_to_vtp(string filename, double z_factor, bool _log);
-	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, vector<double> t);
-	void write_C_to_vtp(string filename, double z_factor, bool _log, vector<double> t);
-	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, double t);
+    void write_C_to_vtp(string filename, double z_factor, bool _log, vector<double> t);
 	void write_C_to_vtp(string filename, double z_factor, bool _log, double t);
+	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, vector<double> t);
+	void write_C_to_vtp(int species_counter, string filename, double z_factor, bool _log, double t);
 	void clear();
 	void showthings(vector<vtkSmartPointer<vtkActor>> actors, string filename = "");
 	void write_K_field_to_vtp(string filename="surface.vtp", double z_factor=0.5, bool _log = false);
