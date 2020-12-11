@@ -9,7 +9,10 @@ class Concentrations
 {
     public:
         Concentrations();
+<<<<<<< HEAD
         Concentrations(vector<double> vals) {values = vals; }
+=======
+>>>>>>> master
         virtual ~Concentrations();
         Concentrations(const Concentrations& other);
         Concentrations(const double& other);
