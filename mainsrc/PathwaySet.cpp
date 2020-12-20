@@ -164,6 +164,15 @@ void CPathwaySet::make_uniform_at_x(double dx)
 		paths[i] = paths[i].make_uniform_x(dx);
 }
 
+CBTC CPathwaySet::sample_velocities()
+{
+	CBTC out;
+	for (int i = 0; i < paths.size(); i++)
+        for (int j = 0; j < paths[i].size(); j++)
+            out.append(paths[i].positions[j].v[0]);
+    return out;
+}
+
 void CPathwaySet::make_uniform_at_t(double dt)
 {
 	for (int i = 0; i < paths.size(); i++)
