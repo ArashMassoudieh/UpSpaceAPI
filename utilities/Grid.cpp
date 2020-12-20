@@ -2300,11 +2300,13 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "write_velocity_dist_frac")
             {
                 show_in_window("Reading spatial velocity...");
+
                 CBTC  vx;
                 if (commands[i].parameters.count("v_filename")==1)
                     vx = get_v_dist_frac(commands[i].parameters["v_filename"]);
                 else
                     vx = Traj.sample_velocities();
+
                 vx.distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["filename"]);
                 CVector stats(2);
                 stats[0] = vx.Log(1e-6).mean();
