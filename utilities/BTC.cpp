@@ -173,7 +173,7 @@ CTimeSeries::CTimeSeries(string Filename)
 //			return;
 		}
 		if (s.size()>=2)
-		if ((s[0].substr(0,2)!="//") && (tolower(s[0])!="names"))
+		if ((s[0].substr(0,2)!="//") && (tolower(s[0])!="names") && s[0].substr(0,1)!="n")
 		{
 			t.push_back(atof(s[0].c_str()));
 			C.push_back(atof(s[1].c_str()));
@@ -644,7 +644,7 @@ bool CTimeSeries::readfile(string Filename)
     {
         s = getline(file);
         if (s.size()>0)
-        if (s[0].substr(0,2)!="//")
+        if (s[0].substr(0,2)!="//" && s[0].substr(0,1)!="n")
         {
             t.push_back(atof(s[0].c_str()));
             C.push_back(atof(s[1].c_str()));
@@ -1124,9 +1124,21 @@ void CTimeSeries::append(CTimeSeries &CC)
 
 CTimeSeries& CTimeSeries::operator+=(CTimeSeries &v)
 {
-	for (int i=0; i<n; ++i)
-		C[i] += v.interpol(t[i]);
-	return *this;
+	if (n==0 || v.n==0) return *this;
+	if (t[0]<v.t[0])
+    {
+        for (int i=0; i<n; ++i)
+            C[i] += v.interpol(t[i]);
+    }
+    else
+    {
+        CTimeSeries x;
+        for (int i=0; i<v.n; ++i)
+            x.append(v.t[i], v.C[i]+interpol(v.t[i]));
+        *this = x;
+    }
+    return *this;
+
 }
 
 CTimeSeries& CTimeSeries::operator%=(CTimeSeries &v)

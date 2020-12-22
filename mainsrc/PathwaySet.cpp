@@ -166,10 +166,14 @@ void CPathwaySet::make_uniform_at_x(double dx)
 
 CBTC CPathwaySet::sample_velocities()
 {
+	cout<<"Getting velocities from the trajectories"<<endl;
 	CBTC out;
 	for (int i = 0; i < paths.size(); i++)
-        for (int j = 0; j < paths[i].size(); j++)
+    {
+       for (int j = 0; j < paths[i].size(); j++)
             out.append(paths[i].positions[j].v[0]);
+    set_progress_value(i);
+    }
     return out;
 }
 

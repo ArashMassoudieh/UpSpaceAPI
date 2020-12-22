@@ -2014,6 +2014,7 @@ void CGrid::runcommands_qt()
                     }
                     time_weight = atof(commands[i].parameters["weight"].c_str());
                     leftboundary_C = ATOF(split(commands[i].parameters["l_boundary"],','));
+                    if (leftboundary_C.size()==0) leftboundary_C.push_back(1);
                     D = atof(commands[i].parameters["diffusion"].c_str());
                     dt = atof(commands[i].parameters["dt"].c_str());
 
@@ -2070,6 +2071,7 @@ void CGrid::runcommands_qt()
                 }
                 time_weight = atof(commands[i].parameters["weight"].c_str());
                 leftboundary_C = ATOF(split(commands[i].parameters["l_boundary"],','));
+                if (leftboundary_C.size()==0) leftboundary_C.push_back(1);
                 double diffusion = atof(commands[i].parameters["diffusion"].c_str());
                 dt = atof(commands[i].parameters["dt"].c_str());
 
