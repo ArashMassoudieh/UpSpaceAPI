@@ -44,7 +44,7 @@ struct prop
 	double Vfy;
 	double Vby;
 	bool k_det = false;
-	vector<Concentrations> C;
+	Concentrations C;
 };
 
 struct prop_cell

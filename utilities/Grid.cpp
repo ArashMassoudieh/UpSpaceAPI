@@ -2550,9 +2550,9 @@ void CGrid::runcommands_qt()
             {
                 int species_counter;
                 if (numberofspecies==1)
-                    species_counter = 1;
+                    species_counter = 0;
                 else if (commands[i].parameters.count("species")==0)
-                    species_counter = 1;
+                    species_counter = 0;
                 else
                     species_counter = atoi(commands[i].parameters["species"].c_str());
                 double concentration_interval = -1;
@@ -3527,9 +3527,7 @@ void CGrid::solve_transport(double t_end, vector<double> decay_coeff, vector<dou
                 {
                     vector<double> cc;
                     for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
-                        cc.push_back(C[species_counter][i+1][j]);
-
-                    p[i][j].C.push_back(cc);
+                        p[i][j].C.setvalue(i,j,C[species_counter][i+1][j]);
                 }
 
             set_progress_value(t / t_end);
@@ -3559,7 +3557,8 @@ void CGrid::solve_transport_laplace(double s)
 
         for (int i = 0; i < GP.nx; i++)
             for (int j = 0; j < GP.ny; j++)
-                p[i][j].C.push_back(0.25*(C[species_counter][i][j] + C[species_counter][i + 1][j] + C[species_counter][i][j + 1] + C[species_counter][i + 1][j + 1]));
+                p[i][j].C.setvalue(i,j,0.25*(C[species_counter][i][j] + C[species_counter][i + 1][j] + C[species_counter][i][j + 1] + C[species_counter][i + 1][j + 1]));
+
     }
 
 
@@ -4164,11 +4163,9 @@ void CGrid::solve_transport_OU(double t_end, double decay_coeff, double decay_or
         for (int i = 0; i < GP.nx; i++)
             for (int j = 0; j < GP.ny; j++)
             {
-                vector<double> cc;
                 for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
-                    cc.push_back(C[species_counter][i+1][j]);
+                    p[i][j].C.setvalue(i,j,C[species_counter][i+1][j]);
 
-                p[i][j].C.push_back(cc);
             }
         #if QT_version
                 set_progress_value(t / t_end);
@@ -4189,6 +4186,9 @@ void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, vector<
 	C.resize(numberofspecies);
 	for (int species_counter=0; species_counter<numberofspecies; species_counter++)
         C[species_counter] = CMatrix(GP.nx+2, GP.ny);
+    for (int i = 0; i < GP.nx; i++)
+        for (int j = 0; j < GP.ny; j++)
+            p[i][j].C.resize(int(t_end/dt), numberofspecies);
 	OU.BTCs = CBTCSet(GP.nx+2);
 	OU.BTC_normal = CBTCSet(GP.nx + 2);
 	OU.BTCs_fw = CBTCSet(GP.nx + 2);
@@ -4201,6 +4201,7 @@ void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, vector<
 	for (int i = 0; i < GP.nx + 2; i++) OU.BTCs.BTC[i].append(0, 0);
 	for (int i = 0; i < GP.nx + 2; i++) OU.BTC_normal.BTC[i].append(0, 0);
 	set_progress_value(0);
+	int counter = 0;
     for (double t = 0; t < t_end; t += dt)
     {
 
@@ -4230,19 +4231,17 @@ void CGrid::solve_transport_Copula(double t_end, double Diffusion_coeff, vector<
                     set_progress_value(t / t_end);
             tbrowse->append("t = " + QString::number(t));
             #else
-            cout<<"t = " <<t <<endl;
+            set_progress_value(t);
             #endif // QT_version
 
         }
-         for (int i = 0; i < GP.nx; i++)
-                for (int j = 0; j < GP.ny; j++)
-                {
-                    vector<double> cc;
-                    for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
-                        cc.push_back(C[species_counter][i+1][j]);
-
-                    p[i][j].C.push_back(cc);
-                }
+        for (int i = 0; i < GP.nx; i++)
+            for (int j = 0; j < GP.ny; j++)
+            {
+                for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
+                    p[i][j].C.setvalue(counter,species_counter,C[species_counter][i+1][j]);
+            }
+        counter++;
     }
 
 }
@@ -4255,6 +4254,9 @@ void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coef
 	create_k_mat_copula_only_diffusion();
 	create_inv_K_Copula_diffusion(dt,Diffusion_coeff);
 	C.resize(numberofspecies);
+	for (int i = 0; i < GP.nx; i++)
+        for (int j = 0; j < GP.ny; j++)
+            p[i][j].C.resize(int(t_end/dt),numberofspecies);
 	for (int species_counter=0; species_counter<numberofspecies; species_counter++)
         C[species_counter] = CMatrix(GP.nx+2, GP.ny);
 	OU.BTCs = CBTCSet(GP.nx+2);
@@ -4265,10 +4267,10 @@ void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coef
 	for (int i = 0; i < GP.nx + 2; i++) OU.BTC_normal.names[i] = ("x=" + numbertostring((i - 0.5)*GP.dx));
 	for (int i = 0; i < GP.nx + 2; i++) OU.BTCs_fw.names[i] = ("x=" + numbertostring((i - 0.5)*GP.dx));
 	for (int i = 0; i < GP.nx + 2; i++) OU.BTC_normal_fw.names[i] = ("x=" + numbertostring((i - 0.5)*GP.dx));
-	//K.writetofile(pathout + "transport_matrix.txt");
 	for (int i = 0; i < GP.nx + 2; i++) OU.BTCs.BTC[i].append(0, 0);
 	for (int i = 0; i < GP.nx + 2; i++) OU.BTC_normal.BTC[i].append(0, 0);
 	set_progress_value(0);
+    int counter=0;
     for (double t = 0; t < t_end; t += dt)
     {
         for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
@@ -4297,19 +4299,20 @@ void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coef
                         set_progress_value(t / t_end);
                 tbrowse->append("t = " + QString::number(t));
                 #else
-                cout<<"t = " <<t <<endl;
+                set_progress_value(t);
                 #endif // QT_version
             }
-             for (int i = 0; i < GP.nx; i++)
+            for (int i = 0; i < GP.nx; i++)
                 for (int j = 0; j < GP.ny; j++)
                 {
-                    vector<double> cc;
-                    for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
-                        cc.push_back(C[species_counter][i+1][j]);
 
-                    p[i][j].C.push_back(cc);
+                    for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
+                        p[i][j].C.setvalue(counter,species_counter,C[species_counter][i+1][j]);
+
                 }
+
         }
+        counter++;
     }
 }
 
@@ -4343,7 +4346,7 @@ void CGrid::set_progress_value(double s)
 	main_window->get_ui()->progressBar->setValue(s*100);
 	QApplication::processEvents();
 #endif // QT_version
-    cout << "\r Progress: " << s*100 << "%";
+    cout << "\r Progress: " << s*100 << "%                                     ";
 }
 
 void CGrid::clear_contents()
@@ -4381,7 +4384,7 @@ double CGrid::GetConcentrationAtX(int species_counter, double x, int timestep)
     int i=x/GP.dx;
     double output = 0;
     for (int j=0; j<GP.ny; j++)
-        output += p[i][j].C[species_counter][timestep]/GP.ny;
+        output += p[i][j].C[timestep][species_counter]/GP.ny;
 
     return output;
 }

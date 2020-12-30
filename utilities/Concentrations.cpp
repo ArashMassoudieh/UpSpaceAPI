@@ -16,11 +16,6 @@ Concentrations::Concentrations(const Concentrations& other)
 }
 
 
-Concentrations::Concentrations(const double& other)
-{
-    values[0] = other;
-}
-
 Concentrations& Concentrations::operator=(const Concentrations& rhs)
 {
     if (this == &rhs) return *this; // handle self assignment
@@ -28,9 +23,10 @@ Concentrations& Concentrations::operator=(const Concentrations& rhs)
     return *this;
 }
 
-Concentrations& Concentrations::operator=(const double& rhs)
+void Concentrations::resize(int nt, int nc)
 {
-    values[0] = rhs;
-    return *this;
+    values.resize(nt);
+    for (int i=0; i<nt; i++)
+        values[i].resize(nc);
 }
 

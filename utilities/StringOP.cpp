@@ -732,5 +732,5 @@ void set_progress_value(double s)
 	main_window->get_ui()->progressBar->setValue(s*100);
 	QApplication::processEvents();
 #endif // QT_version
-    cout << "\r Progress: " << s*100 << "%";
+    cout << "\r Progress: " << s*100 << "%                              ";
 }
