@@ -1524,18 +1524,25 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
 CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max)
 {
 
+    show_in_window("Getting Breakthrough curves from trajectories already loaded...");
     CBTCSet out(2);
     out.setname(0,"time");
     out.setname(1,"v");
 
-
+    double mean_x = (x_min+x_max)*0.5;
     for (int i=0; i<pthwayset.paths.size(); i++)
     {
         for (int j=0; j<pthwayset.paths[i].size(); j++)
         {
             if (pthwayset.paths[i].positions[j].x<x_max && pthwayset.paths[i].positions[j].x>=x_min)
-                {      out.BTC[0].append(pthwayset.paths[i].positions[j].t,pthwayset.paths[i].positions[j].t);
-                       out.BTC[1].append(pthwayset.paths[i].positions[j].t,pthwayset.paths[i].positions[j].v[0]);
+                {
+                    double t;
+                    if (pthwayset.paths[i].positions[j].v[0]!=0)
+                        t = pthwayset.paths[i].positions[j].t - (pthwayset.paths[i].positions[j].x - mean_x)/pthwayset.paths[i].positions[j].v[0];
+                    else
+                        t = pthwayset.paths[i].positions[j].t;
+                    out.BTC[0].append(t,t);
+                    out.BTC[1].append(t,pthwayset.paths[i].positions[j].v[0]);
                 }
         }
 
