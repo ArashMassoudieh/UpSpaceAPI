@@ -19,7 +19,13 @@ public:
 	CCopula();
 	~CCopula();
 	void SetCorrelation(const double &r);
-	void SetDiffusionParams(double D, double cls, double D_cls) {diffusion_coeff = D; diffusion_correlation_ls = D_cls; correlation_ls = cls;}
+	void SetDiffusionParams(double D, double cls, double D_cls)
+	{diffusion_coeff = D;
+	if (D_cls!=0)
+        diffusion_correlation_ls = D_cls;
+	else
+        diffusion_correlation_ls = 1000;
+	correlation_ls = cls;}
 	double get_random_at(const double &u1);
 	double w;
 	gsl_rng *RngPtr() {return rng_ptr;}
