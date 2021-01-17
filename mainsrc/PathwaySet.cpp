@@ -32,7 +32,7 @@ void CPathwaySet::write(string filename)
 	file.open(filename.c_str());
 	for (int j = 0; j < paths.size(); j++)
 	{
-		file << "t_" << numbertostring(j) << ",x_" << numbertostring(j) << ",y_" << numbertostring(j) << ",u_" << numbertostring(j) << ",v_" << numbertostring(j) << ",u_" << numbertostring(j) << ",z_" << numbertostring(j);
+		file << "t_" << numbertostring(j) << ",x_" << numbertostring(j) << ",y_" << numbertostring(j) << ",u_" << numbertostring(j) << ",v_" << numbertostring(j) << ",u_" << numbertostring(j) << ",z_" << numbertostring(j) << ",";
 	}
 	file << endl;
 	for (int i = 0; i < max_num_points(); i++)
@@ -352,7 +352,7 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
                     P.y = s2[2];
                     P.z = s2[3];
                     P.v = CVector(3);
-                    P.t = age;
+                    P.t = s2[4];
 
                     P.weight = s2[5];
                     paths[(int)s2[0]-1].append(P);
@@ -360,7 +360,7 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
                 }
             }
             //cout << "Number of points = " << numberofpoints << "," << endl;
-            set_progress_value(age);
+            set_progress_value(numbertostring(age)+", number of points:" + numbertostring(numberofpoints));
         }
         else
         {
@@ -476,6 +476,15 @@ bool CPathwaySet::getfromShermanfile_v(const string &filename)
 
 
 void CPathwaySet::set_progress_value(double s)
+{
+#ifdef QT_version
+	main_window->get_ui()->progressBar->setValue(s*100);
+	QApplication::processEvents();
+#endif // QT_version
+    cout << "\r Progress: " << s << "                         ";
+}
+
+void CPathwaySet::set_progress_value(string s)
 {
 #ifdef QT_version
 	main_window->get_ui()->progressBar->setValue(s*100);

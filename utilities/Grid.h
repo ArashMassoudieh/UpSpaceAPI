@@ -203,6 +203,7 @@ public:
 	CBTC get_v_dist_MODFlow(const string &filename);
 	CBTC get_v_dist_frac(const string &filename);
 	CBTCSet get_BTC_frac(const string &filename, const double &x_min, const double &x_max);
+	CBTCSet get_BTC_mf(const string &filename, const double &x_min, const double &x_max);
 	CBTCSet get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max);
 	CBTC get_kg_btc(int k);
 	void remap_K(int k);
@@ -311,6 +312,7 @@ public:
         void renormalize_k();
         void show_in_window(string s);
         void set_progress_value(double s);
+        void set_progress_value(string s);
         void clear_contents();
 };
 

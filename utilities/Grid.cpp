@@ -1509,6 +1509,8 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
     while (!file.eof())
     {
         vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()==2)
+            set_progress_value("time= " + numbertostring(s1[1]));
         if (s1.size()>=5)
         {
             if (s1[2]<x_max && s1[2]>=x_min)
@@ -1521,13 +1523,42 @@ CBTCSet CGrid::get_BTC_frac(const string &filename, const double &x_min, const d
     return out;
 }
 
+CBTCSet CGrid::get_BTC_mf(const string &filename, const double &x_min, const double &x_max)
+{
+    ifstream file;
+    file.open (filename, std::fstream::in);
+    if (!file.good()) return false;
+    CBTCSet out(1);
+    out.setname(0,"time");
+    //out.setname(1,"v");
+    int rownum=0;
+    getline(file);
+    while (!file.eof())
+    {
+        vector<double> s1 = ATOF(getline(file,' '));
+        if (s1.size()==2)
+            set_progress_value("time= " + numbertostring(s1[1]));
+        if (s1.size()>=5)
+        {
+            if (s1[1]<x_max && s1[1]>=x_min)
+            {      out.BTC[0].append(s1[4],s1[4]);
+                   //out.BTC[1].append(s1[1],s1[1]);
+            }
+        }
+        rownum++;
+    }
+    return out;
+}
+
+
 CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max)
 {
 
     show_in_window("Getting Breakthrough curves from trajectories already loaded...");
-    CBTCSet out(2);
+    CBTCSet out(3);
     out.setname(0,"time");
     out.setname(1,"v");
+    out.setname(2,"x");
 
     double mean_x = (x_min+x_max)*0.5;
     for (int i=0; i<pthwayset.paths.size(); i++)
@@ -1543,6 +1574,7 @@ CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const d
                         t = pthwayset.paths[i].positions[j].t;
                     out.BTC[0].append(t,t);
                     out.BTC[1].append(t,pthwayset.paths[i].positions[j].v[0]);
+                    out.BTC[2].append(t,pthwayset.paths[i].positions[j].x);
                 }
         }
 
@@ -2358,7 +2390,56 @@ void CGrid::runcommands_qt()
                     }
                 }
 
+                if (commands[i].parameters.count("filename")==0)
+                if (commands[i].parameters.count("v_filename")>0)
+                {
+                    show_in_window("writing v_dist ...");
+                    btc.BTC[1].distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["v_filename"]);
+                }
 
+                if (commands[i].parameters.count("stat_filename"))
+                {
+                    show_in_window("writing correlation");
+                    CVector stats(1);
+                    stats[0] = R(btc.BTC[1],1.0/btc.BTC[0],0);
+                    stats.writetofile(pathout+commands[i].parameters["stat_filename"]);
+                }
+
+            }
+
+             if (commands[i].command == "get_btc_mf")
+            {
+
+                show_in_window("getting btc (mf) at " + commands[i].parameters["x_min"] + "-" + commands[i].parameters["x_max"]);
+                CBTCSet btc;
+                if (commands[i].parameters.count("filename")==1)
+                    btc = get_BTC_mf(commands[i].parameters["filename"],atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+                else
+                    btc = get_BTC_frac(Traj,atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+
+                if (commands[i].parameters.count("raw_data_filename")>0)
+                {
+                    show_in_window("writing raw data...");
+                    btc.writetofile(pathout + commands[i].parameters["raw_data_filename"]);
+                }
+
+                if (commands[i].parameters.count("btc_filename")>0)
+                {
+                    show_in_window("writing btc ...");
+                    if (commands[i].parameters["log"]=="1")
+                        btc.BTC[0].distribution_log(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+                    else
+                        btc.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+
+                    if (commands[i].parameters.count("cdf_filename")>0)
+                    {
+                        show_in_window("writing btc ...");
+                        if (commands[i].parameters["log"]=="1")
+                            btc.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),true).writefile(pathout + commands[i].parameters["cdf_filename"]);
+                        else
+                            btc.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),false).writefile(pathout + commands[i].parameters["cdf_filename"]);
+                    }
+                }
 
                 if (commands[i].parameters.count("filename")==0)
                 if (commands[i].parameters.count("v_filename")>0)
@@ -4354,6 +4435,15 @@ void CGrid::set_progress_value(double s)
 	QApplication::processEvents();
 #endif // QT_version
     cout << "\r Progress: " << s*100 << "%                                     ";
+}
+
+void CGrid::set_progress_value(string s)
+{
+#ifdef QT_version
+	main_window->get_ui()->progressBar->setValue(s*100);
+	QApplication::processEvents();
+#endif // QT_version
+    cout << "\r" << s << "                                     ";
 }
 
 void CGrid::clear_contents()
