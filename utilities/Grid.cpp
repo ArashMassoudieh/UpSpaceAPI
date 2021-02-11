@@ -2288,7 +2288,7 @@ void CGrid::runcommands_qt()
                 if (commands[i].parameters.count("interval")>0)
                     Traj.write(pathout+commands[i].parameters["filename"]);
                 else
-                    Traj.write(pathout+commands[i].parameters["filename"]);
+                    Traj.write(pathout+commands[i].parameters["filename"],atoi(commands[i].parameters["interval"].c_str()));
             }
 
             if (commands[i].command == "get_velocity_dist")
