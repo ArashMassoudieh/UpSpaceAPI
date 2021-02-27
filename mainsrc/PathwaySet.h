@@ -17,7 +17,7 @@ public:
     bool getfromShermanfile(const string &filename);
     bool getfromShermanfile_v(const string &filename);
     vector<CPathway> paths;
-    void write(string filename);
+    void write(string filename, int interval=1);
     void append(const CPathway& P, double weight=1);
     int max_num_points();
     int n() {return paths.size();}

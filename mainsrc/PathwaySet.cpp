@@ -26,18 +26,18 @@ CPathwaySet::~CPathwaySet()
 {
 }
 
-void CPathwaySet::write(string filename)
+void CPathwaySet::write(string filename, int interval)
 {
 	ofstream file;
 	file.open(filename.c_str());
-	for (int j = 0; j < paths.size(); j++)
+	for (int j = 0; j < paths.size(); j+=interval)
 	{
 		file << "t_" << numbertostring(j) << ",x_" << numbertostring(j) << ",y_" << numbertostring(j) << ",u_" << numbertostring(j) << ",v_" << numbertostring(j) << ",u_" << numbertostring(j) << ",z_" << numbertostring(j) << ",";
 	}
 	file << endl;
 	for (int i = 0; i < max_num_points(); i++)
 	{
-		for (int j = 0; j < paths.size(); j++)
+		for (int j = 0; j < paths.size(); j+=interval)
 		{
 			if (i < paths[j].positions.size())
 				file << paths[j].positions[i].t << "," << paths[j].positions[i].x << "," << paths[j].positions[i].y << "," << paths[j].positions[i].v[0] << "," << paths[j].positions[i].v[1] << "," << paths[j].positions[i].u << "," << paths[j].positions[i].z << ",";
