@@ -924,8 +924,20 @@ CVector CGrid::v_correlation_single_point_diffusion(const CPosition &pp, double 
         else
             u = unitrandom()*2*3.141521;
 
-        double zx = dt0*cos(u);
-        double zy = dt0*sin(u);
+        double zx;
+        double zy;
+        if (direction=="g")
+        {
+            zx = dt0*gsl_cdf_gaussian_Pinv(unitrandom(),1);
+            zy = dt0*gsl_cdf_gaussian_Pinv(unitrandom(),1);
+
+        }
+        else
+        {
+            zx = dt0*cos(u)*gsl_cdf_gaussian_Pinv(unitrandom(),1);
+            zy = dt0*sin(u)*gsl_cdf_gaussian_Pinv(unitrandom(),1);
+        }
+
         p_new.x += zx;
         p_new.y += zy;
     }
@@ -3873,7 +3885,7 @@ void CGrid::create_inv_K_Copula_diffusion(double dt, double Diffusion_coefficien
             M.matr(j + GP.ny*i,j + GP.ny*min(i+1,GP.nx)) -= time_weight*Diffusion_coefficient/pow(GP.dx,2);
 
             for (int k = 0; k < GP.ny; k++)
-                M.matr(j + GP.ny*i,k + GP.ny*i) += -time_weight*(copula_params.K_disp[j][k] / copula_params.epsilon+copula_params.K_diff[j][k] / copula_params.tau)*GP.dy;
+                M.matr(j + GP.ny*i,k + GP.ny*i) += -time_weight*(copula_params.K_disp[j][k] / copula_params.epsilon+2*Diffusion_coefficient*copula_params.K_diff[j][k] / pow(copula_params.tau,2))*GP.dy;
 
         }
     }
@@ -4387,7 +4399,7 @@ void CGrid::solve_transport_Copula_diffusion(double t_end, double Diffusion_coef
                         set_progress_value(t / t_end);
                 tbrowse->append("t = " + QString::number(t));
                 #else
-                set_progress_value(t);
+                set_progress_value(t/t_end);
                 #endif // QT_version
             }
             for (int i = 0; i < GP.nx; i++)

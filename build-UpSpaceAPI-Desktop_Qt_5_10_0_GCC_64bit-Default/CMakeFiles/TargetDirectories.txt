@@ -1,3 +1,0 @@
-/home/arash/Projects/UpSpaceAPI/build-UpSpaceAPI-Desktop_Qt_5_10_0_GCC_64bit-Default/CMakeFiles/rebuild_cache.dir
-/home/arash/Projects/UpSpaceAPI/build-UpSpaceAPI-Desktop_Qt_5_10_0_GCC_64bit-Default/CMakeFiles/UpSpaceAPI.dir
-/home/arash/Projects/UpSpaceAPI/build-UpSpaceAPI-Desktop_Qt_5_10_0_GCC_64bit-Default/CMakeFiles/edit_cache.dir
