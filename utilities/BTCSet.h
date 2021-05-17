@@ -82,7 +82,7 @@ public:
 	void pushBackName(string name);
 	void append(CBTC &BTC, string name = "");
 	void append(const CBTC &BTC, string name = "");
-	CTimeSeriesSet sort(int burnOut = 0);
+	CTimeSeriesSet sort(int burnOut = 0, bool reverse_cumulative=false);
 	CTimeSeriesSet detivative();
 	~CTimeSeriesSet(void);
 	TDMap get2DMap(int number_of_bins_x, int number_of_bins_y, double low_lim_x, double up_lim_x, double low_lim_y, double up_lim_y);

@@ -1563,7 +1563,7 @@ CBTCSet CGrid::get_BTC_mf(const string &filename, const double &x_min, const dou
 }
 
 
-CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max)
+CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max, bool consider_reaction)
 {
 
     show_in_window("Getting Breakthrough curves from trajectories already loaded...");
@@ -1577,17 +1577,17 @@ CBTCSet CGrid::get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const d
     {
         for (int j=0; j<pthwayset.paths[i].size(); j++)
         {
-            if (pthwayset.paths[i].positions[j].x<x_max && pthwayset.paths[i].positions[j].x>=x_min)
-                {
-                    double t;
-                    if (pthwayset.paths[i].positions[j].v[0]!=0)
-                        t = pthwayset.paths[i].positions[j].t - (pthwayset.paths[i].positions[j].x - mean_x)/pthwayset.paths[i].positions[j].v[0];
-                    else
-                        t = pthwayset.paths[i].positions[j].t;
-                    out.BTC[0].append(t,t);
-                    out.BTC[1].append(t,pthwayset.paths[i].positions[j].v[0]);
-                    out.BTC[2].append(t,pthwayset.paths[i].positions[j].x);
-                }
+            if (pthwayset.paths[i].positions[j].x<x_max && pthwayset.paths[i].positions[j].x>=x_min && (!consider_reaction || !pthwayset.paths[i].positions[j].reacted))
+            {
+                double t;
+                if (pthwayset.paths[i].positions[j].v[0]!=0)
+                    t = pthwayset.paths[i].positions[j].t - (pthwayset.paths[i].positions[j].x - mean_x)/pthwayset.paths[i].positions[j].v[0];
+                else
+                    t = pthwayset.paths[i].positions[j].t;
+                out.BTC[0].append(t,t);
+                out.BTC[1].append(t,pthwayset.paths[i].positions[j].v[0]);
+                out.BTC[2].append(t,pthwayset.paths[i].positions[j].x);
+            }
         }
 
     }
@@ -2373,11 +2373,31 @@ void CGrid::runcommands_qt()
 
                 show_in_window("getting btc at " + commands[i].parameters["x_min"] + "-" + commands[i].parameters["x_max"]);
                 CBTCSet btc;
+                CBTCSet btc_react;
+                bool consider_reactions=false;
+                if (commands[i].parameters.count("consider_reactions")>0)
+                {
+                    if (tolower(commands[i].parameters["consider_reactions"])=="true")
+                        consider_reactions = true;
+                    else
+                        consider_reactions = false;
+                }
                 if (commands[i].parameters.count("filename")==1)
                     btc = get_BTC_frac(commands[i].parameters["filename"],atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
                 else
+                {
                     btc = get_BTC_frac(Traj,atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()));
+                    if (consider_reactions)
+                        btc_react = get_BTC_frac(Traj,atof(commands[i].parameters["x_min"].c_str()),atof(commands[i].parameters["x_max"].c_str()),consider_reactions);
+                    else
+                        btc_react = btc;
 
+                }
+                double coefficient=1;
+                if (consider_reactions)
+                {
+                    coefficient = double(btc_react.BTC[0].n)/double(btc.BTC[0].n);
+                }
                 if (commands[i].parameters.count("raw_data_filename")>0)
                 {
                     show_in_window("writing raw data...");
@@ -2388,17 +2408,17 @@ void CGrid::runcommands_qt()
                 {
                     show_in_window("writing btc ...");
                     if (commands[i].parameters["log"]=="1")
-                        btc.BTC[0].distribution_log(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+                        (btc_react.BTC[0].distribution_log(atoi(commands[i].parameters["nbins"].c_str()))*coefficient).writefile(pathout + commands[i].parameters["btc_filename"]);
                     else
-                        btc.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str())).writefile(pathout + commands[i].parameters["btc_filename"]);
+                        (btc_react.BTC[0].distribution(atoi(commands[i].parameters["nbins"].c_str()))*coefficient).writefile(pathout + commands[i].parameters["btc_filename"]);
 
                     if (commands[i].parameters.count("cdf_filename")>0)
                     {
                         show_in_window("writing btc ...");
                         if (commands[i].parameters["log"]=="1")
-                            btc.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),true).writefile(pathout + commands[i].parameters["cdf_filename"]);
+                            (btc_react.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),true)*coefficient).writefile(pathout + commands[i].parameters["cdf_filename"]);
                         else
-                            btc.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),false).writefile(pathout + commands[i].parameters["cdf_filename"]);
+                            (btc_react.BTC[0].getcummulative_direct(atoi(commands[i].parameters["nbins"].c_str()),false)*coefficient).writefile(pathout + commands[i].parameters["cdf_filename"]);
                     }
                 }
 
@@ -3072,7 +3092,19 @@ void CGrid::runcommands_qt()
             if (commands[i].command == "readtrajsfromfracfile")
             {
                 show_in_window("Reading trajectories from file '" + commands[i].parameters["filename"] + "'");
-                if (!Traj.getfromShermanfile(commands[i].parameters["filename"]))
+                int column_number = 0;
+                string reactionfile = "";
+                if (commands[i].parameters.count("reaction_state_file")>0)
+                {
+                    reactionfile = commands[i].parameters["reaction_state_file"];
+                }
+
+                if (commands[i].parameters.count("column")>0)
+                {
+                    column_number = atoi(commands[i].parameters["column"].c_str());
+                }
+
+                if (!Traj.getfromShermanfile(commands[i].parameters["filename"],reactionfile, column_number))
                 {
                     show_in_window("Reading trajectories failed");
                 }

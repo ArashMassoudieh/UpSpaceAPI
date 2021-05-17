@@ -625,6 +625,11 @@ vtkSmartPointer<vtkPolyData> CGrid::traj_vtk_pdt_vtp_3d(int trajno, bool _color)
 	vz->SetNumberOfComponents(1);
 	vz->SetName("vz");
 
+	vtkSmartPointer<vtkFloatArray> react_state =
+		vtkSmartPointer<vtkFloatArray>::New();
+
+    react_state->SetNumberOfComponents(1);
+	react_state->SetName("reacted");
 
 	vtkSmartPointer<vtkFloatArray> tm =
 		vtkSmartPointer<vtkFloatArray>::New();
@@ -638,13 +643,14 @@ vtkSmartPointer<vtkPolyData> CGrid::traj_vtk_pdt_vtp_3d(int trajno, bool _color)
         double t[1] = { float(Traj.paths[trajno].positions[i].v[0]) };
         double _vy[1] = { float(Traj.paths[trajno].positions[i].v[1]) };
         double _vz[1] = { float(Traj.paths[trajno].positions[i].v[2]) };
-
+        double reacted[1] {float(Traj.paths[trajno].positions[i].reacted)};
         double _at[1] = { float(Traj.paths[trajno].positions[i].t) };
         double p[3] = { Traj.paths[trajno].positions[i].x, Traj.paths[trajno].positions[i].y, Traj.paths[trajno].positions[i].z };
         points->InsertNextPoint(p);
         values->InsertNextTuple(t);
         vy->InsertNextTuple(_vy);
         vz->InsertNextTuple(_vz);
+        react_state->InsertNextTuple(reacted);
         tm->InsertNextTuple(_at);
 	}
 	vtkSmartPointer<vtkPolyLine> polyLine =
@@ -712,6 +718,7 @@ vtkSmartPointer<vtkPolyData> CGrid::traj_vtk_pdt_vtp_3d(int trajno, bool _color)
 	polyData->GetPointData()->SetScalars(values);
 	polyData->GetPointData()->AddArray(vy);
 	polyData->GetPointData()->AddArray(vz);
+	polyData->GetPointData()->AddArray(react_state);
 	polyData->GetPointData()->AddArray(tm);
 	// Visualization
 

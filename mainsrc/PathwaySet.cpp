@@ -377,11 +377,25 @@ bool CPathwaySet::getfromMODflowfile(const string &filename)
 }
 
 
-bool CPathwaySet::getfromShermanfile(const string &filename)
+bool CPathwaySet::getfromShermanfile(const string &filename, const string &reactionfile, int columnnumber)
 {
-    ifstream file;
+    ifstream file, filereaction;
     file.open (filename, std::fstream::in);
-    if (!file.good()) return false;
+    if (!file.good())
+    {
+        show_in_window("The program was not able to open " + filename);
+        return false;
+    }
+    if (reactionfile!="")
+    {
+        filereaction.open(reactionfile, std::fstream::in);
+        if (!filereaction.good())
+        {
+            show_in_window("The program was not able to open " + reactionfile);
+            return false;
+        }
+    }
+
     int rownum = 0;
     double age=0;
     int maxparticlecount=0;
@@ -400,6 +414,9 @@ bool CPathwaySet::getfromShermanfile(const string &filename)
     while (!file.eof())
     {
         vector<double> s1 = ATOF(getline(file,' '));
+        vector<int> s_react;
+        if (reactionfile!="")
+            s_react = ATOI(getline(filereaction, ' '));
         if (s1.size()>5)
         {
             set_progress_value(s1[1]);
@@ -410,7 +427,10 @@ bool CPathwaySet::getfromShermanfile(const string &filename)
             P.z = s1[4];
             P.v = CVector(3);
             P.t = s1[1];
-
+            if (reactionfile!="")
+            {
+                P.reacted = s_react[columnnumber];
+            }
             if (int(s1[0])>0 && int(s1[0])<=maxparticlecount)
                 paths[(int)s1[0]-1].append(P);
             //cout <<"Done!"<<endl;

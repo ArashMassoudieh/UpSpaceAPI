@@ -136,7 +136,7 @@ void CTimeSeriesSet::writetofile(string outputfile, bool writeColumnNameHeaders)
 		for (int i=0; i<nvars; i++)
 		{
 			if (j<BTC[i].n)
-				fprintf(Fil, "%lf, %le,", BTC[i].t[j], BTC[i].C[j]);
+				fprintf(Fil, "%le, %le,", BTC[i].t[j], BTC[i].C[j]);
 			else
 				fprintf(Fil, ", ,");
 
@@ -189,19 +189,35 @@ void CTimeSeriesSet::writetofile(string outputfile, int outputwriteinterval, boo
 	fprintf(Fil, "\n");
 	for (int j=0; j<maxnumpoints(); j++)
 	{
-		if (onlyonetimecolumn)
-            fprintf(Fil, "%lf, ", BTC[0].t[j]);
+		int column_to_be_written = 0;
+		bool time_written=false;
 		for (int i=0; i<nvars; i++)
+		{
+			if (onlyonetimecolumn)
+            {
+                if (j<BTC[i].n & !time_written)
+                {
+                    fprintf(Fil, "%lf, ", BTC[column_to_be_written].t[j]);
+                    time_written=true;
+                }
+            }
+            column_to_be_written++;
+		}
+        for (int i=0; i<nvars; i++)
 		{
 			if (j%outputwriteinterval==0)
 			{	if (j<BTC[i].n)
+				{
 					if (onlyonetimecolumn)
                         fprintf(Fil, "%lf, ", BTC[i].C[j]);
 					else
                         fprintf(Fil, "%lf, %le,", BTC[i].t[j], BTC[i].C[j]);
+				}
 				else
 					if (!onlyonetimecolumn)
                         fprintf(Fil, ", ,");
+                    else
+                        fprintf(Fil, ", ");
             }
 
 		}
@@ -400,7 +416,7 @@ void CTimeSeriesSet::getfromfile(string filename, bool varytime)
 	if (varytime==false)
 		while (file.eof()== false)
 		{
-			s = getline(file);
+			s = getline(file,',');
 			if (s.size()>0)
 			{
                             if (s[0] == "names")
@@ -427,7 +443,7 @@ void CTimeSeriesSet::getfromfile(string filename, bool varytime)
 	else
 		while (file.eof()== false)
 		{
-			s = getline(file,'\t');
+			s = getline(file,',');
 			if (s.size() > 0)
 			{
 				if (s[0] == "names")
@@ -618,7 +634,7 @@ vector<double> CTimeSeriesSet::percentile(double x, int limit, vector<int> index
 	return v;
 }
 
-CTimeSeriesSet CTimeSeriesSet::sort(int burnOut)
+CTimeSeriesSet CTimeSeriesSet::sort(int burnOut, bool reverse_cumulative)
 {
 	CTimeSeriesSet r(nvars);
 	if (burnOut < 0)
@@ -643,8 +659,8 @@ CTimeSeriesSet CTimeSeriesSet::sort(int burnOut)
 		for (int j = 0; j < int(tempVec.size()); j++)
 			tempVec[j] = BTC[i].C[j + burnOut];
 
-		temp[i] = bubbleSort(tempVec);
-//		r.BTC[i].C = QSort(temp);
+		temp[i] = QSort(tempVec);
+		//r.BTC[i].C = QSort(temp);
 		clock_t t1 = clock() - t0;
 		float run_time = ((float)t1) / CLOCKS_PER_SEC;
 
@@ -654,6 +670,14 @@ CTimeSeriesSet CTimeSeriesSet::sort(int burnOut)
 		r.BTC[i].C.resize(BTC[i].n - burnOut);
 		r.BTC[i].C = temp[i];
 		r.BTC[i].n = temp[i].size();
+		r.BTC[i].t.resize(r.BTC[i].n);
+		for (int j=0; j<r.BTC[i].n; j++)
+        {
+            if (!reverse_cumulative)
+                r.BTC[i].t[j] = double(j+1)/double(r.BTC[i].n);
+            else
+                r.BTC[i].t[j] = 1-double(j)/double(r.BTC[i].n);
+        }
 	}
 	clock_t tt1 = clock() - tt0;
 	float run_time = ((float)tt1) / CLOCKS_PER_SEC;
@@ -661,6 +685,9 @@ CTimeSeriesSet CTimeSeriesSet::sort(int burnOut)
 
 	return r;
 }
+
+
+
 CTimeSeriesSet CTimeSeriesSet::detivative()
 {
 	CTimeSeriesSet out(nvars);

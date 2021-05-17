@@ -165,7 +165,7 @@ CTimeSeries::CTimeSeries(string Filename)
 	if (file.good())
 	while (file.eof()== false)
 	{
-		s = getline(file);
+		s = getline(file,',');
 		if (s.size() == 1)
 		{
 			error = true;
@@ -173,7 +173,7 @@ CTimeSeries::CTimeSeries(string Filename)
 //			return;
 		}
 		if (s.size()>=2)
-		if ((s[0].substr(0,2)!="//") && (tolower(s[0])!="names") && s[0].substr(0,1)!="n")
+		if ((s[0].substr(0,2)!="//") && (tolower(s[0])!="names") && s[0].substr(0,1)!="n" && s[0].substr(0,1)!="t")
 		{
 			t.push_back(atof(s[0].c_str()));
 			C.push_back(atof(s[1].c_str()));
@@ -473,6 +473,21 @@ double R2(CTimeSeries BTC_p, CTimeSeries BTC_d)
     }
 
     return pow(sumcov-sum1*sum2,2)/(sumvar1-sum1*sum1)/(sumvar2-sum2*sum2);
+}
+
+double NSE(CTimeSeries modeled, CTimeSeries observed)
+{
+    double sumnum = 0;
+    double sumdenom = 0;
+    double mean_observed = observed.mean();
+    for (int i=0; i<observed.n; i++)
+    {
+        double x2 = modeled.interpol(observed.t[i]);
+        sumnum += pow(x2-observed.C[i],2);
+        sumdenom += pow(mean_observed-observed.C[i],2);
+    }
+
+    return 1-sumnum/sumdenom;
 }
 
 double R(CTimeSeries BTC_p, CTimeSeries BTC_d, int nlimit)

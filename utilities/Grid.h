@@ -204,7 +204,7 @@ public:
 	CBTC get_v_dist_frac(const string &filename);
 	CBTCSet get_BTC_frac(const string &filename, const double &x_min, const double &x_max);
 	CBTCSet get_BTC_mf(const string &filename, const double &x_min, const double &x_max);
-	CBTCSet get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max);
+	CBTCSet get_BTC_frac(CPathwaySet &pthwayset, const double &x_min, const double &x_max,bool consider_reaction=false);
 	CBTC get_kg_btc(int k);
 	void remap_K(int k);
 	CBTC get_v_btc(double x,int k=0);

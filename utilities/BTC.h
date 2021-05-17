@@ -131,6 +131,7 @@ double diff_mixed(CTimeSeries &BTC_p, CTimeSeries &BTC_d, double lowlim, double 
 double ADD(CTimeSeries &BTC_p, CTimeSeries &BTC_d);
 double diff_relative(CTimeSeries &BTC_p, CTimeSeries &BTC_d, double m);
 double R2(CTimeSeries BTC_p, CTimeSeries BTC_d);
+double NSE(CTimeSeries BTC_p, CTimeSeries BTC_d);
 double R(CTimeSeries BTC_p, CTimeSeries BTC_d, int nlimit);
 CTimeSeries operator*(double, CTimeSeries);
 CTimeSeries operator*(CTimeSeries, double);

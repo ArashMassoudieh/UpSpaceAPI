@@ -19,6 +19,7 @@ public:
     double weight;
     CVector v; // velocity vector
     double getvar(string var, bool inverse=false);
+    bool reacted=false;
 };
 
 CPosition operator+(const CPosition, const CPosition);
