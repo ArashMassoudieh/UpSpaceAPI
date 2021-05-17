@@ -16,6 +16,11 @@
 
 #include <sys/resource.h>
 
+#ifdef PowerEdge820
+#define DEFAULT_FILE_PATH "/mnt/E/Projects/Upscaling/"
+#endif // Arash
+
+
 #ifdef Arash
 #define DEFAULT_FILE_PATH "/home/arash/Projects/UpscalingInputfiles/"
 #endif // Arash
@@ -3638,12 +3643,16 @@ void CGrid::solve_transport(double t_end, vector<double> decay_coeff, vector<dou
 	{
         C[species_counter] = CMatrix(GP.nx + 1, GP.ny + 1);// = leftboundary_C;
     }
+    for (int i = 0; i < GP.nx; i++)
+        for (int j = 0; j < GP.ny; j++)
+            p[i][j].C.resize(int(t_end/dt), numberofspecies);
 	CMatrix_arma_sp K = KD + Kt + Kv;
 	//Kt.writetofile(pathout + "Kt_matrix.txt");
 	//KD.writetofile(pathout + "KD_matrix.txt");
 	//Kv.writetofile(pathout + "Kv_matrix.txt");
 	//K.writetofile(pathout + "transport_matrix.txt");
 	set_progress_value(0);
+        int counter=0;
         for (double t = 0; t < t_end; t += dt)
         {
             for (int species_counter=0; species_counter<numberofspecies; species_counter++)
@@ -3659,9 +3668,9 @@ void CGrid::solve_transport(double t_end, vector<double> decay_coeff, vector<dou
                 {
                     vector<double> cc;
                     for (int species_counter = 0; species_counter<numberofspecies; species_counter++)
-                        p[i][j].C.setvalue(i,j,C[species_counter][i+1][j]);
+                        p[i][j].C.setvalue(counter,species_counter,C[species_counter][i+1][j]);
                 }
-
+            counter++;
             set_progress_value(t / t_end);
 
         }
