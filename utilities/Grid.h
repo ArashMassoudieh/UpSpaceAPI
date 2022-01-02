@@ -171,7 +171,7 @@ public:
 	CPathway gettrajectory(CPosition pp, double dt, double t_end);
 	CPathway gettrajectory_vdt(CPosition pp, double dt, double t_end, double tol, double diffusion=0);
 	CPathway gettrajectory_fix_dx(CPosition pp, double dt, double t_end);
-	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double D, double tol, double weight = 0.5);
+	CPathway gettrajectory_fix_dx_2nd_order(CPosition pp, double dx, double x_end, double D, double tol=1e-6, double weight = 0.5);
 	CVector v_correlation_single_point(const CPosition &pp, double dx0, double x_inc, bool magnitude=false);
 	CVector v_correlation_single_point_dt(const CPosition &pp, double dt0, double t_inc);
 	CVector v_correlation_single_point_diffusion(const CPosition &pp, double dt0, double diffusion_coefficient, double increment=0, bool fixed_increment=false, const string &direction = "");

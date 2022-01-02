@@ -12,12 +12,17 @@
 #include "gsl/gsl_randist.h"
 #include <math.h>
 #include "MapAsTimeSeriesSet.h"
+#include "omp.h"
 
 
 #include <sys/resource.h>
 
 #ifdef PowerEdge820
 #define DEFAULT_FILE_PATH "/mnt/E/Projects/Upscaling/"
+#endif // Arash
+
+#ifdef PowerEdge720
+#define DEFAULT_FILE_PATH "/mnt/3rd900/Projects/UpscalingFiles/"
 #endif // Arash
 
 
@@ -464,6 +469,16 @@ CGrid::CGrid(string filename)
 
 void CGrid::creategrid(int _nx, int _ny, double _dx, double _dy)
 {
+	omp_set_num_threads(12);
+	cout<< "max_threads = " << omp_get_max_threads() <<endl;
+	cout<< "num_threads = " << omp_get_num_threads() <<endl;
+
+	#pragma omp parallel
+      {
+        #pragma omp single
+        printf("num_threads = %d\n", omp_get_num_threads());
+      }
+
 	GP.nx = _nx;
 	GP.ny = _ny;
 	GP.dx = _dx;
@@ -977,8 +992,10 @@ CPathway CGrid::gettrajectory_fix_dx_2nd_order(CPosition pp, double dx0, double 
     double t = 0;
 
     bool ex = false;
+    int counter = 0;
     while ( backward*x0<=backward*pt.x && backward*pt.x<=backward*x_end && ex==false)
     {
+        counter ++;
         CVector V = getvelocity(pt);
         if (V.getsize() == 0)
             {
@@ -1117,7 +1134,9 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double tol,
 {
     //qDebug() << "Simulating trajectories"<<endl;
 
-    CPathwaySet X;
+    CPathwaySet X(pts.size());
+    unsigned int counter = 0;
+    #pragma omp parallel for
     for (int i = 0; i < int(pts.size()); i++)
     {
 //	qDebug() << i << endl;
@@ -1126,15 +1145,20 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double tol,
         //cout << "\r" << "Trajectory #"<<  i << " Weight: " << X1.weight<< std::flush;
         if (weighted)
             {   X.weighted = true;
-                X.append(X1);
+                X.paths[i] = X1;
             }
             else
             {   X.weighted = false;
-                X.append(X1);
+                X.paths[i] = X1;
             }
-        set_progress_value(double(i) / double(pts.size()));
+        #pragma omp critical
+        {
+            counter++;
+            set_progress_value(double(counter) / double(pts.size()));
+        }
     }
     pts.clear();
+
     for (int i=0; i<X.paths.size(); i++)
         pts.push_back(X.paths[i].positions[X.paths[i].positions.size()-1]);
     cout<<endl;

@@ -8,6 +8,12 @@ CPathwaySet::CPathwaySet()
 {
 }
 
+CPathwaySet::CPathwaySet(unsigned int n)
+{
+    paths.resize(n);
+}
+
+
 CPathwaySet::CPathwaySet(const CPathwaySet & P)
 {
 	paths = P.paths;
