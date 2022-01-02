@@ -1532,6 +1532,9 @@ CTimeSeries CTimeSeries::getcummulative_direct(int number_of_bins, bool _log)
         log_max_c = maxC();
         log_min_c = minC();
 	}
+	double dx = (log_max_c-log_min_c)/(number_of_bins);
+	log_max_c += dx/2;
+	log_min_c -= dx/2;
 	for (int j=0; j<number_of_bins+1; j++)
     {
         if (_log)
@@ -1556,7 +1559,7 @@ CTimeSeries CTimeSeries::getcummulative_direct(int number_of_bins, bool _log)
                 j=-1;
         }
 
-	X.structured = true;
+	X.structured = !_log;
 	//cout<<"inside getcum direct: "<<X.C[number_of_bins]<<","<<X.C[0]<<endl;
 	return X/X.C[number_of_bins];
 }

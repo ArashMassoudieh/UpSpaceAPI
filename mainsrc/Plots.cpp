@@ -1042,10 +1042,17 @@ void CGrid::write_K_solution_to_vtp(string filename, double z_factor, bool _log)
 	vtkSmartPointer<vtkFloatArray> v =
 		vtkSmartPointer<vtkFloatArray>::New();
 
+    vtkSmartPointer<vtkFloatArray> u =
+		vtkSmartPointer<vtkFloatArray>::New();
+
+    vtkSmartPointer<vtkFloatArray> omega =
+		vtkSmartPointer<vtkFloatArray>::New();
+
 	values->SetNumberOfComponents(1);
 	_H->SetNumberOfComponents(1);
 	v->SetNumberOfComponents(2);
-
+    u->SetNumberOfComponents(1);
+    omega->SetNumberOfComponents(1);
 	if (_log)
 		values->SetName("Hydraulic Conductivity");
 	else
@@ -1053,7 +1060,8 @@ void CGrid::write_K_solution_to_vtp(string filename, double z_factor, bool _log)
 
 	_H->SetName("Hydraulic Head");
 	v->SetName("Velocity");
-
+    u->SetName("Rank");
+    omega->SetName("Omega");
 	for (unsigned int x = 0; x < GP.nx; x++)
 	{
 		for (unsigned int y = 0; y < GP.ny; y++)
@@ -1066,10 +1074,14 @@ void CGrid::write_K_solution_to_vtp(string filename, double z_factor, bool _log)
 				float t[1] = { float(zz) };
 				float vv[2] = { p[x][y].V[0], p[x][y].V[1] };
 				float HH[1] = { H[x][y] };
+				float uu[1] = { p[x][y].u};
+				float oo[1] = { p[x][y].omega};
 				points_3->InsertNextPoint(xx, yy, zz / maxk*z_factor);
 				values->InsertNextTupleValue(t);
 				v->InsertNextTupleValue(vv);
 				_H->InsertNextTupleValue(HH);
+				u->InsertNextTupleValue(uu);
+				omega->InsertNextTupleValue(oo);
 
 			}
 			else
@@ -1077,11 +1089,14 @@ void CGrid::write_K_solution_to_vtp(string filename, double z_factor, bool _log)
 				float t[1] = { float(zz) };
 				float vv[2] = { p[x][y].V[0], p[x][y].V[1] };
 				float HH[1] = { H[x][y] };
+				float uu[1] = { p[x][y].u};
+				float oo[1] = { p[x][y].omega};
 				points_3->InsertNextPoint(xx, yy, log(*t / maxk)*z_factor);
 				values->InsertNextTupleValue(t);
 				v->InsertNextTupleValue(vv);
 				_H->InsertNextTupleValue(HH);
-
+                u->InsertNextTupleValue(uu);
+				omega->InsertNextTupleValue(oo);
 			}
 		}
 	}
@@ -1154,6 +1169,8 @@ void CGrid::write_K_solution_to_vtp(string filename, double z_factor, bool _log)
 	outputPolyData->GetPointData()->SetScalars(values);
 	outputPolyData->GetPointData()->AddArray(_H);
 	outputPolyData->GetPointData()->AddArray(v);
+	outputPolyData->GetPointData()->AddArray(u);
+	outputPolyData->GetPointData()->AddArray(omega);
 
 	//Append the two meshes
 	vtkSmartPointer<vtkAppendPolyData> appendFilter =

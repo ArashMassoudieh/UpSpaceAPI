@@ -43,6 +43,8 @@ struct prop
 	double Vbx;
 	double Vfy;
 	double Vby;
+	double u = 0;
+	double omega = 0;
 	bool k_det = false;
 	Concentrations C;
 };
@@ -154,9 +156,11 @@ public:
 	void assign_K_gauss(int i, int j);
 	void assign_K_gauss();
 	vector<vector<prop> > p;
+	double getproperty(const string &property,int i, int j);
 	bool getfromfile(string filename, int _nx, int _ny);
 	bool getKfromfile(string filename, int _nx, int _ny, int _nx_act, int _ny_act);
 	bool createuniform(double K, int _nx, int _ny);
+	CTimeSeries GetResiduals(const string &property);
 	CGrid(string filename);
 	void creategrid(int nx, int ny, double dx, double dy);
 	vector<CBTCSet> trajectories;
@@ -292,6 +296,7 @@ public:
     OneDGrid onedgrid;
     ThreeDGrid threedgrid;
     int numberofspecies = 1;
+    void Assign_Ranks();
 #ifdef Qt_version
 
 
