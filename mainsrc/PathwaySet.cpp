@@ -21,6 +21,11 @@ CPathwaySet::CPathwaySet(const CPathwaySet & P)
 
 }
 
+CPathwaySet::CPathwaySet(int number_of_paths)
+{
+    paths.resize(number_of_paths);
+}
+
 CPathwaySet &CPathwaySet::operator=(const CPathwaySet & P)
 {
 	paths = P.paths;

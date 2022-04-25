@@ -14,7 +14,6 @@
 #include "MapAsTimeSeriesSet.h"
 #include "omp.h"
 
-
 #include <sys/resource.h>
 
 #ifdef PowerEdge820
@@ -1139,10 +1138,7 @@ CPathwaySet CGrid::gettrajectories_fixed_dx(double dx, double x_end, double tol,
     #pragma omp parallel for
     for (int i = 0; i < int(pts.size()); i++)
     {
-//	qDebug() << i << endl;
-
         CPathway X1 = gettrajectory_fix_dx_2nd_order(pts[i], dx, x_end, diffusion, tol);
-        //cout << "\r" << "Trajectory #"<<  i << " Weight: " << X1.weight<< std::flush;
         if (weighted)
             {   X.weighted = true;
                 X.paths[i] = X1;
@@ -1394,20 +1390,20 @@ CMatrix CGrid::solve()
             H[i][j] = S[get_cell_no(i, j)];
 
     for (int i = 0; i < GP.nx; i++)
-	for (int j = 0; j < GP.ny; j++)
-	{
-            double Kx1 = 0.5*(p[i][max(j - 1,0)].K[0] + p[i][j].K[0]);
-            double Kx2 = 0.5*(p[i][j].K[0] + p[i][min(j+1,GP.ny-1)].K[0]);
-            double Ky1 = 0.5*(p[max(i - 1, 0)][j].K[0] + p[i][j].K[0]);
-            double Ky2 = 0.5*(p[i][j].K[0] + p[min(i+1,GP.nx-1)][j].K[0]);
-            p[i][j].V[0] = -(0.5*Kx1 * (H[i + 1][j] - H[i][j]) / GP.dx + 0.5*Kx2 * (H[i + 1][j+1] - H[i][j+1]) / GP.dx);
-            p[i][j].V[1] = -(0.5*Ky1 * (H[i][j+1] - H[i][j]) / GP.dy + 0.5*Ky2 * (H[i + 1][j + 1] - H[i+1][j]) / GP.dy);
-            p[i][j].Vbx = -Kx1*(H[i+1][j] - H[i][j]) / GP.dx;
-            p[i][j].Vtx = -Kx2*(H[i+1][j+1] - H[i][j+1]) / GP.dx;
-            p[i][j].Vby = -Ky1*(H[i][j+1] - H[i][j]) / GP.dy;
-            p[i][j].Vtx = -Ky2*(H[i+1][j+1] - H[i+1][j]) / GP.dy;
-	}
-
+        for (int j = 0; j < GP.ny; j++)
+        {
+                double Kx1 = 0.5*(p[i][max(j - 1,0)].K[0] + p[i][j].K[0]);
+                double Kx2 = 0.5*(p[i][j].K[0] + p[i][min(j+1,GP.ny-1)].K[0]);
+                double Ky1 = 0.5*(p[max(i - 1, 0)][j].K[0] + p[i][j].K[0]);
+                double Ky2 = 0.5*(p[i][j].K[0] + p[min(i+1,GP.nx-1)][j].K[0]);
+                p[i][j].V[0] = -(0.5*Kx1 * (H[i + 1][j] - H[i][j]) / GP.dx + 0.5*Kx2 * (H[i + 1][j+1] - H[i][j+1]) / GP.dx);
+                p[i][j].V[1] = -(0.5*Ky1 * (H[i][j+1] - H[i][j]) / GP.dy + 0.5*Ky2 * (H[i + 1][j + 1] - H[i+1][j]) / GP.dy);
+                p[i][j].Vbx = -Kx1*(H[i+1][j] - H[i][j]) / GP.dx;
+                p[i][j].Vtx = -Kx2*(H[i+1][j+1] - H[i][j+1]) / GP.dx;
+                p[i][j].Vby = -Ky1*(H[i][j+1] - H[i][j]) / GP.dy;
+                p[i][j].Vtx = -Ky2*(H[i+1][j+1] - H[i+1][j]) / GP.dy;
+        }
+    show_in_window("calculating vx values ...");
 	for (int i=0; i<GP.nx; i++)
 		for (int j = 0; j < GP.ny - 1; j++)
 		{
@@ -1415,7 +1411,8 @@ CMatrix CGrid::solve()
 			vx[i][j] = -Kx * (H[i + 1][j + 1] - H[i][j + 1]) / GP.dx;
 		}
 
-        set_progress_value(0.5);
+    set_progress_value(0.5);
+    show_in_window("calculating vy values ...");
 	for (int i = 0; i<GP.nx-1; i++)
 		for (int j = 0; j < GP.ny; j++)
 		{

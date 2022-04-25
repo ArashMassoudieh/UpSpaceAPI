@@ -18,6 +18,8 @@
 #include "ThreeDGrid.h"
 #include "Concentrations.h"
 
+#define CMatrix_arma_sp CMatrix_arma
+
 #define arma
 //#define Qt_version
 

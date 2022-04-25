@@ -10,7 +10,7 @@ class CPathwaySet
 public:
     bool weighted;
     CPathwaySet();
-    CPathwaySet(unsigned int n);
+    CPathwaySet(int number_of_paths);
     CPathwaySet(const CPathwaySet &P);
     CPathwaySet &operator=(const CPathwaySet &P);
     ~CPathwaySet();
